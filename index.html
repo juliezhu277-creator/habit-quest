@@ -313,6 +313,24 @@
   .quiz-progress{display:flex;gap:6px;justify-content:center;margin-top:16px;}
   .quiz-dot{width:8px;height:8px;border-radius:50%;background:#ddd;}
   .quiz-dot.answered{background:var(--primary);}
+
+  /* 记忆序列 Memory Sequence */
+  .seq-grid{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+    height:100%;padding:18px;
+  }
+  .seq-pad{
+    border-radius:16px;cursor:pointer;opacity:0.45;
+    transition:opacity .15s, transform .1s;
+  }
+  .seq-pad.lit{opacity:1;transform:scale(1.04);box-shadow:0 0 18px rgba(255,255,255,0.6);}
+  .seq-pad.p0{background:#ff6b6b;}
+  .seq-pad.p1{background:#4cc9f0;}
+  .seq-pad.p2{background:#ffd166;}
+  .seq-pad.p3{background:#7bd389;}
+  .seq-status{
+    text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin-top:10px;
+  }
 </style>
 </head>
 <body>
@@ -451,6 +469,14 @@ const I18N = {
     quizTitle: "🧮 速算闯关",
     quizSub: "5道速算题，越快越准星越多",
     quizResult: (s, t) => `答对 ${s} / ${t} 题！`,
+    // 记忆序列
+    seqTitle: "🧠 记忆序列挑战",
+    seqSub: "记住亮起的顺序并依次点击，每关多一个",
+    seqWatch: "看仔细…",
+    seqYourTurn: "轮到你了！",
+    seqRound: n => `第 ${n} 关`,
+    seqWrong: "顺序错了！",
+    seqEnd: n => `坚持到第 ${n} 关！`,
   },
   en: {
     appTitle: "Habit Quest",
@@ -492,6 +518,13 @@ const I18N = {
     quizTitle: "🧮 Quick Math",
     quizSub: "5 quick questions — fast & accurate for more stars",
     quizResult: (s, t) => `${s} / ${t} correct!`,
+    seqTitle: "🧠 Memory Sequence",
+    seqSub: "Watch the order the pads light up, then repeat it",
+    seqWatch: "Watch closely…",
+    seqYourTurn: "Your turn!",
+    seqRound: n => `Round ${n}`,
+    seqWrong: "Wrong order!",
+    seqEnd: n => `Reached round ${n}!`,
   }
 };
 
@@ -810,11 +843,18 @@ function openEditGoal(id){
 
 /* ===================== 小游戏奖励关卡 ===================== */
 
+// 每个习惯模块对应一个专属小游戏
+const QUEST_GAME = {
+  focus: renderMathQuiz,        // 专注力 → 速算闯关（需要专注思考）
+  plan: renderMemorySequence,   // 时间管理 → 记忆序列（记住顺序、规划先后）
+  exercise: renderPianoTiles,   // 锻炼 → 节奏方块（快速敲击、活力满满）
+  social: renderReflexTest,     // 社交 → 极速反应（快速回应、临场反应）
+};
+
 function launchMiniGame(quest, onClose){
   const modal = document.getElementById("gameModal");
   const card = document.getElementById("gameCard");
-  const games = [renderPianoTiles, renderReflexTest, renderMathQuiz];
-  const pick = games[Math.floor(Math.random()*games.length)];
+  const pick = QUEST_GAME[quest.id] || renderMathQuiz;
 
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -1088,6 +1128,100 @@ function renderMathQuiz(card, quest, close){
   }
 
   renderQuestion();
+}
+
+function renderMemorySequence(card, quest, close){
+  card._onFinish = close;
+  card.innerHTML = `
+    <button class="game-exit-btn" id="seqExitBtn">✕</button>
+    <div class="game-title">${t("seqTitle")}</div>
+    <div class="game-sub">${t("unlockHint", L(quest.title))}${t("seqSub")}</div>
+    <div class="game-area">
+      <div class="seq-grid" id="seqGrid">
+        <div class="seq-pad p0" data-pad="0"></div>
+        <div class="seq-pad p1" data-pad="1"></div>
+        <div class="seq-pad p2" data-pad="2"></div>
+        <div class="seq-pad p3" data-pad="3"></div>
+      </div>
+    </div>
+    <div class="seq-status" id="seqStatus">${t("seqRound", 1)}</div>
+  `;
+  const pads = card.querySelectorAll(".seq-pad");
+  const statusEl = document.getElementById("seqStatus");
+
+  let sequence = [];
+  let round = 0;
+  let inputIdx = 0;
+  let accepting = false;
+  let timeouts = [];
+  let finished = false;
+
+  function clearTimers(){ timeouts.forEach(clearTimeout); timeouts = []; }
+
+  document.getElementById("seqExitBtn").addEventListener("click", ()=>{
+    finished = true;
+    clearTimers();
+    close(0);
+  });
+
+  function flash(idx, on){
+    pads[idx].classList.toggle("lit", on);
+  }
+
+  function playSequence(){
+    accepting = false;
+    statusEl.textContent = t("seqWatch");
+    let delay = 500;
+    sequence.forEach(padIdx=>{
+      timeouts.push(setTimeout(()=>flash(padIdx, true), delay));
+      timeouts.push(setTimeout(()=>flash(padIdx, false), delay+420));
+      delay += 620;
+    });
+    timeouts.push(setTimeout(()=>{
+      if(finished) return;
+      accepting = true;
+      inputIdx = 0;
+      statusEl.textContent = t("seqYourTurn");
+    }, delay));
+  }
+
+  function nextRound(){
+    round += 1;
+    sequence.push(Math.floor(Math.random()*4));
+    statusEl.textContent = t("seqRound", round);
+    timeouts.push(setTimeout(playSequence, 700));
+  }
+
+  function endGame(){
+    finished = true;
+    accepting = false;
+    clearTimers();
+    const reached = round - 1; // 最后一关失败，已稳过的关数
+    let stars = 0;
+    if(reached >= 5) stars = 3; else if(reached >= 3) stars = 2; else if(reached >= 1) stars = 1;
+    setTimeout(()=>showGameResult(card, stars, t("seqEnd", Math.max(reached,0))), 600);
+  }
+
+  pads.forEach(pad=>{
+    pad.addEventListener("click", ()=>{
+      if(!accepting || finished) return;
+      const idx = parseInt(pad.dataset.pad,10);
+      flash(idx, true);
+      setTimeout(()=>flash(idx,false), 180);
+      if(idx === sequence[inputIdx]){
+        inputIdx += 1;
+        if(inputIdx >= sequence.length){
+          accepting = false;
+          nextRound();
+        }
+      } else {
+        statusEl.textContent = t("seqWrong");
+        endGame();
+      }
+    });
+  });
+
+  nextRound();
 }
 
 function shuffle(arr){
