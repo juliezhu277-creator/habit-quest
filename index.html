@@ -238,11 +238,6 @@
     border:3px solid #fff;
     box-shadow:inset 0 0 0 2px #ffe2b8;
   }
-  .falling-item{
-    position:absolute;top:-30px;font-size:28px;cursor:pointer;
-    user-select:none;line-height:1;
-    animation:dropFall linear forwards;
-  }
   @keyframes dropFall{ from{top:-30px;} to{top:100%;} }
   .start-game-btn{
     display:block;margin:14px auto 0;
@@ -253,22 +248,58 @@
   .game-result{text-align:center;padding:10px 0;}
   .game-result .stars{font-size:38px;letter-spacing:6px;margin:6px 0;}
   .game-result .bonus{font-size:15px;font-weight:700;color:var(--accent-dark);margin-bottom:14px;}
-  /* 记忆翻牌 */
-  .memory-grid{
-    display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-    height:100%;padding:14px;
+
+  /* 节奏方块 Piano Tiles */
+  .lane-area{
+    position:relative;height:100%;display:flex;
   }
-  .mem-card{
-    border-radius:10px;display:flex;align-items:center;justify-content:center;
-    font-size:26px;cursor:pointer;background:linear-gradient(145deg,var(--purple),#8b5cf6);
-    color:#fff;user-select:none;transition:transform .25s;
+  .lane{
+    flex:1;position:relative;border-right:1px solid rgba(0,0,0,0.06);
   }
-  .mem-card.flipped{
-    background:#fff;color:var(--ink);box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  .lane:last-child{border-right:none;}
+  .hit-zone{
+    position:absolute;left:0;right:0;bottom:0;height:54px;
+    background:rgba(255,140,66,0.16);
+    border-top:2px dashed var(--primary);
   }
-  .mem-card.matched{
-    background:#eafff0;color:var(--ink);opacity:0.7;cursor:default;
+  .tile{
+    position:absolute;left:6%;width:88%;height:64px;border-radius:8px;
+    background:linear-gradient(160deg,#3a3a4a,#1f1f2c);
+    animation:dropFall linear forwards;cursor:pointer;
+    box-shadow:0 3px 0 rgba(0,0,0,0.25);
   }
+  .tile.tapped{background:linear-gradient(160deg,var(--accent),var(--accent-dark));}
+
+  /* 极速反应 Reflex Test */
+  .reflex-box{
+    height:100%;border-radius:18px;display:flex;align-items:center;justify-content:center;
+    flex-direction:column;cursor:pointer;user-select:none;transition:background .15s;
+    background:#ffe2c2;color:var(--primary-dark);
+  }
+  .reflex-box.go{background:var(--accent);color:#fff;}
+  .reflex-box.early{background:#ff6b6b;color:#fff;}
+  .reflex-box .reflex-main{font-size:20px;font-weight:800;}
+  .reflex-box .reflex-sub{font-size:12px;margin-top:6px;opacity:0.85;}
+  .reflex-rounds{display:flex;gap:6px;justify-content:center;margin-top:10px;}
+  .reflex-dot{width:8px;height:8px;border-radius:50%;background:#ddd;}
+  .reflex-dot.done{background:var(--accent-dark);}
+
+  /* 速算挑战 Quiz */
+  .quiz-area{
+    height:100%;display:flex;flex-direction:column;justify-content:center;
+    padding:14px;
+  }
+  .quiz-question{font-size:30px;font-weight:800;text-align:center;color:var(--ink);margin-bottom:18px;}
+  .quiz-answers{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .quiz-answer-btn{
+    padding:14px 8px;border-radius:14px;border:2px solid #eee;background:#fff;
+    font-size:18px;font-weight:700;cursor:pointer;color:var(--ink);transition:all .15s;
+  }
+  .quiz-answer-btn.correct{background:var(--accent);border-color:var(--accent-dark);color:#fff;}
+  .quiz-answer-btn.wrong{background:#ff6b6b;border-color:#e84545;color:#fff;}
+  .quiz-progress{display:flex;gap:6px;justify-content:center;margin-top:16px;}
+  .quiz-dot{width:8px;height:8px;border-radius:50%;background:#ddd;}
+  .quiz-dot.answered{background:var(--primary);}
 </style>
 </head>
 <body>
@@ -632,7 +663,8 @@ function openEditGoal(id){
 function launchMiniGame(quest, onClose){
   const modal = document.getElementById("gameModal");
   const card = document.getElementById("gameCard");
-  const gameType = Math.random() < 0.5 ? "catch" : "memory";
+  const games = [renderPianoTiles, renderReflexTest, renderMathQuiz];
+  const pick = games[Math.floor(Math.random()*games.length)];
 
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -646,11 +678,7 @@ function launchMiniGame(quest, onClose){
     }, 250);
   }
 
-  if(gameType === "catch"){
-    renderCatchGame(card, quest, close);
-  } else {
-    renderMemoryGame(card, quest, close);
-  }
+  pick(card, quest, close);
 }
 
 function starsToXp(stars){ return stars * 10; }
@@ -671,142 +699,245 @@ function showGameResult(card, stars, title){
   });
 }
 
-function renderCatchGame(card, quest, close){
+function renderPianoTiles(card, quest, close){
   card._onFinish = close;
   card.innerHTML = `
-    <button class="game-exit-btn" id="catchExitBtn">✕</button>
-    <div class="game-title">🌟 接星星大作战</div>
-    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！点击星星得分，小心炸弹💣</div>
-    <div class="game-hud"><span id="catchScore">⭐ 0</span><span id="catchTimer">⏱ 12s</span></div>
-    <div class="game-area" id="catchArea"></div>
+    <button class="game-exit-btn" id="pianoExitBtn">✕</button>
+    <div class="game-title">🎹 节奏方块挑战</div>
+    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！黑块进入橙色判定区时点击它</div>
+    <div class="game-hud"><span id="pianoScore">🎯 0</span><span id="pianoTimer">⏱ 15s</span></div>
+    <div class="game-area"><div class="lane-area" id="pianoLanes"></div></div>
   `;
-  const area = document.getElementById("catchArea");
-  const scoreEl = document.getElementById("catchScore");
-  const timerEl = document.getElementById("catchTimer");
+  const lanesWrap = document.getElementById("pianoLanes");
+  const scoreEl = document.getElementById("pianoScore");
+  const timerEl = document.getElementById("pianoTimer");
+  const LANE_COUNT = 4;
+  const lanes = [];
+  for(let i=0;i<LANE_COUNT;i++){
+    const lane = document.createElement("div");
+    lane.className = "lane";
+    lanesWrap.appendChild(lane);
+    lanes.push(lane);
+  }
+  const hitZone = document.createElement("div");
+  hitZone.className = "hit-zone";
+  lanesWrap.appendChild(hitZone);
 
   let score = 0;
-  let timeLeft = 12;
+  let spawned = 0;
+  let timeLeft = 15;
   let running = true;
+  let speed = 1.5;
 
-  document.getElementById("catchExitBtn").addEventListener("click", ()=>{
+  document.getElementById("pianoExitBtn").addEventListener("click", ()=>{
     running = false;
     clearInterval(spawnHandle);
     clearInterval(timerHandle);
     close(0);
   });
 
-  function spawnItem(){
+  function spawnTile(){
     if(!running) return;
-    const isBomb = Math.random() < 0.18;
-    const item = document.createElement("div");
-    item.className = "falling-item";
-    item.textContent = isBomb ? "💣" : "⭐";
-    item.style.left = (Math.random()*82) + "%";
-    item.style.animationDuration = (1.8 + Math.random()*1.4) + "s";
-    area.appendChild(item);
+    spawned += 1;
+    const laneIdx = Math.floor(Math.random()*LANE_COUNT);
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.style.animationDuration = speed + "s";
+    lanes[laneIdx].appendChild(tile);
 
-    item.addEventListener("click", ()=>{
-      if(item.dataset.gone) return;
-      item.dataset.gone = "1";
-      score = Math.max(0, score + (isBomb ? -1 : 1));
-      scoreEl.textContent = "⭐ " + score;
-      item.style.transition = "transform .15s, opacity .15s";
-      item.style.transform = "scale(1.7)";
-      item.style.opacity = "0";
-      setTimeout(()=>item.remove(), 150);
+    tile.addEventListener("click", ()=>{
+      if(tile.dataset.gone) return;
+      tile.dataset.gone = "1";
+      score += 1;
+      scoreEl.textContent = "🎯 " + score;
+      tile.classList.add("tapped");
+      tile.style.transition = "opacity .15s";
+      tile.style.opacity = "0";
+      setTimeout(()=>tile.remove(), 150);
     });
-    item.addEventListener("animationend", ()=>{ if(item.parentNode) item.remove(); });
+    tile.addEventListener("animationend", ()=>{ if(tile.parentNode) tile.remove(); });
   }
 
-  const spawnHandle = setInterval(spawnItem, 550);
+  const spawnHandle = setInterval(spawnTile, 480);
+  const speedHandle = setInterval(()=>{ speed = Math.max(0.8, speed - 0.1); }, 3000);
   const timerHandle = setInterval(()=>{
     timeLeft -= 1;
     timerEl.textContent = "⏱ " + timeLeft + "s";
     if(timeLeft <= 0){
       running = false;
       clearInterval(spawnHandle);
+      clearInterval(speedHandle);
       clearInterval(timerHandle);
+      const accuracy = spawned > 0 ? score/spawned : 0;
       let stars = 0;
-      if(score >= 8) stars = 3; else if(score >= 5) stars = 2; else if(score >= 1) stars = 1;
-      setTimeout(()=>showGameResult(card, stars, "关卡结束！"), 400);
+      if(score >= 16 && accuracy >= 0.6) stars = 3;
+      else if(score >= 10) stars = 2;
+      else if(score >= 4) stars = 1;
+      setTimeout(()=>showGameResult(card, stars, "节奏关卡结束！"), 400);
     }
   }, 1000);
 }
 
-function renderMemoryGame(card, quest, close){
+function renderReflexTest(card, quest, close){
   card._onFinish = close;
-  const emojis = ["🍎","🍌","🍇","🍓","🍉","🥝"];
-  const deck = shuffle([...emojis, ...emojis]);
-
   card.innerHTML = `
-    <button class="game-exit-btn" id="memExitBtn">✕</button>
-    <div class="game-title">🧠 记忆翻牌挑战</div>
-    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！找出所有配对的水果</div>
-    <div class="game-hud"><span id="memMoves">步数 0</span><span id="memTimer">⏱ 0s</span></div>
-    <div class="game-area"><div class="memory-grid" id="memGrid"></div></div>
+    <button class="game-exit-btn" id="reflexExitBtn">✕</button>
+    <div class="game-title">⚡ 极速反应挑战</div>
+    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！看到"点击！"立刻点，3轮取平均反应时间</div>
+    <div class="game-area" id="reflexArea">
+      <div class="reflex-box" id="reflexBox">
+        <div class="reflex-main" id="reflexMain">准备好后点击开始</div>
+        <div class="reflex-sub" id="reflexSub">共3轮，越快越好</div>
+      </div>
+    </div>
+    <div class="reflex-rounds" id="reflexRounds">
+      <div class="reflex-dot"></div><div class="reflex-dot"></div><div class="reflex-dot"></div>
+    </div>
   `;
-  const grid = document.getElementById("memGrid");
-  const movesEl = document.getElementById("memMoves");
-  const timerEl = document.getElementById("memTimer");
+  const box = document.getElementById("reflexBox");
+  const main = document.getElementById("reflexMain");
+  const sub = document.getElementById("reflexSub");
+  const dots = document.querySelectorAll("#reflexRounds .reflex-dot");
 
-  let firstCard = null;
-  let lock = false;
-  let moves = 0;
-  let matched = 0;
-  const startTime = Date.now();
-  const timerHandle = setInterval(()=>{
-    timerEl.textContent = "⏱ " + Math.floor((Date.now()-startTime)/1000) + "s";
-  }, 500);
+  let round = 0;
+  let waitTimeout = null;
+  let goTime = 0;
+  let phase = "idle"; // idle -> waiting -> go
+  const times = [];
 
-  document.getElementById("memExitBtn").addEventListener("click", ()=>{
-    clearInterval(timerHandle);
+  document.getElementById("reflexExitBtn").addEventListener("click", ()=>{
+    if(waitTimeout) clearTimeout(waitTimeout);
     close(0);
   });
 
-  deck.forEach((emoji, idx)=>{
-    const c = document.createElement("div");
-    c.className = "mem-card";
-    c.textContent = "❓";
-    c.dataset.emoji = emoji;
-    c.dataset.idx = idx;
-    c.addEventListener("click", ()=>{
-      if(lock || c.classList.contains("flipped") || c.classList.contains("matched")) return;
-      c.classList.add("flipped");
-      c.textContent = emoji;
+  function startRound(){
+    phase = "waiting";
+    box.className = "reflex-box";
+    main.textContent = "等待绿色出现…";
+    sub.textContent = "第 " + (round+1) + " / 3 轮";
+    const delay = 800 + Math.random()*1800;
+    waitTimeout = setTimeout(()=>{
+      phase = "go";
+      goTime = Date.now();
+      box.classList.add("go");
+      main.textContent = "点击！";
+      sub.textContent = "";
+    }, delay);
+  }
 
-      if(!firstCard){
-        firstCard = c;
-        return;
-      }
-      moves += 1;
-      movesEl.textContent = "步数 " + moves;
-
-      if(firstCard.dataset.emoji === c.dataset.emoji){
-        firstCard.classList.add("matched");
-        c.classList.add("matched");
-        firstCard = null;
-        matched += 1;
-        if(matched === emojis.length){
-          clearInterval(timerHandle);
-          const elapsed = Math.floor((Date.now()-startTime)/1000);
-          let stars = 0;
-          if(elapsed <= 18) stars = 3; else if(elapsed <= 32) stars = 2; else stars = 1;
-          setTimeout(()=>showGameResult(card, stars, "全部配对成功！"), 400);
-        }
-      } else {
-        lock = true;
-        setTimeout(()=>{
-          firstCard.classList.remove("flipped");
-          firstCard.textContent = "❓";
-          c.classList.remove("flipped");
-          c.textContent = "❓";
-          firstCard = null;
-          lock = false;
-        }, 700);
-      }
-    });
-    grid.appendChild(c);
+  box.addEventListener("click", ()=>{
+    if(phase === "idle"){
+      startRound();
+      return;
+    }
+    if(phase === "waiting"){
+      clearTimeout(waitTimeout);
+      box.classList.add("early");
+      main.textContent = "太早了！";
+      sub.textContent = "等绿色出现再点哦";
+      times.push(1000);
+      advanceRound();
+      return;
+    }
+    if(phase === "go"){
+      const rt = Date.now() - goTime;
+      times.push(rt);
+      main.textContent = rt + " ms";
+      sub.textContent = "反应不错！";
+      advanceRound();
+    }
   });
+
+  function advanceRound(){
+    dots[round].classList.add("done");
+    round += 1;
+    phase = "idle";
+    if(round >= 3){
+      const avg = times.reduce((a,b)=>a+b,0) / times.length;
+      let stars = 0;
+      if(avg <= 350) stars = 3; else if(avg <= 550) stars = 2; else if(avg <= 800) stars = 1;
+      setTimeout(()=>showGameResult(card, stars, `平均反应 ${Math.round(avg)} ms`), 900);
+    } else {
+      setTimeout(startRound, 900);
+    }
+  }
+}
+
+const QUIZ_BANK = [
+  {q:"7 × 8 = ?", a:["54","56","58","64"], correct:1},
+  {q:"15 + 27 = ?", a:["42","41","52","32"], correct:0},
+  {q:"9² = ?", a:["72","81","91","18"], correct:1},
+  {q:"100 ÷ 4 = ?", a:["20","25","24","16"], correct:1},
+  {q:"6 × 9 = ?", a:["56","54","63","45"], correct:1},
+  {q:"144 ÷ 12 = ?", a:["10","12","14","11"], correct:1},
+  {q:"13 × 3 = ?", a:["36","39","42","33"], correct:1},
+  {q:"81 - 29 = ?", a:["52","51","62","42"], correct:0},
+];
+
+function renderMathQuiz(card, quest, close){
+  card._onFinish = close;
+  const questions = shuffle(QUIZ_BANK).slice(0,5);
+  let idx = 0;
+  let score = 0;
+  let locked = false;
+
+  card.innerHTML = `
+    <button class="game-exit-btn" id="quizExitBtn">✕</button>
+    <div class="game-title">🧮 速算闯关</div>
+    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！5道速算题，越快越准星越多</div>
+    <div class="game-area"><div class="quiz-area" id="quizArea"></div></div>
+    <div class="quiz-progress" id="quizProgress"></div>
+  `;
+  const area = document.getElementById("quizArea");
+  const progress = document.getElementById("quizProgress");
+  for(let i=0;i<questions.length;i++){
+    const d = document.createElement("div");
+    d.className = "quiz-dot";
+    progress.appendChild(d);
+  }
+
+  document.getElementById("quizExitBtn").addEventListener("click", ()=>close(0));
+
+  function renderQuestion(){
+    const item = questions[idx];
+    const answerOrder = item.a.map((text,i)=>({text, isCorrect:i===item.correct}));
+    area.innerHTML = `
+      <div class="quiz-question">${item.q}</div>
+      <div class="quiz-answers">
+        ${answerOrder.map((opt,i)=>`<button class="quiz-answer-btn" data-i="${i}">${opt.text}</button>`).join("")}
+      </div>
+    `;
+    locked = false;
+    area.querySelectorAll(".quiz-answer-btn").forEach((btn,i)=>{
+      btn.addEventListener("click", ()=>{
+        if(locked) return;
+        locked = true;
+        const isCorrect = answerOrder[i].isCorrect;
+        btn.classList.add(isCorrect ? "correct" : "wrong");
+        if(isCorrect) score += 1;
+        else {
+          area.querySelectorAll(".quiz-answer-btn").forEach((b2,j)=>{
+            if(answerOrder[j].isCorrect) b2.classList.add("correct");
+          });
+        }
+        progress.children[idx].classList.add("answered");
+        setTimeout(nextQuestion, 700);
+      });
+    });
+  }
+
+  function nextQuestion(){
+    idx += 1;
+    if(idx >= questions.length){
+      let stars = 0;
+      if(score >= 5) stars = 3; else if(score >= 3) stars = 2; else if(score >= 1) stars = 1;
+      setTimeout(()=>showGameResult(card, stars, `答对 ${score} / ${questions.length} 题！`), 200);
+    } else {
+      renderQuestion();
+    }
+  }
+
+  renderQuestion();
 }
 
 function shuffle(arr){
