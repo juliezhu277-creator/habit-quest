@@ -23,6 +23,19 @@
     padding:20px;
   }
   .app{max-width:480px;margin:0 auto;}
+  .topbar{
+    display:flex;justify-content:flex-end;margin-bottom:8px;
+  }
+  .lang-toggle{
+    display:inline-flex;background:var(--card);border-radius:20px;padding:3px;
+    box-shadow:0 3px 10px rgba(0,0,0,0.08);
+  }
+  .lang-toggle button{
+    border:none;background:none;cursor:pointer;
+    font-size:12px;font-weight:700;color:var(--muted);
+    padding:5px 12px;border-radius:16px;transition:all .2s;
+  }
+  .lang-toggle button.active{background:var(--primary);color:#fff;}
   .header{
     background:var(--card);
     border-radius:20px;
@@ -304,6 +317,12 @@
 </head>
 <body>
 <div class="app">
+  <div class="topbar">
+    <div class="lang-toggle">
+      <button id="langZh" data-lang="zh">中文</button>
+      <button id="langEn" data-lang="en">EN</button>
+    </div>
+  </div>
   <div class="header">
     <div class="avatar" id="avatar">🌱</div>
     <div class="id">
@@ -316,10 +335,10 @@
 
   <div class="badges" id="badges"></div>
 
-  <div class="section-title">🎯 今日任务</div>
+  <div class="section-title" id="sectionTitle">🎯 今日任务</div>
   <div id="questList"></div>
 
-  <div class="footer-note">完成任务即可获得经验值，攒够经验角色就会升级进化！</div>
+  <div class="footer-note" id="footerNote">完成任务即可获得经验值，攒够经验角色就会升级进化！</div>
   <button class="reset-btn" id="resetBtn">重置今日任务（测试用）</button>
 </div>
 
@@ -335,37 +354,151 @@
 
 <script>
 const STORAGE_KEY = "habitQuestState";
+const LANG_KEY = "habitQuestLang";
+
+let lang = localStorage.getItem(LANG_KEY) || "zh";
+
+// 选取双语对象中当前语言的文本
+function L(obj){ return obj[lang]; }
 
 const QUESTS = [
-  {id:"focus", icon:"🎯", title:"专注番茄钟", desc:"专注学习/阅读 25 分钟", xp:15, cat:"专注力"},
-  {id:"plan", icon:"🗒️", title:"列出今日3件事", desc:"写下今天最重要的3个任务", xp:10, cat:"时间管理"},
-  {id:"exercise", icon:"🏃", title:"运动打卡", desc:"运动 / 跳绳 / 拉伸 20 分钟", xp:20, cat:"锻炼"},
-  {id:"social", icon:"🤝", title:"主动社交一次", desc:"主动和一位朋友/同学聊天或问候", xp:15, cat:"社交"},
+  {id:"focus", icon:"🎯", xp:15,
+    title:{zh:"专注番茄钟", en:"Focus Pomodoro"},
+    desc:{zh:"专注学习/阅读 25 分钟", en:"Study/read with full focus for 25 min"},
+    cat:{zh:"专注力", en:"Focus"}},
+  {id:"plan", icon:"🗒️", xp:10,
+    title:{zh:"列出今日3件事", en:"List Today's Top 3"},
+    desc:{zh:"写下今天最重要的3个任务", en:"Write down your 3 most important tasks"},
+    cat:{zh:"时间管理", en:"Time Mgmt"}},
+  {id:"exercise", icon:"🏃", xp:20,
+    title:{zh:"运动打卡", en:"Exercise Check-in"},
+    desc:{zh:"运动 / 跳绳 / 拉伸 20 分钟", en:"Workout / jump rope / stretch for 20 min"},
+    cat:{zh:"锻炼", en:"Fitness"}},
+  {id:"social", icon:"🤝", xp:15,
+    title:{zh:"主动社交一次", en:"Reach Out to Someone"},
+    desc:{zh:"主动和一位朋友/同学聊天或问候", en:"Start a chat or greet a friend/classmate"},
+    cat:{zh:"社交", en:"Social"}},
 ];
 
 const BADGES = [
-  {id:"b3", icon:"🔥", name:"3日连击", need: s=>s.streak>=3},
-  {id:"b7", icon:"⭐", name:"7日连击", need: s=>s.streak>=7},
-  {id:"b100xp", icon:"💎", name:"百分达人", need: s=>s.totalXp>=100},
-  {id:"blv5", icon:"👑", name:"5级勇士", need: s=>s.level>=5},
-  {id:"ball", icon:"🏆", name:"全勤一天", need: s=>s.allDoneEver===true},
+  {id:"b3", icon:"🔥", name:{zh:"3日连击", en:"3-Day Streak"}, need: s=>s.streak>=3},
+  {id:"b7", icon:"⭐", name:{zh:"7日连击", en:"7-Day Streak"}, need: s=>s.streak>=7},
+  {id:"b100xp", icon:"💎", name:{zh:"百分达人", en:"100 XP Club"}, need: s=>s.totalXp>=100},
+  {id:"blv5", icon:"👑", name:{zh:"5级勇士", en:"Level 5 Hero"}, need: s=>s.level>=5},
+  {id:"ball", icon:"🏆", name:{zh:"全勤一天", en:"Perfect Day"}, need: s=>s.allDoneEver===true},
 ];
 
 const STAGES = [
-  {min:1, emoji:"🌱", name:"萌芽小苗"},
-  {min:3, emoji:"🐣", name:"破壳新秀"},
-  {min:5, emoji:"🦊", name:"敏捷小狐"},
-  {min:8, emoji:"🦁", name:"勇敢小狮"},
-  {min:12, emoji:"🐉", name:"传说小龙"},
+  {min:1, emoji:"🌱", name:{zh:"萌芽小苗", en:"Tiny Sprout"}},
+  {min:3, emoji:"🐣", name:{zh:"破壳新秀", en:"Hatchling"}},
+  {min:5, emoji:"🦊", name:{zh:"敏捷小狐", en:"Swift Fox"}},
+  {min:8, emoji:"🦁", name:{zh:"勇敢小狮", en:"Brave Lion"}},
+  {min:12, emoji:"🐉", name:{zh:"传说小龙", en:"Legendary Dragon"}},
 ];
 
 const ENCOURAGEMENTS = [
-  {emoji:"🎉", msg:"太棒了！", sub:"你又前进了一步！"},
-  {emoji:"💪", msg:"坚持就是力量！", sub:"今天的努力都算数～"},
-  {emoji:"✨", msg:"闪闪发光的你！", sub:"继续保持这个节奏吧！"},
-  {emoji:"🚀", msg:"火力全开！", sub:"你比昨天又厉害了一点！"},
-  {emoji:"🌟", msg:"做得真棒！", sub:"小习惯，大改变！"},
+  {emoji:"🎉", msg:{zh:"太棒了！", en:"Awesome!"}, sub:{zh:"你又前进了一步！", en:"One more step forward!"}},
+  {emoji:"💪", msg:{zh:"坚持就是力量！", en:"Consistency is power!"}, sub:{zh:"今天的努力都算数～", en:"Every bit of effort counts."}},
+  {emoji:"✨", msg:{zh:"闪闪发光的你！", en:"You're shining!"}, sub:{zh:"继续保持这个节奏吧！", en:"Keep up this rhythm!"}},
+  {emoji:"🚀", msg:{zh:"火力全开！", en:"Full speed ahead!"}, sub:{zh:"你比昨天又厉害了一点！", en:"A little better than yesterday!"}},
+  {emoji:"🌟", msg:{zh:"做得真棒！", en:"Well done!"}, sub:{zh:"小习惯，大改变！", en:"Small habits, big change!"}},
 ];
+
+// 界面静态/动态文案
+const I18N = {
+  zh: {
+    appTitle: "习惯小勇士 · Habit Quest",
+    sectionTitle: "🎯 今日任务",
+    footerNote: "完成任务即可获得经验值，攒够经验角色就会升级进化！",
+    resetBtn: "重置今日任务（测试用）",
+    streak: n => `🔥 连续 ${n} 天`,
+    level: (lv, xp, need) => `Lv.${lv} · ${xp} / ${need} XP`,
+    editTitle: "自定义目标",
+    newBadge: "获得新徽章！",
+    levelUp: lv => `升级啦！Lv.${lv}`,
+    evolvedInto: name => `你已进化成 ${name}`,
+    perfectDay: "今日全勤！",
+    perfectDaySub: "四个目标都完成，太厉害了！",
+    // 编辑目标弹层
+    defaultGoal: desc => `默认目标：${desc}`,
+    editLabel: "设置你自己的详细目标",
+    editPlaceholder: "例如：晚饭后跳绳 300 个",
+    editReset: "恢复默认目标",
+    editCancel: "取消",
+    editSave: "保存目标",
+    // 小游戏通用
+    bonusXp: n => `额外奖励 +${n} XP！`,
+    tryAgain: "再接再厉，下次更棒！",
+    great: "太棒了！",
+    unlockHint: title => `完成「${title}」解锁奖励关卡！`,
+    // 节奏方块
+    pianoTitle: "🎹 节奏方块挑战",
+    pianoSub: "黑块进入橙色判定区时点击它",
+    pianoEnd: "节奏关卡结束！",
+    // 反应
+    reflexTitle: "⚡ 极速反应挑战",
+    reflexSub: '看到"点击！"立刻点，3轮取平均反应时间',
+    reflexStart: "准备好后点击开始",
+    reflexRoundsInfo: "共3轮，越快越好",
+    reflexWaiting: "等待绿色出现…",
+    reflexRound: n => `第 ${n} / 3 轮`,
+    reflexGo: "点击！",
+    reflexEarly: "太早了！",
+    reflexEarlySub: "等绿色出现再点哦",
+    reflexNice: "反应不错！",
+    reflexAvg: ms => `平均反应 ${ms} ms`,
+    // 速算
+    quizTitle: "🧮 速算闯关",
+    quizSub: "5道速算题，越快越准星越多",
+    quizResult: (s, t) => `答对 ${s} / ${t} 题！`,
+  },
+  en: {
+    appTitle: "Habit Quest",
+    sectionTitle: "🎯 Today's Quests",
+    footerNote: "Complete quests to earn XP — gather enough and your character evolves!",
+    resetBtn: "Reset today's quests (test)",
+    streak: n => `🔥 ${n}-day streak`,
+    level: (lv, xp, need) => `Lv.${lv} · ${xp} / ${need} XP`,
+    editTitle: "Customize goal",
+    newBadge: "New badge unlocked!",
+    levelUp: lv => `Level up! Lv.${lv}`,
+    evolvedInto: name => `You evolved into ${name}`,
+    perfectDay: "Perfect day!",
+    perfectDaySub: "All four quests done — amazing!",
+    defaultGoal: desc => `Default goal: ${desc}`,
+    editLabel: "Set your own detailed goal",
+    editPlaceholder: "e.g. 300 jump-rope skips after dinner",
+    editReset: "Restore default goal",
+    editCancel: "Cancel",
+    editSave: "Save goal",
+    bonusXp: n => `Bonus +${n} XP!`,
+    tryAgain: "Nice try — you'll do better next time!",
+    great: "Awesome!",
+    unlockHint: title => `Completed "${title}" — bonus level unlocked! `,
+    pianoTitle: "🎹 Rhythm Tiles",
+    pianoSub: "Tap each black tile as it enters the orange zone",
+    pianoEnd: "Rhythm round over!",
+    reflexTitle: "⚡ Reflex Test",
+    reflexSub: 'Tap the moment you see "TAP!" — 3 rounds, average time',
+    reflexStart: "Tap when ready to start",
+    reflexRoundsInfo: "3 rounds — the faster the better",
+    reflexWaiting: "Wait for green…",
+    reflexRound: n => `Round ${n} / 3`,
+    reflexGo: "TAP!",
+    reflexEarly: "Too early!",
+    reflexEarlySub: "Wait for green before tapping",
+    reflexNice: "Nice reflexes!",
+    reflexAvg: ms => `Average ${ms} ms`,
+    quizTitle: "🧮 Quick Math",
+    quizSub: "5 quick questions — fast & accurate for more stars",
+    quizResult: (s, t) => `${s} / ${t} correct!`,
+  }
+};
+
+function t(key, ...args){
+  const entry = I18N[lang][key];
+  return typeof entry === "function" ? entry(...args) : entry;
+}
 
 function todayStr(){
   return new Date().toISOString().slice(0,10);
@@ -417,12 +550,21 @@ let state = load();
 function render(){
   const stage = getStage(state.level);
   document.getElementById("avatar").textContent = stage.emoji;
-  document.getElementById("charName").textContent = stage.name;
+  document.getElementById("charName").textContent = L(stage.name);
   document.getElementById("levelText").textContent =
-    `Lv.${state.level} · ${state.xp} / ${xpNeeded(state.level)} XP`;
+    t("level", state.level, state.xp, xpNeeded(state.level));
   document.getElementById("xpBar").style.width =
     Math.min(100, (state.xp/xpNeeded(state.level))*100) + "%";
-  document.getElementById("streakText").textContent = `🔥 连续 ${state.streak} 天`;
+  document.getElementById("streakText").textContent = t("streak", state.streak);
+
+  // 静态界面文案
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.title = t("appTitle");
+  document.getElementById("sectionTitle").textContent = t("sectionTitle");
+  document.getElementById("footerNote").textContent = t("footerNote");
+  document.getElementById("resetBtn").textContent = t("resetBtn");
+  document.getElementById("langZh").classList.toggle("active", lang==="zh");
+  document.getElementById("langEn").classList.toggle("active", lang==="en");
 
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
@@ -430,7 +572,7 @@ function render(){
     const unlocked = state.unlockedBadges.includes(b.id);
     const div = document.createElement("div");
     div.className = "badge" + (unlocked ? " unlocked" : "");
-    div.innerHTML = `<div class="icon-box">${b.icon}</div><span class="tip">${b.name}</span>`;
+    div.innerHTML = `<div class="icon-box">${b.icon}</div><span class="tip">${L(b.name)}</span>`;
     badgesEl.appendChild(div);
   });
 
@@ -444,11 +586,11 @@ function render(){
     div.innerHTML = `
       <div class="icon">${q.icon}</div>
       <div class="info">
-        <div class="t">${q.title}</div>
-        <div class="d${custom ? " custom" : ""}">${custom || q.desc}</div>
-        <div class="xp-tag">+${q.xp} XP · ${q.cat}</div>
+        <div class="t">${L(q.title)}</div>
+        <div class="d${custom ? " custom" : ""}">${custom || L(q.desc)}</div>
+        <div class="xp-tag">+${q.xp} XP · ${L(q.cat)}</div>
       </div>
-      <button class="edit-btn" data-id="${q.id}" title="自定义目标">✏️</button>
+      <button class="edit-btn" data-id="${q.id}" title="${t("editTitle")}">✏️</button>
       <button class="check-btn" data-id="${q.id}">${done ? "✓" : ""}</button>
     `;
     listEl.appendChild(div);
@@ -466,7 +608,7 @@ function checkBadges(){
   BADGES.forEach(b=>{
     if(!state.unlockedBadges.includes(b.id) && b.need(state)){
       state.unlockedBadges.push(b.id);
-      setTimeout(()=>showToast({emoji:b.icon, msg:"获得新徽章！", sub:b.name, levelup:true}), 700);
+      setTimeout(()=>showToast({emoji:b.icon, msg:t("newBadge"), sub:L(b.name), levelup:true}), 700);
     }
   });
 }
@@ -501,16 +643,16 @@ function completeQuest(id){
   spawnConfetti();
 
   const pick = ENCOURAGEMENTS[Math.floor(Math.random()*ENCOURAGEMENTS.length)];
-  showToast(pick);
+  showToast({emoji:pick.emoji, msg:L(pick.msg), sub:L(pick.sub)});
 
   const pendingToasts = [];
   if(leveledUp){
     const stage = getStage(state.level);
-    pendingToasts.push({emoji:stage.emoji, msg:`升级啦！Lv.${state.level}`, sub:`你已进化成 ${stage.name}`, levelup:true});
+    pendingToasts.push({emoji:stage.emoji, msg:t("levelUp", state.level), sub:t("evolvedInto", L(stage.name)), levelup:true});
   }
   checkBadgesQuiet(pendingToasts);
   if(allDone){
-    pendingToasts.push({emoji:"🏆", msg:"今日全勤！", sub:"四个目标都完成，太厉害了！", levelup:true});
+    pendingToasts.push({emoji:"🏆", msg:t("perfectDay"), sub:t("perfectDaySub"), levelup:true});
   }
 
   setTimeout(()=>{
@@ -536,7 +678,7 @@ function applyBonusXp(amount){
   render();
   if(leveledUp){
     const stage = getStage(state.level);
-    showToast({emoji:stage.emoji, msg:`升级啦！Lv.${state.level}`, sub:`你已进化成 ${stage.name}`, levelup:true});
+    showToast({emoji:stage.emoji, msg:t("levelUp", state.level), sub:t("evolvedInto", L(stage.name)), levelup:true});
   }
   checkBadges();
 }
@@ -546,7 +688,7 @@ function checkBadgesQuiet(pendingToasts){
   BADGES.forEach(b=>{
     if(!state.unlockedBadges.includes(b.id) && b.need(state)){
       state.unlockedBadges.push(b.id);
-      pendingToasts.push({emoji:b.icon, msg:"获得新徽章！", sub:b.name, levelup:true});
+      pendingToasts.push({emoji:b.icon, msg:t("newBadge"), sub:L(b.name), levelup:true});
       changed = true;
     }
   });
@@ -609,6 +751,14 @@ document.getElementById("resetBtn").addEventListener("click", ()=>{
   render();
 });
 
+document.querySelectorAll(".lang-toggle button").forEach(btn=>{
+  btn.addEventListener("click", ()=>{
+    lang = btn.dataset.lang;
+    localStorage.setItem(LANG_KEY, lang);
+    render();
+  });
+});
+
 /* ===================== 自定义目标 ===================== */
 
 function openEditGoal(id){
@@ -618,14 +768,14 @@ function openEditGoal(id){
   const current = state.customGoals[id] || "";
 
   card.innerHTML = `
-    <div class="edit-title">${quest.icon} ${quest.title}</div>
-    <div class="edit-default">默认目标：${quest.desc}</div>
-    <label>设置你自己的详细目标</label>
-    <input type="text" id="goalInput" placeholder="例如：晚饭后跳绳 300 个" value="${current.replace(/"/g,'&quot;')}">
-    <button class="edit-reset" id="goalResetBtn">恢复默认目标</button>
+    <div class="edit-title">${quest.icon} ${L(quest.title)}</div>
+    <div class="edit-default">${t("defaultGoal", L(quest.desc))}</div>
+    <label>${t("editLabel")}</label>
+    <input type="text" id="goalInput" placeholder="${t("editPlaceholder")}" value="${current.replace(/"/g,'&quot;')}">
+    <button class="edit-reset" id="goalResetBtn">${t("editReset")}</button>
     <div class="edit-actions">
-      <button class="edit-cancel" id="goalCancelBtn">取消</button>
-      <button class="edit-save" id="goalSaveBtn">保存目标</button>
+      <button class="edit-cancel" id="goalCancelBtn">${t("editCancel")}</button>
+      <button class="edit-save" id="goalSaveBtn">${t("editSave")}</button>
     </div>
   `;
 
@@ -690,8 +840,8 @@ function showGameResult(card, stars, title){
     <div class="game-result">
       <div class="game-title">${title}</div>
       <div class="stars">${starStr}</div>
-      <div class="bonus">${bonus > 0 ? `额外奖励 +${bonus} XP！` : "再接再厉，下次更棒！"}</div>
-      <button class="start-game-btn" id="resultCloseBtn">太棒了！</button>
+      <div class="bonus">${bonus > 0 ? t("bonusXp", bonus) : t("tryAgain")}</div>
+      <button class="start-game-btn" id="resultCloseBtn">${t("great")}</button>
     </div>
   `;
   document.getElementById("resultCloseBtn").addEventListener("click", ()=>{
@@ -703,8 +853,8 @@ function renderPianoTiles(card, quest, close){
   card._onFinish = close;
   card.innerHTML = `
     <button class="game-exit-btn" id="pianoExitBtn">✕</button>
-    <div class="game-title">🎹 节奏方块挑战</div>
-    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！黑块进入橙色判定区时点击它</div>
+    <div class="game-title">${t("pianoTitle")}</div>
+    <div class="game-sub">${t("unlockHint", L(quest.title))}${t("pianoSub")}</div>
     <div class="game-hud"><span id="pianoScore">🎯 0</span><span id="pianoTimer">⏱ 15s</span></div>
     <div class="game-area"><div class="lane-area" id="pianoLanes"></div></div>
   `;
@@ -773,7 +923,7 @@ function renderPianoTiles(card, quest, close){
       if(score >= 16 && accuracy >= 0.6) stars = 3;
       else if(score >= 10) stars = 2;
       else if(score >= 4) stars = 1;
-      setTimeout(()=>showGameResult(card, stars, "节奏关卡结束！"), 400);
+      setTimeout(()=>showGameResult(card, stars, t("pianoEnd")), 400);
     }
   }, 1000);
 }
@@ -782,12 +932,12 @@ function renderReflexTest(card, quest, close){
   card._onFinish = close;
   card.innerHTML = `
     <button class="game-exit-btn" id="reflexExitBtn">✕</button>
-    <div class="game-title">⚡ 极速反应挑战</div>
-    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！看到"点击！"立刻点，3轮取平均反应时间</div>
+    <div class="game-title">${t("reflexTitle")}</div>
+    <div class="game-sub">${t("unlockHint", L(quest.title))}${t("reflexSub")}</div>
     <div class="game-area" id="reflexArea">
       <div class="reflex-box" id="reflexBox">
-        <div class="reflex-main" id="reflexMain">准备好后点击开始</div>
-        <div class="reflex-sub" id="reflexSub">共3轮，越快越好</div>
+        <div class="reflex-main" id="reflexMain">${t("reflexStart")}</div>
+        <div class="reflex-sub" id="reflexSub">${t("reflexRoundsInfo")}</div>
       </div>
     </div>
     <div class="reflex-rounds" id="reflexRounds">
@@ -813,14 +963,14 @@ function renderReflexTest(card, quest, close){
   function startRound(){
     phase = "waiting";
     box.className = "reflex-box";
-    main.textContent = "等待绿色出现…";
-    sub.textContent = "第 " + (round+1) + " / 3 轮";
+    main.textContent = t("reflexWaiting");
+    sub.textContent = t("reflexRound", round+1);
     const delay = 800 + Math.random()*1800;
     waitTimeout = setTimeout(()=>{
       phase = "go";
       goTime = Date.now();
       box.classList.add("go");
-      main.textContent = "点击！";
+      main.textContent = t("reflexGo");
       sub.textContent = "";
     }, delay);
   }
@@ -833,8 +983,8 @@ function renderReflexTest(card, quest, close){
     if(phase === "waiting"){
       clearTimeout(waitTimeout);
       box.classList.add("early");
-      main.textContent = "太早了！";
-      sub.textContent = "等绿色出现再点哦";
+      main.textContent = t("reflexEarly");
+      sub.textContent = t("reflexEarlySub");
       times.push(1000);
       advanceRound();
       return;
@@ -843,7 +993,7 @@ function renderReflexTest(card, quest, close){
       const rt = Date.now() - goTime;
       times.push(rt);
       main.textContent = rt + " ms";
-      sub.textContent = "反应不错！";
+      sub.textContent = t("reflexNice");
       advanceRound();
     }
   });
@@ -856,7 +1006,7 @@ function renderReflexTest(card, quest, close){
       const avg = times.reduce((a,b)=>a+b,0) / times.length;
       let stars = 0;
       if(avg <= 350) stars = 3; else if(avg <= 550) stars = 2; else if(avg <= 800) stars = 1;
-      setTimeout(()=>showGameResult(card, stars, `平均反应 ${Math.round(avg)} ms`), 900);
+      setTimeout(()=>showGameResult(card, stars, t("reflexAvg", Math.round(avg))), 900);
     } else {
       setTimeout(startRound, 900);
     }
@@ -883,8 +1033,8 @@ function renderMathQuiz(card, quest, close){
 
   card.innerHTML = `
     <button class="game-exit-btn" id="quizExitBtn">✕</button>
-    <div class="game-title">🧮 速算闯关</div>
-    <div class="game-sub">完成「${quest.title}」解锁奖励关卡！5道速算题，越快越准星越多</div>
+    <div class="game-title">${t("quizTitle")}</div>
+    <div class="game-sub">${t("unlockHint", L(quest.title))}${t("quizSub")}</div>
     <div class="game-area"><div class="quiz-area" id="quizArea"></div></div>
     <div class="quiz-progress" id="quizProgress"></div>
   `;
@@ -931,7 +1081,7 @@ function renderMathQuiz(card, quest, close){
     if(idx >= questions.length){
       let stars = 0;
       if(score >= 5) stars = 3; else if(score >= 3) stars = 2; else if(score >= 1) stars = 1;
-      setTimeout(()=>showGameResult(card, stars, `答对 ${score} / ${questions.length} 题！`), 200);
+      setTimeout(()=>showGameResult(card, stars, t("quizResult", score, questions.length)), 200);
     } else {
       renderQuestion();
     }
