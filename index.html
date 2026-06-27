@@ -212,8 +212,17 @@
     box-shadow:0 16px 50px rgba(0,0,0,0.3);
     transform:scale(0.85);opacity:0;
     transition:transform .3s cubic-bezier(.34,1.56,.64,1), opacity .25s;
+    position:relative;
   }
   .game-card.show{transform:scale(1);opacity:1;}
+  .game-exit-btn{
+    position:absolute;top:12px;right:12px;
+    width:30px;height:30px;border-radius:50%;border:none;
+    background:#f1ece0;color:var(--muted);font-size:15px;font-weight:700;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all .2s;z-index:2;
+  }
+  .game-exit-btn:hover{background:#ffe2d6;color:var(--primary-dark);}
   .game-title{font-size:16px;font-weight:800;text-align:center;color:var(--primary-dark);}
   .game-sub{font-size:12px;text-align:center;color:var(--muted);margin-top:2px;margin-bottom:12px;}
   .game-hud{
@@ -665,6 +674,7 @@ function showGameResult(card, stars, title){
 function renderCatchGame(card, quest, close){
   card._onFinish = close;
   card.innerHTML = `
+    <button class="game-exit-btn" id="catchExitBtn">✕</button>
     <div class="game-title">🌟 接星星大作战</div>
     <div class="game-sub">完成「${quest.title}」解锁奖励关卡！点击星星得分，小心炸弹💣</div>
     <div class="game-hud"><span id="catchScore">⭐ 0</span><span id="catchTimer">⏱ 12s</span></div>
@@ -677,6 +687,13 @@ function renderCatchGame(card, quest, close){
   let score = 0;
   let timeLeft = 12;
   let running = true;
+
+  document.getElementById("catchExitBtn").addEventListener("click", ()=>{
+    running = false;
+    clearInterval(spawnHandle);
+    clearInterval(timerHandle);
+    close(0);
+  });
 
   function spawnItem(){
     if(!running) return;
@@ -722,6 +739,7 @@ function renderMemoryGame(card, quest, close){
   const deck = shuffle([...emojis, ...emojis]);
 
   card.innerHTML = `
+    <button class="game-exit-btn" id="memExitBtn">✕</button>
     <div class="game-title">🧠 记忆翻牌挑战</div>
     <div class="game-sub">完成「${quest.title}」解锁奖励关卡！找出所有配对的水果</div>
     <div class="game-hud"><span id="memMoves">步数 0</span><span id="memTimer">⏱ 0s</span></div>
@@ -739,6 +757,11 @@ function renderMemoryGame(card, quest, close){
   const timerHandle = setInterval(()=>{
     timerEl.textContent = "⏱ " + Math.floor((Date.now()-startTime)/1000) + "s";
   }, 500);
+
+  document.getElementById("memExitBtn").addEventListener("click", ()=>{
+    clearInterval(timerHandle);
+    close(0);
+  });
 
   deck.forEach((emoji, idx)=>{
     const c = document.createElement("div");
