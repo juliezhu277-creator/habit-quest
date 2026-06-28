@@ -421,31 +421,29 @@
   .cat-head .c-count{font-size:10px;color:#5a6b7a;font-weight:700;background:rgba(255,255,255,0.7);padding:1px 6px;border-radius:9px;}
   .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
-  .cat-goals{padding:6px 8px 8px;}
-  /* 目标行：长名自动换行，控件靠右顶部对齐，不截断 */
+  .cat-goals{padding:6px 7px 8px;}
+  /* 目标行：单行显示（不换行），控件紧凑靠右 */
   .goal-row{
-    display:flex;align-items:flex-start;gap:5px;padding:5px 0;
+    display:flex;align-items:center;gap:4px;padding:5px 0;
     border-bottom:1px solid #f0f0f0;
   }
   .goal-row:last-of-type{border-bottom:none;}
   .goal-check{
-    width:17px;height:17px;border-radius:5px;border:2px solid #ccc;background:#fff;cursor:pointer;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
-    transition:all .15s;margin-top:2px;
+    width:15px;height:15px;border-radius:4px;border:2px solid #ccc;background:#fff;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;
+    transition:all .15s;
   }
   .goal-row.done .goal-check{background:var(--accent);border-color:var(--accent-dark);}
   .goal-input{
-    flex:1 1 0;font-size:12px;font-family:inherit;color:var(--ink);line-height:1.4;
-    padding:1px 2px;min-width:0;border-radius:4px;
-    overflow-wrap:anywhere;word-break:break-word;
+    flex:1 1 0;border:none;background:transparent;font-size:12px;font-family:inherit;color:var(--ink);
+    padding:2px 0;border-bottom:1px solid transparent;min-width:0;
   }
-  .goal-input:focus{outline:none;background:#fff;box-shadow:inset 0 0 0 1px var(--primary);}
-  .goal-input:empty:before{content:attr(data-ph);color:var(--muted);}
+  .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
-  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:3px;margin-top:1px;}
+  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:2px;}
   .goal-timer{
-    width:22px;height:22px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
-    cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:19px;height:19px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:all .15s;
   }
   .goal-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
@@ -587,14 +585,15 @@ const CATEGORIES = [
 ];
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
-const GOALS_VERSION = 2;
+const GOALS_VERSION = 3;
+const GOAL_MAX_LEN = 8;   // 每个目标名最多字数，保证一行显示不截断
 function defaultGoals(){
   const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
-    study: ["完成自学几何第11单元","完成MUN家庭作业","预习经济学第一课","读书"].map(mk),
-    exercise: ["跳绳 200 个","跑步 20 分钟","拉伸 10 分钟","打球"].map(mk),
-    social: ["主动和同学聊天","和家人分享今天的事","帮家人做一件事","给朋友一句鼓励"].map(mk),
-    fun: ["玩 30 分钟游戏","看一集喜欢的剧","听音乐放松","和家人聊聊天"].map(mk),
+    study: ["几何第11单元","MUN作业","预习经济学","读书"].map(mk),
+    exercise: ["跳绳200个","跑步20分钟","拉伸10分钟","打球"].map(mk),
+    social: ["和同学聊天","和家人分享","帮家人做事","鼓励朋友"].map(mk),
+    fun: ["玩30分钟游戏","看一集剧","听音乐","陪家人聊天"].map(mk),
   };
 }
 
@@ -1022,7 +1021,7 @@ function renderTasks(){
       rows += `
         <div class="goal-row${g.done?" done":""}" data-gid="${g.id}">
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
-          <div class="goal-input" data-text contenteditable="true" data-ph="${t("goalPlaceholder")}">${escapeHtml(g.text)}</div>
+          <input class="goal-input" data-text maxlength="${GOAL_MAX_LEN}" value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
           <div class="goal-ctrls">
             <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
             <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>
@@ -1068,7 +1067,7 @@ function renderTasks(){
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
       row.querySelector("[data-timer]").addEventListener("click", ()=>toggleGoalTimer(catId, gid));
       row.querySelector("[data-del]").addEventListener("click", ()=>deleteGoal(catId, gid));
-      row.querySelector("[data-text]").addEventListener("blur", (e)=>editGoalText(catId, gid, e.target.innerText));
+      row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
     });
   });
 
