@@ -92,6 +92,35 @@
     font-size:10px;color:var(--muted);white-space:nowrap;text-align:center;
   }
   .section-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 4px 8px;display:flex;align-items:center;gap:6px;}
+
+  /* 积分奖励模块 */
+  .points-card{
+    background:var(--card);border-radius:20px;padding:16px 18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
+  }
+  .points-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+  .points-head .pt-title{font-size:14px;font-weight:800;color:var(--ink);}
+  .points-head .pt-total{font-size:15px;font-weight:800;color:var(--primary-dark);}
+  .points-cash{font-size:12px;color:var(--accent-dark);font-weight:700;margin-bottom:12px;}
+  .ladder{display:flex;align-items:center;}
+  .ladder .node{
+    flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:4px;
+    width:44px;
+  }
+  .ladder .dot{
+    width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:11px;font-weight:800;background:#eee;color:var(--muted);
+    border:2px solid #eee;transition:all .3s;
+  }
+  .ladder .node.reached .dot{background:var(--accent);border-color:var(--accent-dark);color:#fff;}
+  .ladder .node.reward .dot{font-size:13px;}
+  .ladder .node.reward.reached .dot{background:linear-gradient(145deg,var(--gold),var(--primary));border-color:var(--primary-dark);}
+  .ladder .node .lbl{font-size:10px;color:var(--muted);white-space:nowrap;}
+  .ladder .node.reached .lbl{color:var(--ink);font-weight:700;}
+  .ladder .bar{
+    flex:1;height:4px;background:#eee;border-radius:3px;position:relative;top:-9px;overflow:hidden;
+  }
+  .ladder .bar > i{display:block;height:100%;background:var(--accent);width:0;transition:width .5s;}
   .quest{
     background:var(--card);
     border-radius:16px;
@@ -353,6 +382,8 @@
 
   <div class="badges" id="badges"></div>
 
+  <div class="points-card" id="pointsCard"></div>
+
   <div class="section-title" id="sectionTitle">🎯 今日任务</div>
   <div id="questList"></div>
 
@@ -477,6 +508,14 @@ const I18N = {
     seqRound: n => `第 ${n} 关`,
     seqWrong: "顺序错了！",
     seqEnd: n => `坚持到第 ${n} 关！`,
+    // 积分奖励
+    pointsTitle: "💰 积分奖励",
+    pointsTotal: n => `共 ${n} 分`,
+    pointsCashEarned: n => `🎁 已赚得现金奖励 $${n}`,
+    pointsToNext: n => `再得 ${n} 分即可兑换 $10`,
+    pointsRewardLabel: "$10",
+    cashRewardMsg: "恭喜赚得 $10！",
+    cashRewardSub: "集满 500 分，现金奖励到账！",
   },
   en: {
     appTitle: "Habit Quest",
@@ -525,6 +564,13 @@ const I18N = {
     seqRound: n => `Round ${n}`,
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
+    pointsTitle: "💰 Points & Rewards",
+    pointsTotal: n => `${n} pts total`,
+    pointsCashEarned: n => `🎁 Cash earned: $${n}`,
+    pointsToNext: n => `${n} more pts to unlock $10`,
+    pointsRewardLabel: "$10",
+    cashRewardMsg: "You earned $10!",
+    cashRewardSub: "500 points reached — cash reward unlocked!",
   }
 };
 
@@ -545,7 +591,8 @@ function defaultState(){
     date: todayStr(),
     completed: {},
     unlockedBadges: [],
-    customGoals: {}
+    customGoals: {},
+    points: 0
   };
 }
 
@@ -553,6 +600,7 @@ function load(){
   const raw = localStorage.getItem(STORAGE_KEY);
   let state = raw ? JSON.parse(raw) : defaultState();
   if(!state.customGoals) state.customGoals = {};
+  if(typeof state.points !== "number") state.points = 0;
   if(state.date !== todayStr()){
     const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
     if(state.lastCompleteDate !== yesterday && state.lastCompleteDate !== todayStr()){
@@ -570,6 +618,17 @@ function save(state){
 
 function xpNeeded(level){
   return 50 + (level-1)*25;
+}
+
+// 积分系统配置：每完成1个目标 +10 分；每 100 分一个等级，集满 5 级（500 分）兑换 $10
+const POINTS_PER_QUEST = 10;
+const POINTS_PER_TIER = 100;
+const TIERS_PER_CYCLE = 5;
+const CYCLE_POINTS = POINTS_PER_TIER * TIERS_PER_CYCLE; // 500
+const CASH_PER_CYCLE = 10; // $10
+
+function cashEarned(points){
+  return Math.floor(points / CYCLE_POINTS) * CASH_PER_CYCLE;
 }
 
 function getStage(level){
@@ -609,6 +668,8 @@ function render(){
     badgesEl.appendChild(div);
   });
 
+  renderPoints();
+
   const listEl = document.getElementById("questList");
   listEl.innerHTML = "";
   QUESTS.forEach(q=>{
@@ -637,6 +698,43 @@ function render(){
   });
 }
 
+function renderPoints(){
+  const el = document.getElementById("pointsCard");
+  const pts = state.points;
+  // 当前 500 分循环内的进度（0–500），满 500 时阶梯显示满格以示庆祝
+  let cyclePts = pts % CYCLE_POINTS;
+  if(pts > 0 && cyclePts === 0) cyclePts = CYCLE_POINTS;
+  // 距离下一个 $10 还需多少分（刚好满 500 时需再攒满一轮）
+  const toNext = CYCLE_POINTS - (pts % CYCLE_POINTS);
+  const earned = cashEarned(pts);
+
+  let nodes = "";
+  for(let i=1;i<=TIERS_PER_CYCLE;i++){
+    const threshold = i*POINTS_PER_TIER;
+    const reached = cyclePts >= threshold;
+    const isReward = i === TIERS_PER_CYCLE;
+    const dot = isReward ? "💵" : threshold;
+    const label = isReward ? t("pointsRewardLabel") : threshold;
+    nodes += `<div class="node${reached?" reached":""}${isReward?" reward":""}">
+        <div class="dot">${dot}</div>
+        <div class="lbl">${label}</div>
+      </div>`;
+    if(i < TIERS_PER_CYCLE){
+      const fill = Math.max(0, Math.min(1, (cyclePts-(i-1)*POINTS_PER_TIER)/POINTS_PER_TIER)) * 100;
+      nodes += `<div class="bar"><i style="width:${fill}%"></i></div>`;
+    }
+  }
+
+  el.innerHTML = `
+    <div class="points-head">
+      <span class="pt-title">${t("pointsTitle")}</span>
+      <span class="pt-total">${t("pointsTotal", pts)}</span>
+    </div>
+    <div class="points-cash">${earned > 0 ? t("pointsCashEarned", earned) + " · " : ""}${t("pointsToNext", toNext)}</div>
+    <div class="ladder">${nodes}</div>
+  `;
+}
+
 function checkBadges(){
   BADGES.forEach(b=>{
     if(!state.unlockedBadges.includes(b.id) && b.need(state)){
@@ -652,6 +750,12 @@ function completeQuest(id){
   state.completed[id] = true;
   state.xp += quest.xp;
   state.totalXp += quest.xp;
+
+  // 积分：每完成一个目标 +10 分，检测是否跨过 $10 兑换线
+  const prevCash = cashEarned(state.points);
+  state.points += POINTS_PER_QUEST;
+  const newCash = cashEarned(state.points);
+  const earnedCashThisTime = newCash > prevCash;
 
   let leveledUp = false;
   while(state.xp >= xpNeeded(state.level)){
@@ -686,6 +790,9 @@ function completeQuest(id){
   checkBadgesQuiet(pendingToasts);
   if(allDone){
     pendingToasts.push({emoji:"🏆", msg:t("perfectDay"), sub:t("perfectDaySub"), levelup:true});
+  }
+  if(earnedCashThisTime){
+    pendingToasts.push({emoji:"💵", msg:t("cashRewardMsg"), sub:t("cashRewardSub"), levelup:true});
   }
 
   setTimeout(()=>{
