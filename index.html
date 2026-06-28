@@ -394,6 +394,22 @@
   .ratio-bar > .eff-fill{background:var(--accent);height:100%;transition:width .4s;}
   .ratio-note{font-size:10px;color:var(--muted);text-align:center;margin-top:5px;}
 
+  /* 手机娱乐时间（占位，待接入系统屏幕使用时间） */
+  .phone-card{
+    background:var(--card);border-radius:20px;padding:16px 18px;margin-bottom:4px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+    border:2px dashed #e0d6c4;position:relative;
+  }
+  .phone-card .soon-tag{
+    position:absolute;top:14px;right:16px;font-size:10px;font-weight:800;
+    background:#fff1e0;color:var(--primary-dark);padding:3px 9px;border-radius:10px;
+  }
+  .phone-card .soon-body{
+    display:flex;align-items:center;gap:12px;margin-top:6px;
+  }
+  .phone-card .soon-emoji{font-size:30px;opacity:0.6;}
+  .phone-card .soon-text{font-size:12px;color:var(--muted);line-height:1.5;}
+
   /* 积分余额 + 心愿奖励 */
   .points-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
   .points-head .pt-title{font-size:14px;font-weight:800;color:var(--ink);}
@@ -457,6 +473,8 @@
   <div class="badges" id="badges"></div>
 
   <div class="time-card" id="timeCard"></div>
+
+  <div class="phone-card" id="phoneCard"></div>
 
   <div class="points-card" id="pointsCard"></div>
 
@@ -601,6 +619,10 @@ const I18N = {
     ratioNote: (eff, total) => `今日有效利用占比 ${total>0?Math.round(eff/total*100):0}%（有效利用每小时 +${POINTS_PER_HOUR} 分）`,
     timePointsToast: n => `有效利用 +${n} 分！`,
     timePointsSub: "时间用得好，奖励自然来～",
+    // 手机娱乐时间（占位）
+    phoneTitle: "📱 手机娱乐时间统计",
+    phoneSoon: "敬请期待",
+    phoneNote: "此板块将自动统计你每天花在手机娱乐上的时间。受网页限制暂未开放，后续将通过手机系统的「屏幕使用时间」实现。",
     // 积分 + 心愿奖励
     pointsTitle: "💰 我的积分",
     pointsBalance: n => `${n} 分`,
@@ -676,6 +698,9 @@ const I18N = {
     ratioNote: (eff, total) => `${total>0?Math.round(eff/total*100):0}% effective today (+${POINTS_PER_HOUR} pts per effective hour)`,
     timePointsToast: n => `Effective time +${n} pts!`,
     timePointsSub: "Time well spent earns rewards!",
+    phoneTitle: "📱 Phone Entertainment Time",
+    phoneSoon: "Coming soon",
+    phoneNote: "This panel will automatically track your daily phone entertainment time. It's reserved for now and will later connect to your phone's Screen Time data.",
     pointsTitle: "💰 My Points",
     pointsBalance: n => `${n} pts`,
     wishRedeem: "Redeem",
@@ -699,12 +724,14 @@ function todayStr(){
   return new Date().toISOString().slice(0,10);
 }
 
+// 兑换基准：100 积分 = 10 分钟游戏时间 或 1 个心愿礼物
+const WISHLIST_VERSION = 2;
 function defaultWishList(){
   return [
-    {id:"w1", emoji:"🎮", name:{zh:"30 分钟游戏时间", en:"30 min game time"}, cost:150},
-    {id:"w2", emoji:"🎮", name:{zh:"1 小时游戏时间", en:"1 hour game time"}, cost:280},
-    {id:"w3", emoji:"🎬", name:{zh:"看一部电影", en:"Watch a movie"}, cost:350},
-    {id:"w4", emoji:"🎁", name:{zh:"心愿礼物（自定义）", en:"Wish gift (custom)"}, cost:600},
+    {id:"w1", emoji:"🎮", name:{zh:"10 分钟游戏时间", en:"10 min game time"}, cost:100},
+    {id:"w2", emoji:"🎮", name:{zh:"30 分钟游戏时间", en:"30 min game time"}, cost:300},
+    {id:"w3", emoji:"🎮", name:{zh:"1 小时游戏时间", en:"1 hour game time"}, cost:600},
+    {id:"w4", emoji:"🎁", name:{zh:"心愿礼物（自定义）", en:"Wish gift (custom)"}, cost:100},
   ];
 }
 
@@ -735,6 +762,11 @@ function load(){
   if(typeof state.timer === "undefined") state.timer = null;
   if(typeof state.timePointsAwarded !== "number") state.timePointsAwarded = 0;
   if(!state.wishList) state.wishList = defaultWishList();
+  // 兑换标准更新时，刷新为新的默认心愿清单
+  if(state.wishListVersion !== WISHLIST_VERSION){
+    state.wishList = defaultWishList();
+    state.wishListVersion = WISHLIST_VERSION;
+  }
   if(!state.redemptions) state.redemptions = [];
   if(state.date !== todayStr()){
     const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
@@ -830,6 +862,7 @@ function render(){
   });
 
   renderTimeTracker();
+  renderPhonePlaceholder();
   renderPoints();
   renderRedemptions();
 
@@ -979,6 +1012,20 @@ function awardTimePoints(){
     }
     checkBadges();
   }
+}
+
+/* ===================== 手机娱乐时间（占位） ===================== */
+
+function renderPhonePlaceholder(){
+  const el = document.getElementById("phoneCard");
+  el.innerHTML = `
+    <span class="soon-tag">${t("phoneSoon")}</span>
+    <div class="card-title">${t("phoneTitle")}</div>
+    <div class="soon-body">
+      <span class="soon-emoji">🚧</span>
+      <span class="soon-text">${t("phoneNote")}</span>
+    </div>
+  `;
 }
 
 /* ===================== 积分 + 心愿奖励 ===================== */
