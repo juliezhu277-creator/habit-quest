@@ -399,66 +399,64 @@
     background:var(--card);border-radius:20px;padding:14px 16px;
     box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
   }
-  /* 2×2 标题宫格：学习 运动 / 社交 娱乐 —— 点开看目标 */
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-  .cat-tile{
-    border-radius:16px;cursor:pointer;padding:12px 12px 10px;
+  /* 2×2 四宫格：学习 运动 / 社交 娱乐，目标直接显示 */
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .cat-block{
+    border-radius:16px;overflow:hidden;
     border:2px solid #eee;box-shadow:0 3px 10px rgba(0,0,0,0.05);
-    transition:transform .12s, box-shadow .15s;
+    display:flex;flex-direction:column;
   }
-  .cat-tile:active{transform:scale(0.98);}
-  .cat-tile.selected{box-shadow:0 0 0 3px rgba(255,140,66,0.35), 0 4px 14px rgba(0,0,0,0.1);}
   /* 四个板块各自主题色，突出区分 */
-  .cat-study   {border-color:#bfe9f7;background:linear-gradient(135deg,#e8f7fd,#d4f0fa);}
-  .cat-exercise{border-color:#c4ecd0;background:linear-gradient(135deg,#eafbef,#d8f6e2);}
-  .cat-social  {border-color:#ffd9bd;background:linear-gradient(135deg,#fff1e6,#ffe3cc);}
-  .cat-fun     {border-color:#e0d4fb;background:linear-gradient(135deg,#f3eefe,#e9defc);}
-  .cat-tile .t-top{display:flex;align-items:center;gap:7px;margin-bottom:8px;}
-  .cat-tile .t-ic{font-size:24px;}
-  .cat-tile .t-name{font-weight:800;font-size:17px;color:var(--ink);}
-  .cat-tile .t-meta{display:flex;align-items:center;justify-content:space-between;}
-  .cat-tile .t-count{font-size:11px;color:#5a6b7a;font-weight:700;background:rgba(255,255,255,0.75);padding:2px 8px;border-radius:10px;}
-  .cat-tile .t-time{font-size:12px;color:var(--ink);font-weight:800;font-variant-numeric:tabular-nums;}
+  .cat-study   {border-color:#bfe9f7;}
+  .cat-study   .cat-head{background:linear-gradient(135deg,#e8f7fd,#d4f0fa);}
+  .cat-exercise{border-color:#c4ecd0;}
+  .cat-exercise .cat-head{background:linear-gradient(135deg,#eafbef,#d8f6e2);}
+  .cat-social  {border-color:#ffd9bd;}
+  .cat-social  .cat-head{background:linear-gradient(135deg,#fff1e6,#ffe3cc);}
+  .cat-fun     {border-color:#e0d4fb;}
+  .cat-fun     .cat-head{background:linear-gradient(135deg,#f3eefe,#e9defc);}
+  .cat-head{display:flex;align-items:center;gap:6px;padding:9px 10px;}
+  .cat-head .c-ic{font-size:20px;flex-shrink:0;}
+  .cat-head .c-name{font-weight:800;font-size:15px;color:var(--ink);}
+  .cat-head .c-count{font-size:10px;color:#5a6b7a;font-weight:700;background:rgba(255,255,255,0.7);padding:1px 6px;border-radius:9px;}
+  .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
-  /* 展开的目标面板（全宽，文字不截断） */
-  .goals-panel{
-    margin-top:10px;border-radius:16px;padding:8px 14px;border:2px solid #eee;
-  }
-  .goals-panel.cat-study   {border-color:#bfe9f7;}
-  .goals-panel.cat-exercise{border-color:#c4ecd0;}
-  .goals-panel.cat-social  {border-color:#ffd9bd;}
-  .goals-panel.cat-fun     {border-color:#e0d4fb;}
+  .cat-goals{padding:6px 8px 8px;}
+  /* 目标行：长名自动换行，控件靠右顶部对齐，不截断 */
   .goal-row{
-    display:flex;align-items:center;gap:8px;padding:7px 0;
+    display:flex;align-items:flex-start;gap:5px;padding:5px 0;
     border-bottom:1px solid #f0f0f0;
   }
   .goal-row:last-of-type{border-bottom:none;}
   .goal-check{
-    width:18px;height:18px;border-radius:5px;border:2px solid #ccc;background:#fff;cursor:pointer;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;
-    transition:all .15s;
+    width:17px;height:17px;border-radius:5px;border:2px solid #ccc;background:#fff;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
+    transition:all .15s;margin-top:2px;
   }
   .goal-row.done .goal-check{background:var(--accent);border-color:var(--accent-dark);}
   .goal-input{
-    flex:1 1 0;border:none;background:transparent;font-size:14px;font-family:inherit;color:var(--ink);
-    padding:2px 0;border-bottom:1px solid transparent;min-width:0;
+    flex:1 1 0;font-size:12px;font-family:inherit;color:var(--ink);line-height:1.4;
+    padding:1px 2px;min-width:0;border-radius:4px;
+    overflow-wrap:anywhere;word-break:break-word;
   }
-  .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
+  .goal-input:focus{outline:none;background:#fff;box-shadow:inset 0 0 0 1px var(--primary);}
+  .goal-input:empty:before{content:attr(data-ph);color:var(--muted);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
+  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:3px;margin-top:1px;}
   .goal-timer{
-    width:26px;height:26px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
-    cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:22px;height:22px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:all .15s;
   }
   .goal-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
   .goal-timer.running.fun{border-color:#e84545;background:#ffecec;}
-  .goal-time{font-size:11px;color:var(--muted);min-width:36px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
-  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
+  .goal-time{font-size:9px;color:var(--muted);min-width:0;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;}
   .goal-del:hover{color:#e84545;}
   .goal-add{
-    display:flex;align-items:center;gap:5px;margin-top:6px;
-    color:var(--primary-dark);font-size:13px;font-weight:700;cursor:pointer;
-    background:none;border:none;padding:6px 1px;
+    display:flex;align-items:center;gap:4px;margin-top:3px;
+    color:var(--primary-dark);font-size:11px;font-weight:700;cursor:pointer;
+    background:none;border:none;padding:5px 1px;
   }
   .tasks-summary{
     margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
@@ -999,10 +997,11 @@ function render(){
   renderPhonePlaceholder();
 }
 
-/* ===================== 今日目标 & 时间（标题宫格 + 点开看目标） ===================== */
+/* ===================== 今日目标 & 时间（2×2 宫格，目标直接显示，长名自动换行） ===================== */
 
-// 当前展开的类别（运行期），默认展开学习
-let selectedCat = "study";
+function escapeHtml(s){
+  return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 
 function renderTasks(){
   const el = document.getElementById("tasksCard");
@@ -1012,50 +1011,44 @@ function renderTasks(){
   const eff = effectiveSecondsToday();
   const total = eff + funSec;
 
-  // 2×2 标题宫格
-  let tiles = "";
+  let blocks = "";
   CATEGORIES.forEach(cat=>{
     const goals = state.goals[cat.id] || [];
     const doneCount = goals.filter(g=>g.done).length;
-    const sel = selectedCat === cat.id;
-    tiles += `
-      <div class="cat-tile cat-${cat.id}${sel?" selected":""}" data-cat="${cat.id}">
-        <div class="t-top"><span class="t-ic">${cat.icon}</span><span class="t-name">${L(cat.title)}</span></div>
-        <div class="t-meta">
-          <span class="t-count">${doneCount}/${goals.length}</span>
-          <span class="t-time" id="ct-${cat.id}">${fmtClock(catSeconds(cat.id))}</span>
-        </div>
-      </div>`;
-  });
 
-  // 展开的目标面板（全宽，不截断）
-  let panel = "";
-  if(selectedCat){
-    const cat = CATEGORIES.find(c=>c.id===selectedCat);
-    const goals = state.goals[cat.id] || [];
     let rows = "";
     goals.forEach(g=>{
       const isRunning = running && running.goalId === g.id;
       rows += `
         <div class="goal-row${g.done?" done":""}" data-gid="${g.id}">
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
-          <input class="goal-input" data-text value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
-          <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
-          <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>
-          <button class="goal-del" data-del title="✕">✕</button>
+          <div class="goal-input" data-text contenteditable="true" data-ph="${t("goalPlaceholder")}">${escapeHtml(g.text)}</div>
+          <div class="goal-ctrls">
+            <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
+            <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>
+            <button class="goal-del" data-del title="✕">✕</button>
+          </div>
         </div>`;
     });
-    panel = `
-      <div class="goals-panel cat-${cat.id}" data-cat="${cat.id}">
-        ${rows}
-        <button class="goal-add" data-add>${t("addGoal")}</button>
+
+    blocks += `
+      <div class="cat-block cat-${cat.id}" data-cat="${cat.id}">
+        <div class="cat-head">
+          <span class="c-ic">${cat.icon}</span>
+          <span class="c-name">${L(cat.title)}</span>
+          <span class="c-count">${doneCount}/${goals.length}</span>
+          <span class="c-time" id="ct-${cat.id}">${fmtClock(catSeconds(cat.id))}</span>
+        </div>
+        <div class="cat-goals">
+          ${rows}
+          <button class="goal-add" data-add>${t("addGoal")}</button>
+        </div>
       </div>`;
-  }
+  });
 
   el.innerHTML = `
     <div class="card-title">${t("tasksTitle")}</div>
-    <div class="cat-grid">${tiles}</div>
-    ${panel}
+    <div class="cat-grid">${blocks}</div>
     <div class="tasks-summary">
       <div class="time-stats">
         <div class="time-stat"><div class="v" id="stFun">${fmtHours(funSec)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
@@ -1067,29 +1060,19 @@ function renderTasks(){
     </div>
   `;
 
-  // 宫格点击：展开/收起对应类别
-  el.querySelectorAll(".cat-tile").forEach(tile=>{
-    tile.addEventListener("click", ()=>{
-      const catId = tile.dataset.cat;
-      selectedCat = (selectedCat === catId) ? null : catId;
-      renderTasks();
-    });
-  });
-  // 面板内目标的事件
-  const panelEl = el.querySelector(".goals-panel");
-  if(panelEl){
-    const catId = panelEl.dataset.cat;
-    panelEl.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
-    panelEl.querySelectorAll(".goal-row").forEach(row=>{
+  el.querySelectorAll(".cat-block").forEach(block=>{
+    const catId = block.dataset.cat;
+    block.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
+    block.querySelectorAll(".goal-row").forEach(row=>{
       const gid = row.dataset.gid;
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
       row.querySelector("[data-timer]").addEventListener("click", ()=>toggleGoalTimer(catId, gid));
       row.querySelector("[data-del]").addEventListener("click", ()=>deleteGoal(catId, gid));
-      row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
+      row.querySelector("[data-text]").addEventListener("blur", (e)=>editGoalText(catId, gid, e.target.innerText));
     });
-  }
+  });
 
-  // 计时实时刷新（只更新时间数字，避免打断正在编辑的目标输入框）
+  // 计时实时刷新（只更新时间数字，避免打断正在编辑的目标文字）
   if(running && !timerInterval){
     timerInterval = setInterval(tickTimer, 1000);
   } else if(!running && timerInterval){
@@ -1119,10 +1102,9 @@ function tickTimer(){
 function addGoal(catId){
   if(!state.goals[catId]) state.goals[catId] = [];
   state.goals[catId].push({id:"g"+Date.now().toString(36), text:"", done:false, sec:0});
-  selectedCat = catId;
   save(state); renderTasks();
-  // 自动聚焦到新增的输入框
-  const inputs = document.querySelectorAll(".goals-panel .goal-input");
+  // 自动聚焦到新增的目标输入框
+  const inputs = document.querySelectorAll(`.cat-block[data-cat="${catId}"] .goal-input`);
   if(inputs.length) inputs[inputs.length-1].focus();
 }
 function deleteGoal(catId, gid){
