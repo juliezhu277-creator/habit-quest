@@ -360,6 +360,80 @@
   .seq-status{
     text-align:center;font-size:13px;font-weight:700;color:var(--ink);margin-top:10px;
   }
+
+  /* 时间统计模块 */
+  .time-card,.redeem-card{
+    background:var(--card);border-radius:20px;padding:16px 18px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
+  }
+  .card-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .timer-display{
+    text-align:center;font-size:13px;color:var(--muted);margin-bottom:10px;min-height:18px;
+  }
+  .timer-display b{color:var(--primary-dark);font-size:15px;}
+  .timer-btns{display:flex;gap:8px;margin-bottom:12px;}
+  .timer-btn{
+    flex:1;padding:10px 4px;border-radius:14px;border:2px solid #eee;background:#fff;
+    cursor:pointer;font-size:12px;font-weight:700;color:var(--ink);transition:all .15s;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
+  }
+  .timer-btn .ic{font-size:18px;}
+  .timer-btn.running{border-color:var(--primary);background:#fff3e8;color:var(--primary-dark);}
+  .timer-btn.running.fun{border-color:#e84545;background:#ffecec;color:#c62828;}
+  .time-stats{display:flex;gap:8px;}
+  .time-stat{
+    flex:1;text-align:center;background:var(--bg2);border-radius:12px;padding:8px 4px;
+  }
+  .time-stat .v{font-size:15px;font-weight:800;color:var(--ink);}
+  .time-stat .k{font-size:10px;color:var(--muted);margin-top:2px;}
+  .time-stat.eff{background:#eafff0;}
+  .time-stat.eff .v{color:var(--accent-dark);}
+  .ratio-bar{
+    height:8px;border-radius:5px;background:#ffd9d9;overflow:hidden;margin-top:10px;display:flex;
+  }
+  .ratio-bar > .eff-fill{background:var(--accent);height:100%;transition:width .4s;}
+  .ratio-note{font-size:10px;color:var(--muted);text-align:center;margin-top:5px;}
+
+  /* 积分余额 + 心愿奖励 */
+  .points-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
+  .points-head .pt-title{font-size:14px;font-weight:800;color:var(--ink);}
+  .points-head .pt-total{font-size:16px;font-weight:800;color:var(--primary-dark);}
+  .wish-item{
+    display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f0f0f0;
+  }
+  .wish-item .w-ic{font-size:22px;flex-shrink:0;width:30px;text-align:center;}
+  .wish-item .w-info{flex:1;}
+  .wish-item .w-name{font-size:13px;font-weight:600;color:var(--ink);}
+  .wish-item .w-cost{font-size:11px;color:var(--primary-dark);font-weight:700;margin-top:1px;}
+  .wish-item .w-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:2px 4px;}
+  .wish-item .w-del:hover{color:#e84545;}
+  .redeem-btn{
+    border:none;border-radius:12px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;
+    background:var(--accent);color:#fff;transition:all .15s;flex-shrink:0;
+  }
+  .redeem-btn:disabled{background:#e2e2e2;color:#aaa;cursor:not-allowed;}
+  .wish-add{
+    display:flex;gap:6px;margin-top:10px;border-top:1px solid #f0f0f0;padding-top:10px;
+  }
+  .wish-add input{
+    padding:7px 10px;border-radius:10px;border:2px solid #eee;font-size:12px;font-family:inherit;
+  }
+  .wish-add input.n{flex:1;min-width:0;}
+  .wish-add input.c{width:64px;}
+  .wish-add button{
+    border:none;border-radius:10px;background:var(--primary);color:#fff;font-weight:700;
+    font-size:12px;padding:0 12px;cursor:pointer;
+  }
+  /* 兑换记录 */
+  .redeem-empty{font-size:12px;color:var(--muted);text-align:center;padding:6px 0;}
+  .redeem-row{
+    display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f0f0f0;font-size:12px;
+  }
+  .redeem-row:first-of-type{border-top:none;}
+  .redeem-row .r-ic{font-size:18px;}
+  .redeem-row .r-name{flex:1;color:var(--ink);font-weight:600;}
+  .redeem-row .r-meta{color:var(--muted);font-size:11px;text-align:right;}
+  .redeem-row .r-cost{color:var(--primary-dark);font-weight:700;}
 </style>
 </head>
 <body>
@@ -382,10 +456,14 @@
 
   <div class="badges" id="badges"></div>
 
+  <div class="time-card" id="timeCard"></div>
+
   <div class="points-card" id="pointsCard"></div>
 
   <div class="section-title" id="sectionTitle">🎯 今日任务</div>
   <div id="questList"></div>
+
+  <div class="redeem-card" id="redeemCard"></div>
 
   <div class="footer-note" id="footerNote">完成任务即可获得经验值，攒够经验角色就会升级进化！</div>
   <button class="reset-btn" id="resetBtn">重置今日任务（测试用）</button>
@@ -508,14 +586,34 @@ const I18N = {
     seqRound: n => `第 ${n} 关`,
     seqWrong: "顺序错了！",
     seqEnd: n => `坚持到第 ${n} 关！`,
-    // 积分奖励
-    pointsTitle: "💰 积分奖励",
-    pointsTotal: n => `共 ${n} 分`,
-    pointsCashEarned: n => `🎁 已赚得现金奖励 $${n}`,
-    pointsToNext: n => `再得 ${n} 分即可兑换 $10`,
-    pointsRewardLabel: "$10",
-    cashRewardMsg: "恭喜赚得 $10！",
-    cashRewardSub: "集满 500 分，现金奖励到账！",
+    // 时间统计
+    timeTitle: "⏱ 时间管家",
+    timerIdle: "点下方按钮开始计时",
+    timerRunning: (label) => `正在记录：${label}`,
+    actStudy: "学习",
+    actExercise: "锻炼",
+    actFun: "娱乐",
+    actStop: "停止",
+    statFun: "娱乐",
+    statStudy: "学习",
+    statEff: "有效利用",
+    hoursUnit: "小时",
+    ratioNote: (eff, total) => `今日有效利用占比 ${total>0?Math.round(eff/total*100):0}%（有效利用每小时 +${POINTS_PER_HOUR} 分）`,
+    timePointsToast: n => `有效利用 +${n} 分！`,
+    timePointsSub: "时间用得好，奖励自然来～",
+    // 积分 + 心愿奖励
+    pointsTitle: "💰 我的积分",
+    pointsBalance: n => `${n} 分`,
+    wishRedeem: "兑换",
+    wishAddName: "心愿名称",
+    wishAddCost: "积分",
+    wishAdd: "添加",
+    redeemDone: name => `已兑换：${name}`,
+    redeemDoneSub: "记得找家长兑现哦！",
+    // 兑换记录
+    redeemTitle: "🎁 兑换记录",
+    redeemEmpty: "还没有兑换记录，加油攒积分吧！",
+    costUnit: n => `-${n} 分`,
   },
   en: {
     appTitle: "Habit Quest",
@@ -564,13 +662,31 @@ const I18N = {
     seqRound: n => `Round ${n}`,
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
-    pointsTitle: "💰 Points & Rewards",
-    pointsTotal: n => `${n} pts total`,
-    pointsCashEarned: n => `🎁 Cash earned: $${n}`,
-    pointsToNext: n => `${n} more pts to unlock $10`,
-    pointsRewardLabel: "$10",
-    cashRewardMsg: "You earned $10!",
-    cashRewardSub: "500 points reached — cash reward unlocked!",
+    timeTitle: "⏱ Time Manager",
+    timerIdle: "Tap a button below to start tracking",
+    timerRunning: (label) => `Tracking: ${label}`,
+    actStudy: "Study",
+    actExercise: "Exercise",
+    actFun: "Fun",
+    actStop: "Stop",
+    statFun: "Fun",
+    statStudy: "Study",
+    statEff: "Effective",
+    hoursUnit: "h",
+    ratioNote: (eff, total) => `${total>0?Math.round(eff/total*100):0}% effective today (+${POINTS_PER_HOUR} pts per effective hour)`,
+    timePointsToast: n => `Effective time +${n} pts!`,
+    timePointsSub: "Time well spent earns rewards!",
+    pointsTitle: "💰 My Points",
+    pointsBalance: n => `${n} pts`,
+    wishRedeem: "Redeem",
+    wishAddName: "Reward name",
+    wishAddCost: "pts",
+    wishAdd: "Add",
+    redeemDone: name => `Redeemed: ${name}`,
+    redeemDoneSub: "Ask a parent to make it happen!",
+    redeemTitle: "🎁 Redemption History",
+    redeemEmpty: "No redemptions yet — keep earning points!",
+    costUnit: n => `-${n} pts`,
   }
 };
 
@@ -583,6 +699,15 @@ function todayStr(){
   return new Date().toISOString().slice(0,10);
 }
 
+function defaultWishList(){
+  return [
+    {id:"w1", emoji:"🎮", name:{zh:"30 分钟游戏时间", en:"30 min game time"}, cost:150},
+    {id:"w2", emoji:"🎮", name:{zh:"1 小时游戏时间", en:"1 hour game time"}, cost:280},
+    {id:"w3", emoji:"🎬", name:{zh:"看一部电影", en:"Watch a movie"}, cost:350},
+    {id:"w4", emoji:"🎁", name:{zh:"心愿礼物（自定义）", en:"Wish gift (custom)"}, cost:600},
+  ];
+}
+
 function defaultState(){
   return {
     xp:0, level:1, totalXp:0,
@@ -592,7 +717,12 @@ function defaultState(){
     completed: {},
     unlockedBadges: [],
     customGoals: {},
-    points: 0
+    points: 0,
+    timeLog: {},          // { "YYYY-MM-DD": {study:秒, exercise:秒, fun:秒} }
+    timer: null,          // { activity:"study"|"exercise"|"fun", start:时间戳 }
+    timePointsAwarded: 0, // 已根据有效时间发放的积分（累计）
+    wishList: defaultWishList(),
+    redemptions: []       // [ {emoji, name, cost, date} ]
   };
 }
 
@@ -601,6 +731,11 @@ function load(){
   let state = raw ? JSON.parse(raw) : defaultState();
   if(!state.customGoals) state.customGoals = {};
   if(typeof state.points !== "number") state.points = 0;
+  if(!state.timeLog) state.timeLog = {};
+  if(typeof state.timer === "undefined") state.timer = null;
+  if(typeof state.timePointsAwarded !== "number") state.timePointsAwarded = 0;
+  if(!state.wishList) state.wishList = defaultWishList();
+  if(!state.redemptions) state.redemptions = [];
   if(state.date !== todayStr()){
     const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
     if(state.lastCompleteDate !== yesterday && state.lastCompleteDate !== todayStr()){
@@ -620,15 +755,41 @@ function xpNeeded(level){
   return 50 + (level-1)*25;
 }
 
-// 积分系统配置：每完成1个目标 +10 分；每 100 分一个等级，集满 5 级（500 分）兑换 $10
-const POINTS_PER_QUEST = 10;
-const POINTS_PER_TIER = 100;
-const TIERS_PER_CYCLE = 5;
-const CYCLE_POINTS = POINTS_PER_TIER * TIERS_PER_CYCLE; // 500
-const CASH_PER_CYCLE = 10; // $10
+// 积分系统配置
+const POINTS_PER_QUEST = 10;       // 每完成一个目标 +10 分
+const POINTS_PER_HOUR = 10;        // 每有效利用 1 小时 +10 分（每 6 分钟 1 分）
+const SECONDS_PER_POINT = 3600 / POINTS_PER_HOUR; // 360 秒/分
+const TIMER_ACTIVITIES = ["study","exercise","fun"]; // 学习 / 锻炼 / 娱乐
 
-function cashEarned(points){
-  return Math.floor(points / CYCLE_POINTS) * CASH_PER_CYCLE;
+function fmtDuration(sec){
+  sec = Math.floor(sec);
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = sec%60;
+  if(h > 0) return `${h}h ${m}m`;
+  if(m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+}
+function fmtHours(sec){
+  return (sec/3600).toFixed(1);
+}
+// 累计有效利用秒数（学习+锻炼，所有日期）
+function totalEffectiveSeconds(){
+  let sum = 0;
+  for(const d in state.timeLog){
+    const e = state.timeLog[d];
+    sum += (e.study||0) + (e.exercise||0);
+  }
+  // 加上当前正在运行的有效计时
+  if(state.timer && state.timer.activity !== "fun"){
+    sum += (Date.now() - state.timer.start)/1000;
+  }
+  return sum;
+}
+function todayLog(){
+  const d = todayStr();
+  if(!state.timeLog[d]) state.timeLog[d] = {study:0, exercise:0, fun:0};
+  return state.timeLog[d];
 }
 
 function getStage(level){
@@ -668,7 +829,9 @@ function render(){
     badgesEl.appendChild(div);
   });
 
+  renderTimeTracker();
   renderPoints();
+  renderRedemptions();
 
   const listEl = document.getElementById("questList");
   listEl.innerHTML = "";
@@ -698,41 +861,206 @@ function render(){
   });
 }
 
+/* ===================== 时间管家 ===================== */
+
+let timerInterval = null;
+
+function renderTimeTracker(){
+  const el = document.getElementById("timeCard");
+  const log = todayLog();
+  const running = state.timer;
+  // 今日各项时长（含正在运行的会话）
+  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0};
+  if(running){
+    live[running.activity] += (Date.now() - running.start)/1000;
+  }
+  const eff = live.study + live.exercise;
+  const total = eff + live.fun;
+
+  const actMeta = {
+    study:{ic:"📚", key:"actStudy"},
+    exercise:{ic:"🏃", key:"actExercise"},
+    fun:{ic:"🎮", key:"actFun"},
+  };
+  let btns = "";
+  TIMER_ACTIVITIES.forEach(act=>{
+    const isRunning = running && running.activity === act;
+    const cls = "timer-btn" + (isRunning ? " running" + (act==="fun"?" fun":"") : "");
+    const label = isRunning ? t("actStop") : t(actMeta[act].key);
+    const ic = isRunning ? "⏹" : actMeta[act].ic;
+    btns += `<button class="${cls}" data-act="${act}"><span class="ic">${ic}</span>${label}</button>`;
+  });
+
+  let statusLine = t("timerIdle");
+  if(running){
+    statusLine = t("timerRunning", t(actMeta[running.activity].key)) +
+      ` · <b>${fmtDuration((Date.now()-running.start)/1000)}</b>`;
+  }
+
+  el.innerHTML = `
+    <div class="card-title">${t("timeTitle")}</div>
+    <div class="timer-display" id="timerDisplay">${statusLine}</div>
+    <div class="timer-btns">${btns}</div>
+    <div class="time-stats">
+      <div class="time-stat"><div class="v">${fmtHours(live.fun)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
+      <div class="time-stat"><div class="v">${fmtHours(live.study)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
+      <div class="time-stat eff"><div class="v">${fmtHours(eff)}${t("hoursUnit")}</div><div class="k">${t("statEff")}</div></div>
+    </div>
+    <div class="ratio-bar"><div class="eff-fill" style="width:${total>0?(eff/total*100):0}%"></div></div>
+    <div class="ratio-note">${t("ratioNote", eff, total)}</div>
+  `;
+
+  el.querySelectorAll(".timer-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>toggleTimer(btn.dataset.act));
+  });
+
+  // 实时刷新正在运行的计时显示
+  if(running && !timerInterval){
+    timerInterval = setInterval(updateTimerDisplay, 1000);
+  } else if(!running && timerInterval){
+    clearInterval(timerInterval); timerInterval = null;
+  }
+}
+
+function updateTimerDisplay(){
+  const running = state.timer;
+  if(!running){ clearInterval(timerInterval); timerInterval = null; return; }
+  const disp = document.getElementById("timerDisplay");
+  if(disp){
+    const actMeta = {study:"actStudy", exercise:"actExercise", fun:"actFun"};
+    disp.innerHTML = t("timerRunning", t(actMeta[running.activity])) +
+      ` · <b>${fmtDuration((Date.now()-running.start)/1000)}</b>`;
+  }
+}
+
+function toggleTimer(act){
+  if(state.timer && state.timer.activity === act){
+    stopTimer();
+  } else {
+    if(state.timer) stopTimer();   // 先结束上一个活动
+    state.timer = {activity:act, start:Date.now()};
+    save(state);
+    render();
+  }
+}
+
+function stopTimer(){
+  if(!state.timer) return;
+  const {activity, start} = state.timer;
+  const elapsed = (Date.now() - start)/1000;
+  const log = todayLog();
+  log[activity] = (log[activity]||0) + elapsed;
+  state.timer = null;
+  save(state);
+  awardTimePoints();   // 结算有效利用积分
+  render();
+}
+
+// 根据累计有效利用时间发放积分（每 6 分钟 1 分），同时给角色经验值（等级与有效时间挂钩）
+function awardTimePoints(){
+  const earnable = Math.floor(totalEffectiveSeconds() / SECONDS_PER_POINT);
+  const delta = earnable - state.timePointsAwarded;
+  if(delta > 0){
+    state.timePointsAwarded = earnable;
+    state.points += delta;
+    state.xp += delta;
+    state.totalXp += delta;
+    let leveledUp = false;
+    while(state.xp >= xpNeeded(state.level)){
+      state.xp -= xpNeeded(state.level);
+      state.level += 1;
+      leveledUp = true;
+    }
+    save(state);
+    showToast({emoji:"⏱", msg:t("timePointsToast", delta), sub:t("timePointsSub")});
+    if(leveledUp){
+      const stage = getStage(state.level);
+      setTimeout(()=>showToast({emoji:stage.emoji, msg:t("levelUp", state.level), sub:t("evolvedInto", L(stage.name)), levelup:true}), 1600);
+    }
+    checkBadges();
+  }
+}
+
+/* ===================== 积分 + 心愿奖励 ===================== */
+
 function renderPoints(){
   const el = document.getElementById("pointsCard");
-  const pts = state.points;
-  // 当前 500 分循环内的进度（0–500），满 500 时阶梯显示满格以示庆祝
-  let cyclePts = pts % CYCLE_POINTS;
-  if(pts > 0 && cyclePts === 0) cyclePts = CYCLE_POINTS;
-  // 距离下一个 $10 还需多少分（刚好满 500 时需再攒满一轮）
-  const toNext = CYCLE_POINTS - (pts % CYCLE_POINTS);
-  const earned = cashEarned(pts);
-
-  let nodes = "";
-  for(let i=1;i<=TIERS_PER_CYCLE;i++){
-    const threshold = i*POINTS_PER_TIER;
-    const reached = cyclePts >= threshold;
-    const isReward = i === TIERS_PER_CYCLE;
-    const dot = isReward ? "💵" : threshold;
-    const label = isReward ? t("pointsRewardLabel") : threshold;
-    nodes += `<div class="node${reached?" reached":""}${isReward?" reward":""}">
-        <div class="dot">${dot}</div>
-        <div class="lbl">${label}</div>
+  let items = "";
+  state.wishList.forEach(w=>{
+    const affordable = state.points >= w.cost;
+    items += `
+      <div class="wish-item">
+        <span class="w-ic">${w.emoji}</span>
+        <div class="w-info">
+          <div class="w-name">${L(w.name)}</div>
+          <div class="w-cost">${w.cost} ${t("wishAddCost")}</div>
+        </div>
+        <button class="redeem-btn" data-wid="${w.id}" ${affordable?"":"disabled"}>${t("wishRedeem")}</button>
+        <button class="w-del" data-del="${w.id}" title="✕">✕</button>
       </div>`;
-    if(i < TIERS_PER_CYCLE){
-      const fill = Math.max(0, Math.min(1, (cyclePts-(i-1)*POINTS_PER_TIER)/POINTS_PER_TIER)) * 100;
-      nodes += `<div class="bar"><i style="width:${fill}%"></i></div>`;
-    }
-  }
+  });
 
   el.innerHTML = `
     <div class="points-head">
       <span class="pt-title">${t("pointsTitle")}</span>
-      <span class="pt-total">${t("pointsTotal", pts)}</span>
+      <span class="pt-total">${t("pointsBalance", state.points)}</span>
     </div>
-    <div class="points-cash">${earned > 0 ? t("pointsCashEarned", earned) + " · " : ""}${t("pointsToNext", toNext)}</div>
-    <div class="ladder">${nodes}</div>
+    ${items}
+    <div class="wish-add">
+      <input class="n" id="wishName" type="text" placeholder="${t("wishAddName")}">
+      <input class="c" id="wishCost" type="number" min="1" placeholder="${t("wishAddCost")}">
+      <button id="wishAddBtn">${t("wishAdd")}</button>
+    </div>
   `;
+
+  el.querySelectorAll(".redeem-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>redeemWish(btn.dataset.wid));
+  });
+  el.querySelectorAll(".w-del").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      state.wishList = state.wishList.filter(w=>w.id !== btn.dataset.del);
+      save(state); render();
+    });
+  });
+  document.getElementById("wishAddBtn").addEventListener("click", addWish);
+}
+
+function addWish(){
+  const name = document.getElementById("wishName").value.trim();
+  const cost = parseInt(document.getElementById("wishCost").value, 10);
+  if(!name || !cost || cost < 1) return;
+  state.wishList.push({id:"w"+Date.now(), emoji:"🎁", name:{zh:name, en:name}, cost});
+  save(state); render();
+}
+
+function redeemWish(id){
+  const w = state.wishList.find(x=>x.id===id);
+  if(!w || state.points < w.cost) return;
+  state.points -= w.cost;
+  state.redemptions.unshift({emoji:w.emoji, name:L(w.name), cost:w.cost, date:todayStr()});
+  save(state);
+  render();
+  showToast({emoji:"🎉", msg:t("redeemDone", L(w.name)), sub:t("redeemDoneSub"), levelup:true});
+}
+
+/* ===================== 兑换记录 ===================== */
+
+function renderRedemptions(){
+  const el = document.getElementById("redeemCard");
+  let rows = "";
+  if(state.redemptions.length === 0){
+    rows = `<div class="redeem-empty">${t("redeemEmpty")}</div>`;
+  } else {
+    state.redemptions.forEach(r=>{
+      rows += `
+        <div class="redeem-row">
+          <span class="r-ic">${r.emoji}</span>
+          <span class="r-name">${r.name}</span>
+          <span class="r-meta">${r.date}<br><span class="r-cost">${t("costUnit", r.cost)}</span></span>
+        </div>`;
+    });
+  }
+  el.innerHTML = `<div class="card-title">${t("redeemTitle")}</div>${rows}`;
 }
 
 function checkBadges(){
@@ -751,11 +1079,8 @@ function completeQuest(id){
   state.xp += quest.xp;
   state.totalXp += quest.xp;
 
-  // 积分：每完成一个目标 +10 分，检测是否跨过 $10 兑换线
-  const prevCash = cashEarned(state.points);
+  // 积分：每完成一个目标 +10 分（可用于兑换心愿奖励）
   state.points += POINTS_PER_QUEST;
-  const newCash = cashEarned(state.points);
-  const earnedCashThisTime = newCash > prevCash;
 
   let leveledUp = false;
   while(state.xp >= xpNeeded(state.level)){
@@ -790,9 +1115,6 @@ function completeQuest(id){
   checkBadgesQuiet(pendingToasts);
   if(allDone){
     pendingToasts.push({emoji:"🏆", msg:t("perfectDay"), sub:t("perfectDaySub"), levelup:true});
-  }
-  if(earnedCashThisTime){
-    pendingToasts.push({emoji:"💵", msg:t("cashRewardMsg"), sub:t("cashRewardSub"), levelup:true});
   }
 
   setTimeout(()=>{
