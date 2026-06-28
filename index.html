@@ -402,26 +402,16 @@
   .cat-block{border-radius:16px;background:#fafafa;margin-bottom:10px;overflow:hidden;}
   .cat-block:last-of-type{margin-bottom:0;}
   .cat-head{
-    display:flex;align-items:center;gap:10px;padding:12px 12px;cursor:pointer;user-select:none;
+    display:flex;align-items:center;gap:10px;padding:11px 12px 6px;
   }
   .cat-head .c-ic{font-size:22px;flex-shrink:0;}
-  .cat-head .c-name{font-weight:700;font-size:14px;color:var(--ink);flex:1;}
+  .cat-head .c-name{font-weight:700;font-size:14px;color:var(--ink);}
   .cat-head .c-count{font-size:11px;color:var(--accent-dark);font-weight:700;background:#eafff0;padding:2px 8px;border-radius:10px;}
-  .cat-head .c-time{font-size:11px;color:var(--muted);min-width:42px;text-align:right;}
-  .cat-timer{
-    width:34px;height:34px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
-    cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
-    transition:all .15s;
-  }
-  .cat-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
-  .cat-timer.running.fun{border-color:#e84545;background:#ffecec;}
+  .cat-head .c-time{font-size:12px;color:var(--primary-dark);font-weight:700;margin-left:auto;font-variant-numeric:tabular-nums;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
-  .cat-caret{font-size:11px;color:var(--muted);transition:transform .2s;flex-shrink:0;}
-  .cat-block.open .cat-caret{transform:rotate(90deg);}
-  .cat-body{display:none;padding:0 12px 12px;}
-  .cat-block.open .cat-body{display:block;}
+  .cat-goals{padding:0 12px 10px;}
   .goal-row{
-    display:flex;align-items:center;gap:8px;padding:6px 0;
+    display:flex;align-items:center;gap:7px;padding:5px 0;
   }
   .goal-check{
     width:24px;height:24px;border-radius:7px;border:2px solid #ddd;background:#fff;cursor:pointer;
@@ -435,7 +425,15 @@
   }
   .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
-  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:2px 4px;flex-shrink:0;}
+  .goal-time{font-size:11px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .goal-timer{
+    width:28px;height:28px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:all .15s;
+  }
+  .goal-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
+  .goal-timer.running.fun{border-color:#e84545;background:#ffecec;}
+  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:2px 3px;flex-shrink:0;}
   .goal-del:hover{color:#e84545;}
   .goal-add{
     display:flex;align-items:center;gap:6px;margin-top:4px;
@@ -572,7 +570,7 @@ const CATEGORIES = [
 // 默认目标（用户可自定义、增减）。文本为纯字符串，跨语言通用
 const GOALS_VERSION = 1;
 function defaultGoals(){
-  const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false});
+  const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
     study: ["完成自学几何第11单元","完成MUN家庭作业","预习经济学第一课","画画","读书"].map(mk),
     exercise: ["跳绳 200 个","跑步 20 分钟","拉伸 10 分钟"].map(mk),
@@ -819,19 +817,20 @@ function defaultState(){
     // 积分：按类别累计（每完成一个目标 +10 分）；总积分 = 四项之和
     catPoints: {study:0, exercise:0, fun:0, social:0},
     spent: 0,             // 已兑换消耗的积分
-    timeLog: {},          // { "YYYY-MM-DD": {study,exercise,fun,social: 秒} }
-    timer: null,          // { activity, start:时间戳 }
+    timer: null,          // 正在计时的目标 { catId, goalId, start:时间戳 }
+    effSecTotal: 0,       // 累计有效利用秒数（学习+运动+社交，跨天，用于经验）
     timeXpAwarded: 0,     // 已根据有效时间发放的经验值（累计，用于等级）
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
   };
 }
 
-// 重置当天目标的完成状态（保留目标文本）
+// 重置当天目标的完成状态与计时（保留目标文本）
 function resetDailyGoals(state){
   for(const cat in state.goals){
-    state.goals[cat].forEach(g=>{ g.done = false; });
+    state.goals[cat].forEach(g=>{ g.done = false; g.sec = 0; });
   }
+  state.timer = null;
 }
 
 function load(){
@@ -840,11 +839,13 @@ function load(){
   if(!state.catPoints) state.catPoints = {study:0, exercise:0, fun:0, social:0};
   CATEGORIES.forEach(c=>{ if(typeof state.catPoints[c.id] !== "number") state.catPoints[c.id] = 0; });
   if(typeof state.spent !== "number") state.spent = 0;
-  if(!state.timeLog) state.timeLog = {};
-  if(typeof state.timer === "undefined") state.timer = null;
+  if(typeof state.effSecTotal !== "number") state.effSecTotal = 0;
   if(typeof state.timeXpAwarded !== "number") state.timeXpAwarded = state.timePointsAwarded || 0;
+  // 计时器结构升级为按目标计时；旧结构(.activity)或缺失则清空
+  if(!state.timer || typeof state.timer.goalId === "undefined") state.timer = null;
   delete state.points;
   delete state.timePointsAwarded;
+  delete state.timeLog;
   if(!state.wishList) state.wishList = defaultWishList();
   if(state.wishListVersion !== WISHLIST_VERSION){
     state.wishList = defaultWishList();
@@ -857,6 +858,10 @@ function load(){
     state.goalsVersion = GOALS_VERSION;
     delete state.completed;
     delete state.customGoals;
+  }
+  // 确保每个目标都有 sec 字段（按目标计时）
+  for(const cat in state.goals){
+    state.goals[cat].forEach(g=>{ if(typeof g.sec !== "number") g.sec = 0; });
   }
   if(state.date !== todayStr()){
     const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
@@ -905,23 +910,31 @@ function fmtDuration(sec){
 function fmtHours(sec){
   return (sec/3600).toFixed(1);
 }
-// 累计有效利用秒数（学习+运动+社交，所有日期）
-function totalEffectiveSeconds(){
-  let sum = 0;
-  for(const d in state.timeLog){
-    const e = state.timeLog[d];
-    EFFECTIVE_ACTS.forEach(a=>{ sum += (e[a]||0); });
-  }
-  // 加上当前正在运行的有效计时
-  if(state.timer && EFFECTIVE_ACTS.includes(state.timer.activity)){
-    sum += (Date.now() - state.timer.start)/1000;
-  }
-  return sum;
+// 紧凑时钟格式：0 显示空白，<1h 显示 M:SS，≥1h 显示 H:MM:SS
+function fmtClock(sec){
+  sec = Math.floor(sec);
+  if(sec < 1) return "";
+  const h = Math.floor(sec/3600);
+  const m = Math.floor((sec%3600)/60);
+  const s = sec%60;
+  const pad = n => (n<10?"0":"")+n;
+  return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
-function todayLog(){
-  const d = todayStr();
-  if(!state.timeLog[d]) state.timeLog[d] = {study:0, exercise:0, fun:0, social:0};
-  return state.timeLog[d];
+// 单个目标的实时时长（含正在运行的计时）
+function goalLiveSec(goal){
+  let s = goal.sec || 0;
+  if(state.timer && state.timer.goalId === goal.id){
+    s += (Date.now() - state.timer.start)/1000;
+  }
+  return s;
+}
+// 某类别今日时长 = 该类所有目标时长之和
+function catSeconds(catId){
+  return (state.goals[catId]||[]).reduce((sum,g)=>sum + goalLiveSec(g), 0);
+}
+// 今日有效利用时长（学习+运动+社交）
+function effectiveSecondsToday(){
+  return EFFECTIVE_ACTS.reduce((sum,a)=>sum + catSeconds(a), 0);
 }
 
 function getStage(level){
@@ -965,49 +978,45 @@ function render(){
   renderPhonePlaceholder();
 }
 
-/* ===================== 今日目标 & 时间（合并） ===================== */
-
-// 记录每个类别的展开状态（运行期，不持久化）
-const catOpen = {};
+/* ===================== 今日目标 & 时间（合并，按目标计时） ===================== */
 
 function renderTasks(){
   const el = document.getElementById("tasksCard");
-  const log = todayLog();
   const running = state.timer;
-  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0, social:log.social||0};
-  if(running) live[running.activity] += (Date.now() - running.start)/1000;
-  const eff = EFFECTIVE_ACTS.reduce((s,a)=>s+live[a], 0);
-  const total = eff + live.fun;
+  const funSec = catSeconds("fun");
+  const studySec = catSeconds("study");
+  const eff = effectiveSecondsToday();
+  const total = eff + funSec;
 
   let blocks = "";
   CATEGORIES.forEach(cat=>{
     const goals = state.goals[cat.id] || [];
     const doneCount = goals.filter(g=>g.done).length;
-    const isRunning = running && running.activity === cat.id;
-    const open = !!catOpen[cat.id];
-    const catTime = live[cat.id];
+    const catSec = catSeconds(cat.id);
 
     let rows = "";
     goals.forEach(g=>{
+      const isRunning = running && running.goalId === g.id;
+      const gsec = goalLiveSec(g);
       rows += `
         <div class="goal-row${g.done?" done":""}" data-cat="${cat.id}" data-gid="${g.id}">
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
           <input class="goal-input" data-text value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
+          <span class="goal-time" id="gt-${g.id}">${fmtClock(gsec)}</span>
+          <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
           <button class="goal-del" data-del title="✕">✕</button>
         </div>`;
     });
 
     blocks += `
-      <div class="cat-block${open?" open":""}" data-cat="${cat.id}">
-        <div class="cat-head" data-head>
+      <div class="cat-block" data-cat="${cat.id}">
+        <div class="cat-head">
           <span class="c-ic">${cat.icon}</span>
           <span class="c-name">${L(cat.title)}</span>
           <span class="c-count">${doneCount}/${goals.length}</span>
-          <span class="c-time">${catTime>0?fmtDuration(catTime):""}</span>
-          <button class="cat-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
-          <span class="cat-caret">▶</span>
+          <span class="c-time" id="ct-${cat.id}">${fmtClock(catSec)}</span>
         </div>
-        <div class="cat-body">
+        <div class="cat-goals">
           ${rows}
           <button class="goal-add" data-add>${t("addGoal")}</button>
         </div>
@@ -1019,8 +1028,8 @@ function renderTasks(){
     ${blocks}
     <div class="tasks-summary">
       <div class="time-stats">
-        <div class="time-stat"><div class="v" id="stFun">${fmtHours(live.fun)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
-        <div class="time-stat"><div class="v" id="stStudy">${fmtHours(live.study)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
+        <div class="time-stat"><div class="v" id="stFun">${fmtHours(funSec)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
+        <div class="time-stat"><div class="v" id="stStudy">${fmtHours(studySec)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
         <div class="time-stat eff"><div class="v" id="stEff">${fmtHours(eff)}${t("hoursUnit")}</div><div class="k">${t("statEff")}</div></div>
       </div>
       <div class="ratio-bar"><div class="eff-fill" id="stFill" style="width:${total>0?(eff/total*100):0}%"></div></div>
@@ -1031,25 +1040,17 @@ function renderTasks(){
   // 事件绑定
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
-    block.querySelector("[data-head]").addEventListener("click", (e)=>{
-      if(e.target.closest("[data-timer]")) return; // 计时按钮不触发展开
-      catOpen[catId] = !catOpen[catId];
-      block.classList.toggle("open", catOpen[catId]);
-    });
-    block.querySelector("[data-timer]").addEventListener("click", (e)=>{
-      e.stopPropagation();
-      toggleTimer(catId);
-    });
     block.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
     block.querySelectorAll(".goal-row").forEach(row=>{
       const gid = row.dataset.gid;
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
+      row.querySelector("[data-timer]").addEventListener("click", ()=>toggleGoalTimer(catId, gid));
       row.querySelector("[data-del]").addEventListener("click", ()=>deleteGoal(catId, gid));
       row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
     });
   });
 
-  // 计时实时刷新（只更新时间显示，避免打断正在编辑的目标输入框）
+  // 计时实时刷新（只更新时间数字，避免打断正在编辑的目标输入框）
   if(running && !timerInterval){
     timerInterval = setInterval(tickTimer, 1000);
   } else if(!running && timerInterval){
@@ -1057,21 +1058,18 @@ function renderTasks(){
   }
 }
 
-// 计时进行中：每秒仅更新时长数字，不重建整张卡片
+// 计时进行中：每秒仅更新相关时长数字，不重建整张卡片
 function tickTimer(){
   const running = state.timer;
   if(!running){ clearInterval(timerInterval); timerInterval = null; return; }
-  const log = todayLog();
-  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0, social:log.social||0};
-  live[running.activity] += (Date.now() - running.start)/1000;
-  const eff = EFFECTIVE_ACTS.reduce((s,a)=>s+live[a], 0);
-  const total = eff + live.fun;
-
-  const catTimeEl = document.querySelector(`.cat-block[data-cat="${running.activity}"] .c-time`);
-  if(catTimeEl) catTimeEl.textContent = fmtDuration(live[running.activity]);
   const set = (id, v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-  set("stFun", fmtHours(live.fun)+t("hoursUnit"));
-  set("stStudy", fmtHours(live.study)+t("hoursUnit"));
+  const g = (state.goals[running.catId]||[]).find(x=>x.id===running.goalId);
+  if(g) set("gt-"+g.id, fmtClock(goalLiveSec(g)));
+  set("ct-"+running.catId, fmtClock(catSeconds(running.catId)));
+  const funSec = catSeconds("fun"), studySec = catSeconds("study"), eff = effectiveSecondsToday();
+  const total = eff + funSec;
+  set("stFun", fmtHours(funSec)+t("hoursUnit"));
+  set("stStudy", fmtHours(studySec)+t("hoursUnit"));
   set("stEff", fmtHours(eff)+t("hoursUnit"));
   const fill = document.getElementById("stFill");
   if(fill) fill.style.width = (total>0?(eff/total*100):0) + "%";
@@ -1081,8 +1079,7 @@ function tickTimer(){
 /* ----- 目标增删改查 ----- */
 function addGoal(catId){
   if(!state.goals[catId]) state.goals[catId] = [];
-  state.goals[catId].push({id:"g"+Date.now().toString(36), text:"", done:false});
-  catOpen[catId] = true;
+  state.goals[catId].push({id:"g"+Date.now().toString(36), text:"", done:false, sec:0});
   save(state); renderTasks();
   // 自动聚焦到新增的输入框
   const block = document.querySelector(`.cat-block[data-cat="${catId}"]`);
@@ -1118,12 +1115,13 @@ function toggleGoal(catId, gid){
 
 let timerInterval = null;
 
-function toggleTimer(act){
-  if(state.timer && state.timer.activity === act){
+// 按目标计时：同一目标再次点击 = 停止；点别的目标 = 先停当前再开始
+function toggleGoalTimer(catId, gid){
+  if(state.timer && state.timer.goalId === gid){
     stopTimer();
   } else {
-    if(state.timer) stopTimer();   // 先结束上一个活动
-    state.timer = {activity:act, start:Date.now()};
+    if(state.timer) stopTimer();
+    state.timer = {catId, goalId:gid, start:Date.now()};
     save(state);
     renderTasks();
   }
@@ -1131,19 +1129,24 @@ function toggleTimer(act){
 
 function stopTimer(){
   if(!state.timer) return;
-  const {activity, start} = state.timer;
+  const {catId, goalId, start} = state.timer;
   const elapsed = (Date.now() - start)/1000;
-  const log = todayLog();
-  log[activity] = (log[activity]||0) + elapsed;
+  const g = (state.goals[catId]||[]).find(x=>x.id===goalId);
+  if(g) g.sec = (g.sec||0) + elapsed;
+  const cat = CATEGORIES.find(c=>c.id===catId);
   state.timer = null;
+  // 有效利用时间（学习/运动/社交）累积并换算经验值
+  if(cat && cat.kind !== "fun"){
+    state.effSecTotal = (state.effSecTotal||0) + elapsed;
+    awardTimeXp();
+  }
   save(state);
-  awardTimeXp();   // 结算有效利用经验值（等级与有效时间挂钩）
   renderTasks();
 }
 
 // 根据累计有效利用时间发放经验值（每小时 +10 XP），让角色等级与有效投入时间挂钩
 function awardTimeXp(){
-  const earnable = Math.floor(totalEffectiveSeconds() / SECONDS_PER_XP);
+  const earnable = Math.floor(state.effSecTotal / SECONDS_PER_XP);
   const delta = earnable - state.timeXpAwarded;
   if(delta > 0){
     state.timeXpAwarded = earnable;
