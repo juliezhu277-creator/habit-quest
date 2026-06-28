@@ -424,34 +424,34 @@
   .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
   .cat-goals{padding:6px 8px 8px;}
-  /* 目标文字独占首行，计时器等控件靠近放在第二行右侧 */
+  /* 每个目标占一行：小勾选框 + 文字 + 计时器/时间/删除 紧凑排在同一行 */
   .goal-row{
-    display:flex;flex-wrap:wrap;align-items:center;gap:3px 5px;padding:4px 0;
+    display:flex;align-items:center;gap:4px;padding:4px 0;
     border-bottom:1px solid #f0f0f0;
   }
   .goal-row:last-of-type{border-bottom:none;}
   .goal-check{
-    width:22px;height:22px;border-radius:6px;border:2px solid #ddd;background:#fff;cursor:pointer;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;
+    width:16px;height:16px;border-radius:5px;border:2px solid #ccc;background:#fff;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;
     transition:all .15s;
   }
   .goal-row.done .goal-check{background:var(--accent);border-color:var(--accent-dark);}
   .goal-input{
     flex:1 1 0;border:none;background:transparent;font-size:12px;font-family:inherit;color:var(--ink);
-    padding:3px 1px;border-bottom:1px solid transparent;min-width:0;
+    padding:2px 0;border-bottom:1px solid transparent;min-width:0;
   }
   .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
-  .goal-ctrls{flex:1 1 100%;display:flex;align-items:center;justify-content:flex-end;gap:6px;padding-left:27px;}
+  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:3px;}
   .goal-timer{
-    width:24px;height:24px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
-    cursor:pointer;font-size:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:22px;height:22px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:all .15s;
   }
   .goal-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
   .goal-timer.running.fun{border-color:#e84545;background:#ffecec;}
-  .goal-time{font-size:10px;color:var(--muted);min-width:30px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
-  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:12px;padding:0 1px;flex-shrink:0;}
+  .goal-time{font-size:9px;color:var(--muted);min-width:0;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;}
   .goal-del:hover{color:#e84545;}
   .goal-add{
     display:flex;align-items:center;gap:4px;margin-top:3px;
@@ -586,15 +586,15 @@ const CATEGORIES = [
   {id:"fun",      icon:"🎮", kind:"fun",       game:"memory", title:{zh:"娱乐", en:"Entertainment"}},
 ];
 
-// 默认目标（用户可自定义、增减）。文本为纯字符串，跨语言通用
-const GOALS_VERSION = 1;
+// 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
+const GOALS_VERSION = 2;
 function defaultGoals(){
   const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
-    study: ["完成自学几何第11单元","完成MUN家庭作业","预习经济学第一课","画画","读书"].map(mk),
-    exercise: ["跳绳 200 个","跑步 20 分钟","拉伸 10 分钟"].map(mk),
-    fun: ["玩 30 分钟游戏","看一集喜欢的剧"].map(mk),
-    social: ["主动和同学聊天","和家人分享今天的事","帮家人做一件事"].map(mk),
+    study: ["完成自学几何第11单元","完成MUN家庭作业","预习经济学第一课","读书"].map(mk),
+    exercise: ["跳绳 200 个","跑步 20 分钟","拉伸 10 分钟","打球"].map(mk),
+    social: ["主动和同学聊天","和家人分享今天的事","帮家人做一件事","给朋友一句鼓励"].map(mk),
+    fun: ["玩 30 分钟游戏","看一集喜欢的剧","听音乐放松","和家人聊聊天"].map(mk),
   };
 }
 
