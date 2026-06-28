@@ -394,6 +394,58 @@
   .ratio-bar > .eff-fill{background:var(--accent);height:100%;transition:width .4s;}
   .ratio-note{font-size:10px;color:var(--muted);text-align:center;margin-top:5px;}
 
+  /* 今日目标 & 时间（合并模块） */
+  .tasks-card{
+    background:var(--card);border-radius:20px;padding:14px 16px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
+  }
+  .cat-block{border-radius:16px;background:#fafafa;margin-bottom:10px;overflow:hidden;}
+  .cat-block:last-of-type{margin-bottom:0;}
+  .cat-head{
+    display:flex;align-items:center;gap:10px;padding:12px 12px;cursor:pointer;user-select:none;
+  }
+  .cat-head .c-ic{font-size:22px;flex-shrink:0;}
+  .cat-head .c-name{font-weight:700;font-size:14px;color:var(--ink);flex:1;}
+  .cat-head .c-count{font-size:11px;color:var(--accent-dark);font-weight:700;background:#eafff0;padding:2px 8px;border-radius:10px;}
+  .cat-head .c-time{font-size:11px;color:var(--muted);min-width:42px;text-align:right;}
+  .cat-timer{
+    width:34px;height:34px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    transition:all .15s;
+  }
+  .cat-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
+  .cat-timer.running.fun{border-color:#e84545;background:#ffecec;}
+  @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
+  .cat-caret{font-size:11px;color:var(--muted);transition:transform .2s;flex-shrink:0;}
+  .cat-block.open .cat-caret{transform:rotate(90deg);}
+  .cat-body{display:none;padding:0 12px 12px;}
+  .cat-block.open .cat-body{display:block;}
+  .goal-row{
+    display:flex;align-items:center;gap:8px;padding:6px 0;
+  }
+  .goal-check{
+    width:24px;height:24px;border-radius:7px;border:2px solid #ddd;background:#fff;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;color:#fff;
+    transition:all .15s;
+  }
+  .goal-row.done .goal-check{background:var(--accent);border-color:var(--accent-dark);}
+  .goal-input{
+    flex:1;border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--ink);
+    padding:4px 2px;border-bottom:1px solid transparent;min-width:0;
+  }
+  .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
+  .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
+  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:2px 4px;flex-shrink:0;}
+  .goal-del:hover{color:#e84545;}
+  .goal-add{
+    display:flex;align-items:center;gap:6px;margin-top:4px;
+    color:var(--primary-dark);font-size:12px;font-weight:700;cursor:pointer;
+    background:none;border:none;padding:6px 2px;
+  }
+  .tasks-summary{
+    margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
+  }
+
   /* 手机娱乐时间（占位，待接入系统屏幕使用时间） */
   .phone-card{
     background:var(--card);border-radius:20px;padding:16px 18px;margin-bottom:4px;
@@ -472,14 +524,11 @@
 
   <div class="badges" id="badges"></div>
 
-  <div class="time-card" id="timeCard"></div>
+  <div class="tasks-card" id="tasksCard"></div>
 
   <div class="phone-card" id="phoneCard"></div>
 
   <div class="points-card" id="pointsCard"></div>
-
-  <div class="section-title" id="sectionTitle">🎯 今日任务</div>
-  <div id="questList"></div>
 
   <div class="redeem-card" id="redeemCard"></div>
 
@@ -506,24 +555,25 @@ let lang = localStorage.getItem(LANG_KEY) || "zh";
 // 选取双语对象中当前语言的文本
 function L(obj){ return obj[lang]; }
 
-const QUESTS = [
-  {id:"focus", icon:"🎯", xp:15,
-    title:{zh:"专注番茄钟", en:"Focus Pomodoro"},
-    desc:{zh:"专注学习/阅读 25 分钟", en:"Study/read with full focus for 25 min"},
-    cat:{zh:"专注力", en:"Focus"}},
-  {id:"plan", icon:"🗒️", xp:10,
-    title:{zh:"列出今日3件事", en:"List Today's Top 3"},
-    desc:{zh:"写下今天最重要的3个任务", en:"Write down your 3 most important tasks"},
-    cat:{zh:"时间管理", en:"Time Mgmt"}},
-  {id:"exercise", icon:"🏃", xp:20,
-    title:{zh:"运动打卡", en:"Exercise Check-in"},
-    desc:{zh:"运动 / 跳绳 / 拉伸 20 分钟", en:"Workout / jump rope / stretch for 20 min"},
-    cat:{zh:"锻炼", en:"Fitness"}},
-  {id:"social", icon:"🤝", xp:15,
-    title:{zh:"主动社交一次", en:"Reach Out to Someone"},
-    desc:{zh:"主动和一位朋友/同学聊天或问候", en:"Start a chat or greet a friend/classmate"},
-    cat:{zh:"社交", en:"Social"}},
+// 四大类别（与时间管家合并）：学习/运动 = 有效利用，娱乐 = 休闲，社交 = 有效利用
+const CATEGORIES = [
+  {id:"study",    icon:"📚", kind:"effective", game:"math",   title:{zh:"学习", en:"Study"}},
+  {id:"exercise", icon:"🏃", kind:"effective", game:"piano",  title:{zh:"运动", en:"Exercise"}},
+  {id:"fun",      icon:"🎮", kind:"fun",       game:"memory", title:{zh:"娱乐", en:"Entertainment"}},
+  {id:"social",   icon:"🤝", kind:"effective", game:"reflex", title:{zh:"社交", en:"Social"}},
 ];
+
+// 默认目标（用户可自定义、增减）。文本为纯字符串，跨语言通用
+const GOALS_VERSION = 1;
+function defaultGoals(){
+  const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false});
+  return {
+    study: ["完成自学几何第11单元","完成MUN家庭作业","预习经济学第一课","画画","读书"].map(mk),
+    exercise: ["跳绳 200 个","跑步 20 分钟","拉伸 10 分钟"].map(mk),
+    fun: ["玩 30 分钟游戏","看一集喜欢的剧"].map(mk),
+    social: ["主动和同学聊天","和家人分享今天的事","帮家人做一件事"].map(mk),
+  };
+}
 
 const BADGES = [
   {id:"b3", icon:"🔥", name:{zh:"3日连击", en:"3-Day Streak"}, need: s=>s.streak>=3},
@@ -606,6 +656,9 @@ const I18N = {
     seqEnd: n => `坚持到第 ${n} 关！`,
     // 时间统计
     timeTitle: "⏱ 时间管家",
+    tasksTitle: "🎯 今日目标 & 时间",
+    addGoal: "＋ 添加目标",
+    goalPlaceholder: "输入一个目标…",
     timerIdle: "点下方按钮开始计时",
     timerRunning: (label) => `正在记录：${label}`,
     actStudy: "学习",
@@ -685,6 +738,9 @@ const I18N = {
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
     timeTitle: "⏱ Time Manager",
+    tasksTitle: "🎯 Today's Goals & Time",
+    addGoal: "＋ Add goal",
+    goalPlaceholder: "Enter a goal…",
     timerIdle: "Tap a button below to start tracking",
     timerRunning: (label) => `Tracking: ${label}`,
     actStudy: "Study",
@@ -741,40 +797,52 @@ function defaultState(){
     streak:0, lastCompleteDate:null,
     allDoneEver:false,
     date: todayStr(),
-    completed: {},
+    goals: defaultGoals(),
+    goalsVersion: GOALS_VERSION,
     unlockedBadges: [],
-    customGoals: {},
     points: 0,
-    timeLog: {},          // { "YYYY-MM-DD": {study:秒, exercise:秒, fun:秒} }
-    timer: null,          // { activity:"study"|"exercise"|"fun", start:时间戳 }
+    timeLog: {},          // { "YYYY-MM-DD": {study,exercise,fun,social: 秒} }
+    timer: null,          // { activity, start:时间戳 }
     timePointsAwarded: 0, // 已根据有效时间发放的积分（累计）
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
   };
 }
 
+// 重置当天目标的完成状态（保留目标文本）
+function resetDailyGoals(state){
+  for(const cat in state.goals){
+    state.goals[cat].forEach(g=>{ g.done = false; });
+  }
+}
+
 function load(){
   const raw = localStorage.getItem(STORAGE_KEY);
   let state = raw ? JSON.parse(raw) : defaultState();
-  if(!state.customGoals) state.customGoals = {};
   if(typeof state.points !== "number") state.points = 0;
   if(!state.timeLog) state.timeLog = {};
   if(typeof state.timer === "undefined") state.timer = null;
   if(typeof state.timePointsAwarded !== "number") state.timePointsAwarded = 0;
   if(!state.wishList) state.wishList = defaultWishList();
-  // 兑换标准更新时，刷新为新的默认心愿清单
   if(state.wishListVersion !== WISHLIST_VERSION){
     state.wishList = defaultWishList();
     state.wishListVersion = WISHLIST_VERSION;
   }
   if(!state.redemptions) state.redemptions = [];
+  // 目标结构迁移（旧版本用 completed/customGoals）
+  if(!state.goals || state.goalsVersion !== GOALS_VERSION){
+    state.goals = defaultGoals();
+    state.goalsVersion = GOALS_VERSION;
+    delete state.completed;
+    delete state.customGoals;
+  }
   if(state.date !== todayStr()){
     const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
     if(state.lastCompleteDate !== yesterday && state.lastCompleteDate !== todayStr()){
       state.streak = 0;
     }
     state.date = todayStr();
-    state.completed = {};
+    resetDailyGoals(state);
   }
   return state;
 }
@@ -788,10 +856,11 @@ function xpNeeded(level){
 }
 
 // 积分系统配置
-const POINTS_PER_QUEST = 10;       // 每完成一个目标 +10 分
+const POINTS_PER_GOAL = 10;        // 每完成一个目标 +10 分
 const POINTS_PER_HOUR = 10;        // 每有效利用 1 小时 +10 分（每 6 分钟 1 分）
 const SECONDS_PER_POINT = 3600 / POINTS_PER_HOUR; // 360 秒/分
-const TIMER_ACTIVITIES = ["study","exercise","fun"]; // 学习 / 锻炼 / 娱乐
+// 有效利用 = 学习 + 运动 + 社交；娱乐(fun) 不计入有效时间
+const EFFECTIVE_ACTS = ["study","exercise","social"];
 
 function fmtDuration(sec){
   sec = Math.floor(sec);
@@ -805,22 +874,22 @@ function fmtDuration(sec){
 function fmtHours(sec){
   return (sec/3600).toFixed(1);
 }
-// 累计有效利用秒数（学习+锻炼，所有日期）
+// 累计有效利用秒数（学习+运动+社交，所有日期）
 function totalEffectiveSeconds(){
   let sum = 0;
   for(const d in state.timeLog){
     const e = state.timeLog[d];
-    sum += (e.study||0) + (e.exercise||0);
+    EFFECTIVE_ACTS.forEach(a=>{ sum += (e[a]||0); });
   }
   // 加上当前正在运行的有效计时
-  if(state.timer && state.timer.activity !== "fun"){
+  if(state.timer && EFFECTIVE_ACTS.includes(state.timer.activity)){
     sum += (Date.now() - state.timer.start)/1000;
   }
   return sum;
 }
 function todayLog(){
   const d = todayStr();
-  if(!state.timeLog[d]) state.timeLog[d] = {study:0, exercise:0, fun:0};
+  if(!state.timeLog[d]) state.timeLog[d] = {study:0, exercise:0, fun:0, social:0};
   return state.timeLog[d];
 }
 
@@ -845,7 +914,6 @@ function render(){
   // 静态界面文案
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   document.title = t("appTitle");
-  document.getElementById("sectionTitle").textContent = t("sectionTitle");
   document.getElementById("footerNote").textContent = t("footerNote");
   document.getElementById("resetBtn").textContent = t("resetBtn");
   document.getElementById("langZh").classList.toggle("active", lang==="zh");
@@ -861,110 +929,155 @@ function render(){
     badgesEl.appendChild(div);
   });
 
-  renderTimeTracker();
+  renderTasks();
   renderPhonePlaceholder();
   renderPoints();
   renderRedemptions();
-
-  const listEl = document.getElementById("questList");
-  listEl.innerHTML = "";
-  QUESTS.forEach(q=>{
-    const done = !!state.completed[q.id];
-    const custom = state.customGoals[q.id];
-    const div = document.createElement("div");
-    div.className = "quest" + (done ? " done" : "");
-    div.innerHTML = `
-      <div class="icon">${q.icon}</div>
-      <div class="info">
-        <div class="t">${L(q.title)}</div>
-        <div class="d${custom ? " custom" : ""}">${custom || L(q.desc)}</div>
-        <div class="xp-tag">+${q.xp} XP · ${L(q.cat)}</div>
-      </div>
-      <button class="edit-btn" data-id="${q.id}" title="${t("editTitle")}">✏️</button>
-      <button class="check-btn" data-id="${q.id}">${done ? "✓" : ""}</button>
-    `;
-    listEl.appendChild(div);
-  });
-
-  document.querySelectorAll(".check-btn").forEach(btn=>{
-    btn.addEventListener("click", () => completeQuest(btn.dataset.id));
-  });
-  document.querySelectorAll(".edit-btn").forEach(btn=>{
-    btn.addEventListener("click", () => openEditGoal(btn.dataset.id));
-  });
 }
 
-/* ===================== 时间管家 ===================== */
+/* ===================== 今日目标 & 时间（合并） ===================== */
 
-let timerInterval = null;
+// 记录每个类别的展开状态（运行期，不持久化）
+const catOpen = {};
 
-function renderTimeTracker(){
-  const el = document.getElementById("timeCard");
+function renderTasks(){
+  const el = document.getElementById("tasksCard");
   const log = todayLog();
   const running = state.timer;
-  // 今日各项时长（含正在运行的会话）
-  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0};
-  if(running){
-    live[running.activity] += (Date.now() - running.start)/1000;
-  }
-  const eff = live.study + live.exercise;
+  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0, social:log.social||0};
+  if(running) live[running.activity] += (Date.now() - running.start)/1000;
+  const eff = EFFECTIVE_ACTS.reduce((s,a)=>s+live[a], 0);
   const total = eff + live.fun;
 
-  const actMeta = {
-    study:{ic:"📚", key:"actStudy"},
-    exercise:{ic:"🏃", key:"actExercise"},
-    fun:{ic:"🎮", key:"actFun"},
-  };
-  let btns = "";
-  TIMER_ACTIVITIES.forEach(act=>{
-    const isRunning = running && running.activity === act;
-    const cls = "timer-btn" + (isRunning ? " running" + (act==="fun"?" fun":"") : "");
-    const label = isRunning ? t("actStop") : t(actMeta[act].key);
-    const ic = isRunning ? "⏹" : actMeta[act].ic;
-    btns += `<button class="${cls}" data-act="${act}"><span class="ic">${ic}</span>${label}</button>`;
-  });
+  let blocks = "";
+  CATEGORIES.forEach(cat=>{
+    const goals = state.goals[cat.id] || [];
+    const doneCount = goals.filter(g=>g.done).length;
+    const isRunning = running && running.activity === cat.id;
+    const open = !!catOpen[cat.id];
+    const catTime = live[cat.id];
 
-  let statusLine = t("timerIdle");
-  if(running){
-    statusLine = t("timerRunning", t(actMeta[running.activity].key)) +
-      ` · <b>${fmtDuration((Date.now()-running.start)/1000)}</b>`;
-  }
+    let rows = "";
+    goals.forEach(g=>{
+      rows += `
+        <div class="goal-row${g.done?" done":""}" data-cat="${cat.id}" data-gid="${g.id}">
+          <button class="goal-check" data-check>${g.done?"✓":""}</button>
+          <input class="goal-input" data-text value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
+          <button class="goal-del" data-del title="✕">✕</button>
+        </div>`;
+    });
+
+    blocks += `
+      <div class="cat-block${open?" open":""}" data-cat="${cat.id}">
+        <div class="cat-head" data-head>
+          <span class="c-ic">${cat.icon}</span>
+          <span class="c-name">${L(cat.title)}</span>
+          <span class="c-count">${doneCount}/${goals.length}</span>
+          <span class="c-time">${catTime>0?fmtDuration(catTime):""}</span>
+          <button class="cat-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
+          <span class="cat-caret">▶</span>
+        </div>
+        <div class="cat-body">
+          ${rows}
+          <button class="goal-add" data-add>${t("addGoal")}</button>
+        </div>
+      </div>`;
+  });
 
   el.innerHTML = `
-    <div class="card-title">${t("timeTitle")}</div>
-    <div class="timer-display" id="timerDisplay">${statusLine}</div>
-    <div class="timer-btns">${btns}</div>
-    <div class="time-stats">
-      <div class="time-stat"><div class="v">${fmtHours(live.fun)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
-      <div class="time-stat"><div class="v">${fmtHours(live.study)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
-      <div class="time-stat eff"><div class="v">${fmtHours(eff)}${t("hoursUnit")}</div><div class="k">${t("statEff")}</div></div>
+    <div class="card-title">${t("tasksTitle")}</div>
+    ${blocks}
+    <div class="tasks-summary">
+      <div class="time-stats">
+        <div class="time-stat"><div class="v" id="stFun">${fmtHours(live.fun)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
+        <div class="time-stat"><div class="v" id="stStudy">${fmtHours(live.study)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
+        <div class="time-stat eff"><div class="v" id="stEff">${fmtHours(eff)}${t("hoursUnit")}</div><div class="k">${t("statEff")}</div></div>
+      </div>
+      <div class="ratio-bar"><div class="eff-fill" id="stFill" style="width:${total>0?(eff/total*100):0}%"></div></div>
+      <div class="ratio-note" id="stNote">${t("ratioNote", eff, total)}</div>
     </div>
-    <div class="ratio-bar"><div class="eff-fill" style="width:${total>0?(eff/total*100):0}%"></div></div>
-    <div class="ratio-note">${t("ratioNote", eff, total)}</div>
   `;
 
-  el.querySelectorAll(".timer-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>toggleTimer(btn.dataset.act));
+  // 事件绑定
+  el.querySelectorAll(".cat-block").forEach(block=>{
+    const catId = block.dataset.cat;
+    block.querySelector("[data-head]").addEventListener("click", (e)=>{
+      if(e.target.closest("[data-timer]")) return; // 计时按钮不触发展开
+      catOpen[catId] = !catOpen[catId];
+      block.classList.toggle("open", catOpen[catId]);
+    });
+    block.querySelector("[data-timer]").addEventListener("click", (e)=>{
+      e.stopPropagation();
+      toggleTimer(catId);
+    });
+    block.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
+    block.querySelectorAll(".goal-row").forEach(row=>{
+      const gid = row.dataset.gid;
+      row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
+      row.querySelector("[data-del]").addEventListener("click", ()=>deleteGoal(catId, gid));
+      row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
+    });
   });
 
-  // 实时刷新正在运行的计时显示
+  // 计时实时刷新（只更新时间显示，避免打断正在编辑的目标输入框）
   if(running && !timerInterval){
-    timerInterval = setInterval(updateTimerDisplay, 1000);
+    timerInterval = setInterval(tickTimer, 1000);
   } else if(!running && timerInterval){
     clearInterval(timerInterval); timerInterval = null;
   }
 }
 
-function updateTimerDisplay(){
+// 计时进行中：每秒仅更新时长数字，不重建整张卡片
+function tickTimer(){
   const running = state.timer;
   if(!running){ clearInterval(timerInterval); timerInterval = null; return; }
-  const disp = document.getElementById("timerDisplay");
-  if(disp){
-    const actMeta = {study:"actStudy", exercise:"actExercise", fun:"actFun"};
-    disp.innerHTML = t("timerRunning", t(actMeta[running.activity])) +
-      ` · <b>${fmtDuration((Date.now()-running.start)/1000)}</b>`;
-  }
+  const log = todayLog();
+  const live = {study:log.study||0, exercise:log.exercise||0, fun:log.fun||0, social:log.social||0};
+  live[running.activity] += (Date.now() - running.start)/1000;
+  const eff = EFFECTIVE_ACTS.reduce((s,a)=>s+live[a], 0);
+  const total = eff + live.fun;
+
+  const catTimeEl = document.querySelector(`.cat-block[data-cat="${running.activity}"] .c-time`);
+  if(catTimeEl) catTimeEl.textContent = fmtDuration(live[running.activity]);
+  const set = (id, v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+  set("stFun", fmtHours(live.fun)+t("hoursUnit"));
+  set("stStudy", fmtHours(live.study)+t("hoursUnit"));
+  set("stEff", fmtHours(eff)+t("hoursUnit"));
+  const fill = document.getElementById("stFill");
+  if(fill) fill.style.width = (total>0?(eff/total*100):0) + "%";
+  set("stNote", t("ratioNote", eff, total));
 }
+
+/* ----- 目标增删改查 ----- */
+function addGoal(catId){
+  if(!state.goals[catId]) state.goals[catId] = [];
+  state.goals[catId].push({id:"g"+Date.now().toString(36), text:"", done:false});
+  catOpen[catId] = true;
+  save(state); renderTasks();
+  // 自动聚焦到新增的输入框
+  const block = document.querySelector(`.cat-block[data-cat="${catId}"]`);
+  const inputs = block ? block.querySelectorAll(".goal-input") : [];
+  if(inputs.length) inputs[inputs.length-1].focus();
+}
+function deleteGoal(catId, gid){
+  state.goals[catId] = state.goals[catId].filter(g=>g.id !== gid);
+  save(state); renderTasks();
+}
+function editGoalText(catId, gid, text){
+  const g = state.goals[catId].find(x=>x.id===gid);
+  if(g){ g.text = text.trim(); save(state); }
+}
+function toggleGoal(catId, gid){
+  const g = state.goals[catId].find(x=>x.id===gid);
+  if(!g) return;
+  if(g.done){ g.done = false; save(state); renderTasks(); return; }
+  g.done = true;
+  completeGoal(catId, g);
+}
+
+/* ===================== 时间管家（计时器） ===================== */
+
+let timerInterval = null;
 
 function toggleTimer(act){
   if(state.timer && state.timer.activity === act){
@@ -973,7 +1086,7 @@ function toggleTimer(act){
     if(state.timer) stopTimer();   // 先结束上一个活动
     state.timer = {activity:act, start:Date.now()};
     save(state);
-    render();
+    renderTasks();
   }
 }
 
@@ -986,7 +1099,7 @@ function stopTimer(){
   state.timer = null;
   save(state);
   awardTimePoints();   // 结算有效利用积分
-  render();
+  renderTasks();
 }
 
 // 根据累计有效利用时间发放积分（每 6 分钟 1 分），同时给角色经验值（等级与有效时间挂钩）
@@ -1119,15 +1232,20 @@ function checkBadges(){
   });
 }
 
-function completeQuest(id){
-  if(state.completed[id]) return;
-  const quest = QUESTS.find(q=>q.id===id);
-  state.completed[id] = true;
-  state.xp += quest.xp;
-  state.totalXp += quest.xp;
+function completeGoal(catId, goal){
+  const cat = CATEGORIES.find(c=>c.id===catId);
 
-  // 积分：每完成一个目标 +10 分（可用于兑换心愿奖励）
-  state.points += POINTS_PER_QUEST;
+  // 娱乐类目标：仅打卡记录，不发积分、不触发奖励小游戏
+  if(cat.kind === "fun"){
+    save(state);
+    renderTasks();
+    return;
+  }
+
+  // 有效类目标（学习/运动/社交）：+10 分、+10 经验值（等级与有效投入挂钩）
+  state.points += POINTS_PER_GOAL;
+  state.xp += POINTS_PER_GOAL;
+  state.totalXp += POINTS_PER_GOAL;
 
   let leveledUp = false;
   while(state.xp >= xpNeeded(state.level)){
@@ -1143,7 +1261,11 @@ function completeQuest(id){
     state.lastCompleteDate = today;
   }
 
-  const allDone = QUESTS.every(q => state.completed[q.id]);
+  // 全勤：每个类别都有目标且全部完成
+  const allDone = CATEGORIES.every(c => {
+    const gs = state.goals[c.id] || [];
+    return gs.length > 0 && gs.every(g=>g.done);
+  });
   if(allDone) state.allDoneEver = true;
 
   save(state);
@@ -1165,7 +1287,7 @@ function completeQuest(id){
   }
 
   setTimeout(()=>{
-    launchMiniGame(quest, (bonusXp)=>{
+    launchMiniGame(cat, (bonusXp)=>{
       if(bonusXp > 0){
         applyBonusXp(bonusXp);
       }
@@ -1255,7 +1377,7 @@ function spawnConfetti(){
 }
 
 document.getElementById("resetBtn").addEventListener("click", ()=>{
-  state.completed = {};
+  resetDailyGoals(state);
   save(state);
   render();
 });
@@ -1268,69 +1390,20 @@ document.querySelectorAll(".lang-toggle button").forEach(btn=>{
   });
 });
 
-/* ===================== 自定义目标 ===================== */
-
-function openEditGoal(id){
-  const quest = QUESTS.find(q=>q.id===id);
-  const modal = document.getElementById("editModal");
-  const card = document.getElementById("editCard");
-  const current = state.customGoals[id] || "";
-
-  card.innerHTML = `
-    <div class="edit-title">${quest.icon} ${L(quest.title)}</div>
-    <div class="edit-default">${t("defaultGoal", L(quest.desc))}</div>
-    <label>${t("editLabel")}</label>
-    <input type="text" id="goalInput" placeholder="${t("editPlaceholder")}" value="${current.replace(/"/g,'&quot;')}">
-    <button class="edit-reset" id="goalResetBtn">${t("editReset")}</button>
-    <div class="edit-actions">
-      <button class="edit-cancel" id="goalCancelBtn">${t("editCancel")}</button>
-      <button class="edit-save" id="goalSaveBtn">${t("editSave")}</button>
-    </div>
-  `;
-
-  modal.classList.add("open");
-  requestAnimationFrame(()=>card.classList.add("show"));
-  document.getElementById("goalInput").focus();
-
-  function closeModal(){
-    card.classList.remove("show");
-    setTimeout(()=>{ modal.classList.remove("open"); card.innerHTML=""; }, 200);
-  }
-
-  document.getElementById("goalCancelBtn").addEventListener("click", closeModal);
-  document.getElementById("goalResetBtn").addEventListener("click", ()=>{
-    delete state.customGoals[id];
-    save(state);
-    render();
-    closeModal();
-  });
-  document.getElementById("goalSaveBtn").addEventListener("click", ()=>{
-    const text = document.getElementById("goalInput").value.trim();
-    if(text){
-      state.customGoals[id] = text;
-    } else {
-      delete state.customGoals[id];
-    }
-    save(state);
-    render();
-    closeModal();
-  });
-}
-
 /* ===================== 小游戏奖励关卡 ===================== */
 
-// 每个习惯模块对应一个专属小游戏
-const QUEST_GAME = {
-  focus: renderMathQuiz,        // 专注力 → 速算闯关（需要专注思考）
-  plan: renderMemorySequence,   // 时间管理 → 记忆序列（记住顺序、规划先后）
-  exercise: renderPianoTiles,   // 锻炼 → 节奏方块（快速敲击、活力满满）
-  social: renderReflexTest,     // 社交 → 极速反应（快速回应、临场反应）
+// 每个类别对应一个专属小游戏
+const GAME_FN = {
+  math: renderMathQuiz,        // 学习 → 速算闯关（需要专注思考）
+  piano: renderPianoTiles,     // 运动 → 节奏方块（快速敲击、活力满满）
+  memory: renderMemorySequence,// 娱乐 → 记忆序列
+  reflex: renderReflexTest,    // 社交 → 极速反应（快速回应、临场反应）
 };
 
-function launchMiniGame(quest, onClose){
+function launchMiniGame(category, onClose){
   const modal = document.getElementById("gameModal");
   const card = document.getElementById("gameCard");
-  const pick = QUEST_GAME[quest.id] || renderMathQuiz;
+  const pick = GAME_FN[category.game] || renderMathQuiz;
 
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -1344,7 +1417,7 @@ function launchMiniGame(quest, onClose){
     }, 250);
   }
 
-  pick(card, quest, close);
+  pick(card, category, close);
 }
 
 function starsToXp(stars){ return stars * 10; }
