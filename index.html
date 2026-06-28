@@ -689,7 +689,7 @@ const I18N = {
     rewardsTitle: "🎁 积分 & 兑换",
     pointsTotalLabel: n => `总积分 ${n} 分`,
     availLabel: n => `可用 ${n} 分`,
-    redeemRules: "积分规则：每完成 1 个目标 +10 分；总积分 = 学习+运动+娱乐+社交 四项之和。兑换标准：100 分 = 10 分钟游戏时间 或 1 个心愿礼物。",
+    redeemRules: "积分规则：每完成 1 个学习/运动/社交目标 +10 分；总积分 = 学习+运动+社交 三项之和（娱乐目标只打卡、不计分）。兑换标准：100 分 = 10 分钟游戏时间 或 1 个心愿礼物。",
     wishListHead: "心愿奖励清单",
     wishRedeem: "兑换",
     wishAddName: "心愿名称",
@@ -773,7 +773,7 @@ const I18N = {
     rewardsTitle: "🎁 Points & Rewards",
     pointsTotalLabel: n => `${n} pts total`,
     availLabel: n => `${n} available`,
-    redeemRules: "Rules: each completed goal = +10 pts; total = Study + Exercise + Fun + Social. Redeem: 100 pts = 10 min game time or 1 wish gift.",
+    redeemRules: "Rules: each completed Study/Exercise/Social goal = +10 pts; total = Study + Exercise + Social (Fun goals are check-only, no points). Redeem: 100 pts = 10 min game time or 1 wish gift.",
     wishListHead: "Wish reward list",
     wishRedeem: "Redeem",
     wishAddName: "Reward name",
@@ -1101,9 +1101,12 @@ function toggleGoal(catId, gid){
   const g = state.goals[catId].find(x=>x.id===gid);
   if(!g) return;
   if(g.done){
-    // 取消完成：扣回该类别的 10 分
+    // 取消完成：扣回该类别的 10 分（娱乐不计分，无需扣）
     g.done = false;
-    state.catPoints[catId] = Math.max(0, (state.catPoints[catId]||0) - POINTS_PER_GOAL);
+    const cat = CATEGORIES.find(c=>c.id===catId);
+    if(cat.kind !== "fun"){
+      state.catPoints[catId] = Math.max(0, (state.catPoints[catId]||0) - POINTS_PER_GOAL);
+    }
     save(state); render();
     return;
   }
@@ -1183,9 +1186,9 @@ function renderRewards(){
   const total = totalPoints();
   const avail = availablePoints();
 
-  // 每个类别的积分明细（积分 = 该类已完成目标数 × 10）
+  // 计分类别的积分明细（娱乐不计分，不显示）
   let breakdown = "";
-  CATEGORIES.forEach(c=>{
+  CATEGORIES.filter(c=>c.kind!=="fun").forEach(c=>{
     breakdown += `<span class="pt-cat">${c.icon}${state.catPoints[c.id]||0}</span>`;
   });
 
@@ -1280,7 +1283,14 @@ function checkBadges(){
 function completeGoal(catId, goal){
   const cat = CATEGORIES.find(c=>c.id===catId);
 
-  // 每完成一个目标：该类别 +10 分（总积分 = 四类之和），同时 +10 经验值
+  // 娱乐类目标：仅打卡记录，不计积分、不发经验、不触发奖励小游戏
+  if(cat.kind === "fun"){
+    save(state);
+    renderTasks();
+    return;
+  }
+
+  // 学习/运动/社交目标：该类别 +10 分（总积分 = 三类之和），同时 +10 经验值
   state.catPoints[catId] = (state.catPoints[catId]||0) + POINTS_PER_GOAL;
   state.xp += POINTS_PER_GOAL;
   state.totalXp += POINTS_PER_GOAL;
