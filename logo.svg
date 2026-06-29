@@ -1,17 +1,14 @@
-<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="向阳 Bloom">
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ProudMe 了不起的我">
   <defs>
-    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#FF9A4D"/>
       <stop offset="0.55" stop-color="#FF7A3D"/>
-      <stop offset="1" stop-color="#FF6B5C"/>
+      <stop offset="1" stop-color="#FF5E73"/>
     </linearGradient>
   </defs>
-  <rect x="0" y="0" width="160" height="160" rx="42" fill="url(#bg)"/>
-  <circle cx="122" cy="40" r="15" fill="#FFFFFF" opacity="0.9"/>
-  <circle cx="38" cy="58" r="3.2" fill="#FFFFFF" opacity="0.8"/>
-  <circle cx="120" cy="92" r="2.6" fill="#FFFFFF" opacity="0.7"/>
-  <path d="M80 138 C 80 110 79 96 80 78" fill="none" stroke="#FFFFFF" stroke-width="7" stroke-linecap="round"/>
-  <path d="M80 96 C 56 96 41 74 60 62 C 76 72 81 86 80 96 Z" fill="#FFFFFF"/>
-  <path d="M80 86 C 104 84 119 60 99 50 C 83 62 79 76 80 86 Z" fill="#FFFFFF"/>
-  <circle cx="80" cy="140" r="4.4" fill="#FFFFFF"/>
+  <rect x="0" y="0" width="160" height="160" rx="42" fill="url(#pg)"/>
+  <path d="M80 40 L90.6 69.4 L121.8 70.4 L97.1 89.6 L105.9 119.6 L80 102 L54.1 119.6 L62.9 89.6 L38.2 70.4 L69.4 69.4 Z" fill="#FFFFFF"/>
+  <path d="M124 36 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" fill="#FFFFFF" opacity="0.92"/>
+  <path d="M40 116 l2.2 5 5 2.2 -5 2.2 -2.2 5 -2.2 -5 -5 -2.2 5 -2.2 Z" fill="#FFFFFF" opacity="0.85"/>
+  <circle cx="120" cy="116" r="3" fill="#FFFFFF" opacity="0.8"/>
 </svg>
