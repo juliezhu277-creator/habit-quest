@@ -128,16 +128,17 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
+  .xp-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
   .xp-bar-wrap{
-    height:10px;background:#eee;border-radius:6px;overflow:hidden;margin-top:6px;
+    height:10px;background:#eee;border-radius:6px;overflow:hidden;
+    flex:0 0 90px;width:90px;
   }
   .xp-bar{
     height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));
     border-radius:6px;transition:width .6s ease;
   }
-  .streak{
-    text-align:center;font-size:12px;color:var(--primary-dark);font-weight:700;
-    background:#fff1e0;padding:6px 10px;border-radius:12px;white-space:nowrap;
+  .streak-inline{
+    font-size:11px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
     display:flex;justify-content:space-around;gap:8px;padding:4px 2px 6px;margin-bottom:4px;
@@ -487,8 +488,12 @@
   .cat-head{display:flex;align-items:center;gap:6px;padding:9px 10px;}
   .cat-head .c-ic{font-size:20px;flex-shrink:0;}
   .cat-head .c-name{font-weight:800;font-size:15px;color:var(--ink);}
-  .cat-head .c-count{font-size:10px;color:#5a6b7a;font-weight:700;background:rgba(255,255,255,0.7);padding:1px 6px;border-radius:9px;}
-  .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;}
+  .cat-head .c-tomatoes{flex:1;display:flex;align-items:center;gap:0;font-size:13px;line-height:1;overflow:hidden;white-space:nowrap;}
+  .cat-head .tomato{display:inline-block;}
+  .cat-head .tomato.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
+  @keyframes tomatoPop{0%{transform:scale(0) rotate(-30deg);}55%{transform:scale(1.45) rotate(12deg);}100%{transform:scale(1) rotate(0);}}
+  .cat-head .tom-more{font-size:10px;color:#5a6b7a;font-weight:700;margin-left:1px;}
+  .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;flex-shrink:0;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
   .cat-goals{padding:6px 7px 8px;}
   /* 目标行：单行显示（不换行），控件紧凑靠右 */
@@ -593,7 +598,10 @@
     <div class="id">
       <div class="name" id="charName">了不起的我</div>
       <div class="level" id="levelText">Lv.1 · 0 / 50 XP</div>
-      <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
+      <div class="xp-row">
+        <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
+        <span class="streak-inline" id="streakInline"></span>
+      </div>
     </div>
   </div>
 
@@ -679,6 +687,9 @@ const I18N = {
   zh: {
     appTitle: "了不起的我 · ProudMe",
     appName: "了不起的我",
+    transformDays: n => `您已连续蜕变 ${n} 天`,
+    tomatoMsg: "收获一个 🍅！",
+    tomatoSub: cat => `${cat} 满 1 小时，了不起！`,
     lbTitle: "🏆 排行榜",
     lbNote: "本地演示 · 联网好友榜后续开放",
     lbYou: "我",
@@ -785,6 +796,9 @@ const I18N = {
   en: {
     appTitle: "ProudMe",
     appName: "ProudMe",
+    transformDays: n => `${n} days transforming`,
+    tomatoMsg: "Earned a 🍅!",
+    tomatoSub: cat => `1 hour of ${cat} — awesome!`,
     lbTitle: "🏆 Leaderboard",
     lbNote: "Local demo · friends ranking coming online later",
     lbYou: "Me",
@@ -1032,6 +1046,23 @@ function catSeconds(catId){
 function effectiveSecondsToday(){
   return EFFECTIVE_ACTS.reduce((sum,a)=>sum + catSeconds(a), 0);
 }
+// 完成的番茄钟数量：累计满 1 小时 = 1 个🍅
+function tomatoCount(catId){
+  return Math.floor(catSeconds(catId) / 3600);
+}
+function tomatoHTML(catId, animateLast){
+  const n = tomatoCount(catId);
+  if(n <= 0) return "";
+  const cap = 5;
+  const show = Math.min(n, cap);
+  let html = "";
+  for(let i=0;i<show;i++){
+    const last = animateLast && i === show-1;
+    html += `<span class="tomato${last?" pop":""}">🍅</span>`;
+  }
+  if(n > cap) html += `<span class="tom-more">×${n}</span>`;
+  return html;
+}
 
 function getStage(level){
   let stage = STAGES[0];
@@ -1047,6 +1078,7 @@ function render(){
     t("level", state.level, state.xp, xpNeeded(state.level));
   document.getElementById("xpBar").style.width =
     Math.min(100, (state.xp/xpNeeded(state.level))*100) + "%";
+  document.getElementById("streakInline").textContent = t("transformDays", state.streak);
 
   // 静态界面文案
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
@@ -1226,7 +1258,7 @@ function renderTasks(){
         <div class="cat-head">
           <span class="c-ic">${cat.icon}</span>
           <span class="c-name">${L(cat.title)}</span>
-          <span class="c-count">${doneCount}/${goals.length}</span>
+          <span class="c-tomatoes" id="tom-${cat.id}" data-n="${tomatoCount(cat.id)}">${tomatoHTML(cat.id,false)}</span>
           <span class="c-time" id="ct-${cat.id}">${fmtClock(catSeconds(cat.id))}</span>
         </div>
         <div class="cat-goals">
@@ -1279,6 +1311,16 @@ function tickTimer(){
   const g = (state.goals[running.catId]||[]).find(x=>x.id===running.goalId);
   if(g) set("gt-"+g.id, fmtClock(goalLiveSec(g)));
   set("ct-"+running.catId, fmtClock(catSeconds(running.catId)));
+  // 满整点小时 → 新增一个会弹跳的🍅
+  const tomEl = document.getElementById("tom-"+running.catId);
+  if(tomEl){
+    const n = tomatoCount(running.catId);
+    if(n > parseInt(tomEl.dataset.n || "0", 10)){
+      tomEl.dataset.n = n;
+      tomEl.innerHTML = tomatoHTML(running.catId, true);
+      showToast({emoji:"🍅", msg:t("tomatoMsg"), sub:t("tomatoSub", L(CATEGORIES.find(c=>c.id===running.catId).title))});
+    }
+  }
 }
 
 /* ----- 目标增删改查 ----- */
