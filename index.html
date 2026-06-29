@@ -397,6 +397,38 @@
   .ratio-bar > .eff-fill{background:var(--accent);height:100%;transition:width .4s;}
   .ratio-note{font-size:10px;color:var(--muted);text-align:center;margin-top:5px;}
 
+  /* 番茄钟首屏主入口 */
+  .pomo-card{
+    background:var(--card);border-radius:22px;padding:18px 18px 16px;margin-bottom:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);text-align:center;
+  }
+  .pomo-title{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:12px;}
+  .pomo-ring-wrap{position:relative;width:180px;height:180px;margin:0 auto 6px;}
+  .pomo-ring-wrap svg{transform:rotate(-90deg);}
+  .pomo-ring-bg{fill:none;stroke:#f0ece4;stroke-width:12;}
+  .pomo-ring-fg{fill:none;stroke:url(#pomoGrad);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .5s linear;}
+  .pomo-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .pomo-time{font-size:38px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:1px;}
+  .pomo-state{font-size:12px;color:var(--muted);margin-top:2px;}
+  .pomo-presets{display:flex;gap:8px;justify-content:center;margin:10px 0 12px;}
+  .pomo-preset{
+    border:2px solid #eee;background:#fff;border-radius:12px;padding:5px 14px;cursor:pointer;
+    font-size:12px;font-weight:700;color:var(--muted);transition:all .15s;
+  }
+  .pomo-preset.active{border-color:var(--primary);background:#fff3e8;color:var(--primary-dark);}
+  .pomo-btns{display:flex;gap:10px;justify-content:center;}
+  .pomo-btn{
+    border:none;border-radius:14px;padding:11px 28px;font-size:15px;font-weight:800;cursor:pointer;
+    background:var(--primary);color:#fff;box-shadow:0 4px 12px rgba(255,140,66,0.4);transition:all .15s;
+  }
+  .pomo-btn.ghost{background:#f1f1f1;color:var(--ink);box-shadow:none;padding:11px 18px;}
+  .pomo-stats{
+    display:flex;justify-content:center;gap:20px;margin-top:14px;padding-top:12px;border-top:1px solid #f0f0f0;
+  }
+  .pomo-stat{font-size:12px;color:var(--muted);}
+  .pomo-stat b{display:block;font-size:18px;color:var(--primary-dark);font-weight:800;}
+  .pomo-hint{font-size:11px;color:var(--muted);margin-top:8px;}
+
   /* 今日目标 & 时间（合并模块） */
   .tasks-card{
     background:var(--card);border-radius:20px;padding:14px 16px;
@@ -547,6 +579,8 @@
     <div class="streak" id="streakText">🔥 连续 0 天</div>
   </div>
 
+  <div class="pomo-card" id="pomoCard"></div>
+
   <div class="badges" id="badges"></div>
 
   <div class="tasks-card" id="tasksCard"></div>
@@ -681,6 +715,21 @@ const I18N = {
     seqEnd: n => `坚持到第 ${n} 关！`,
     // 时间统计
     timeTitle: "⏱ 时间管家",
+    pomoTitle: "🍅 专注番茄钟",
+    pomoStart: "开始专注",
+    pomoPause: "暂停",
+    pomoResume: "继续",
+    pomoReset: "重置",
+    pomoReady: "准备好就开始吧",
+    pomoFocusing: "专注中…加油！",
+    pomoPaused: "已暂停",
+    pomoTodayLabel: "今日番茄",
+    pomoTotalLabel: "累计番茄",
+    pomoHint: n => `每完成 ${n} 个番茄钟，解锁一次达成奖励 🎉`,
+    pomoDone: "番茄钟完成！",
+    pomoDoneSub: n => `专注 +${n} 经验，离了不起的自己又近一步`,
+    pomoRewardMsg: "达成奖励解锁！",
+    pomoRewardSub: "坚持专注，奖励时刻到～",
     tasksTitle: "🎯 今日目标 & 时间",
     addGoal: "＋ 添加目标",
     goalPlaceholder: "输入一个目标…",
@@ -768,6 +817,21 @@ const I18N = {
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
     timeTitle: "⏱ Time Manager",
+    pomoTitle: "🍅 Focus Pomodoro",
+    pomoStart: "Start focus",
+    pomoPause: "Pause",
+    pomoResume: "Resume",
+    pomoReset: "Reset",
+    pomoReady: "Ready when you are",
+    pomoFocusing: "Focusing… you got this!",
+    pomoPaused: "Paused",
+    pomoTodayLabel: "Today",
+    pomoTotalLabel: "All-time",
+    pomoHint: n => `Every ${n} pomodoros unlocks a reward 🎉`,
+    pomoDone: "Pomodoro complete!",
+    pomoDoneSub: n => `Focus +${n} XP — one step closer to a prouder you`,
+    pomoRewardMsg: "Reward unlocked!",
+    pomoRewardSub: "Your focus paid off — enjoy!",
     tasksTitle: "🎯 Today's Goals & Time",
     addGoal: "＋ Add goal",
     goalPlaceholder: "Enter a goal…",
@@ -842,7 +906,12 @@ function defaultState(){
     effSecTotal: 0,       // 累计有效利用秒数（学习+运动+社交，跨天，用于经验）
     timeXpAwarded: 0,     // 已根据有效时间发放的经验值（累计，用于等级）
     wishList: defaultWishList(),
-    redemptions: []       // [ {emoji, name, cost, date} ]
+    redemptions: [],      // [ {emoji, name, cost, date} ]
+    // 番茄钟
+    pomo: null,           // 运行/暂停状态 {endsAt} 或 {remaining} ；空闲为 null
+    pomoMin: 25,          // 当前选择的番茄钟时长（分钟）
+    pomoToday: 0,         // 今日完成的番茄钟数（每日重置）
+    pomoTotal: 0          // 累计完成的番茄钟数（用于"回首往昔"）
   };
 }
 
@@ -873,6 +942,11 @@ function load(){
     state.wishListVersion = WISHLIST_VERSION;
   }
   if(!state.redemptions) state.redemptions = [];
+  // 番茄钟字段
+  if(typeof state.pomo === "undefined") state.pomo = null;
+  if(typeof state.pomoMin !== "number") state.pomoMin = 25;
+  if(typeof state.pomoToday !== "number") state.pomoToday = 0;
+  if(typeof state.pomoTotal !== "number") state.pomoTotal = 0;
   // 目标结构迁移（旧版本用 completed/customGoals）
   if(!state.goals || state.goalsVersion !== GOALS_VERSION){
     state.goals = defaultGoals();
@@ -891,6 +965,7 @@ function load(){
     }
     state.date = todayStr();
     resetDailyGoals(state);
+    state.pomoToday = 0;
   }
   return state;
 }
@@ -994,9 +1069,177 @@ function render(){
     badgesEl.appendChild(div);
   });
 
+  renderPomodoro();
   renderTasks();
   renderRewards();
   renderPhonePlaceholder();
+}
+
+/* ===================== 番茄钟（首屏主入口：专注时间 → 成长经验） ===================== */
+
+const POMO_PRESETS = [15, 25, 45];   // 可选时长（分钟）
+const POMO_XP = 15;                  // 每完成 1 个番茄钟 +15 经验
+const POMOS_PER_REWARD = 4;          // 每完成 4 个番茄钟触发达成奖励
+const POMO_RADIUS = 78;
+const POMO_CIRC = 2 * Math.PI * POMO_RADIUS;
+let pomoInterval = null;
+
+// 返回 {remaining, total, running}
+function pomoStatus(){
+  const totalSec = state.pomoMin * 60;
+  if(!state.pomo) return {remaining: totalSec, total: totalSec, running:false, paused:false};
+  if(state.pomo.endsAt){
+    const rem = Math.max(0, Math.round((state.pomo.endsAt - Date.now())/1000));
+    return {remaining: rem, total: totalSec, running:true, paused:false};
+  }
+  return {remaining: state.pomo.remaining, total: totalSec, running:false, paused:true};
+}
+
+function fmtMMSS(sec){
+  const m = Math.floor(sec/60), s = sec%60;
+  return `${m}:${s<10?"0":""}${s}`;
+}
+
+function renderPomodoro(){
+  const el = document.getElementById("pomoCard");
+  const st = pomoStatus();
+  const stateText = st.running ? t("pomoFocusing") : (st.paused ? t("pomoPaused") : t("pomoReady"));
+
+  const presets = POMO_PRESETS.map(m=>
+    `<button class="pomo-preset${state.pomoMin===m?" active":""}" data-min="${m}" ${st.running||st.paused?"disabled":""}>${m}</button>`
+  ).join("");
+
+  let btns;
+  if(st.running){
+    btns = `<button class="pomo-btn" data-act="pause">${t("pomoPause")}</button>
+            <button class="pomo-btn ghost" data-act="reset">${t("pomoReset")}</button>`;
+  } else if(st.paused){
+    btns = `<button class="pomo-btn" data-act="resume">${t("pomoResume")}</button>
+            <button class="pomo-btn ghost" data-act="reset">${t("pomoReset")}</button>`;
+  } else {
+    btns = `<button class="pomo-btn" data-act="start">${t("pomoStart")}</button>`;
+  }
+
+  const offset = POMO_CIRC * (1 - (st.total ? (st.total - st.remaining)/st.total : 0));
+
+  el.innerHTML = `
+    <div class="pomo-title">${t("pomoTitle")}</div>
+    <div class="pomo-ring-wrap">
+      <svg width="180" height="180" viewBox="0 0 180 180">
+        <defs><linearGradient id="pomoGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#FF9A4D"/><stop offset="1" stop-color="#FF5E73"/>
+        </linearGradient></defs>
+        <circle class="pomo-ring-bg" cx="90" cy="90" r="${POMO_RADIUS}"/>
+        <circle class="pomo-ring-fg" id="pomoFg" cx="90" cy="90" r="${POMO_RADIUS}"
+          stroke-dasharray="${POMO_CIRC}" stroke-dashoffset="${offset}"/>
+      </svg>
+      <div class="pomo-center">
+        <div class="pomo-time" id="pomoTime">${fmtMMSS(st.remaining)}</div>
+        <div class="pomo-state" id="pomoState">${stateText}</div>
+      </div>
+    </div>
+    <div class="pomo-presets">${presets}</div>
+    <div class="pomo-btns">${btns}</div>
+    <div class="pomo-stats">
+      <div class="pomo-stat"><b>🍅 ${state.pomoToday}</b>${t("pomoTodayLabel")}</div>
+      <div class="pomo-stat"><b>🍅 ${state.pomoTotal}</b>${t("pomoTotalLabel")}</div>
+    </div>
+    <div class="pomo-hint">${t("pomoHint", POMOS_PER_REWARD)}</div>
+  `;
+
+  el.querySelectorAll(".pomo-preset").forEach(b=>{
+    b.addEventListener("click", ()=>{ state.pomoMin = parseInt(b.dataset.min,10); save(state); renderPomodoro(); });
+  });
+  el.querySelectorAll(".pomo-btn").forEach(b=>{
+    b.addEventListener("click", ()=>pomoAction(b.dataset.act));
+  });
+
+  if(st.running && !pomoInterval){
+    pomoInterval = setInterval(pomoTick, 250);
+  } else if(!st.running && pomoInterval){
+    clearInterval(pomoInterval); pomoInterval = null;
+  }
+}
+
+function pomoAction(act){
+  if(act === "start"){
+    state.pomo = {endsAt: Date.now() + state.pomoMin*60*1000};
+  } else if(act === "pause"){
+    const rem = Math.max(0, Math.round((state.pomo.endsAt - Date.now())/1000));
+    state.pomo = {remaining: rem};
+  } else if(act === "resume"){
+    state.pomo = {endsAt: Date.now() + state.pomo.remaining*1000};
+  } else if(act === "reset"){
+    state.pomo = null;
+  }
+  save(state); renderPomodoro();
+}
+
+function pomoTick(){
+  if(!state.pomo || !state.pomo.endsAt){ clearInterval(pomoInterval); pomoInterval = null; return; }
+  const rem = Math.max(0, Math.round((state.pomo.endsAt - Date.now())/1000));
+  const timeEl = document.getElementById("pomoTime");
+  const fg = document.getElementById("pomoFg");
+  if(timeEl) timeEl.textContent = fmtMMSS(rem);
+  if(fg){
+    const total = state.pomoMin*60;
+    fg.setAttribute("stroke-dashoffset", POMO_CIRC * (1 - (total-rem)/total));
+  }
+  if(rem <= 0){
+    clearInterval(pomoInterval); pomoInterval = null;
+    completePomodoro();
+  }
+}
+
+function completePomodoro(){
+  state.pomo = null;
+  state.pomoToday += 1;
+  state.pomoTotal += 1;
+
+  // 专注时间 → 成长经验
+  state.xp += POMO_XP;
+  state.totalXp += POMO_XP;
+  let leveledUp = false;
+  while(state.xp >= xpNeeded(state.level)){
+    state.xp -= xpNeeded(state.level);
+    state.level += 1;
+    leveledUp = true;
+  }
+  // 连续天数：完成番茄钟也算今天有努力
+  const today = todayStr();
+  if(state.lastCompleteDate !== today){
+    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    state.streak = (state.lastCompleteDate === yesterday) ? state.streak + 1 : 1;
+    state.lastCompleteDate = today;
+  }
+
+  save(state);
+  render();
+  pulseAvatar();
+  spawnConfetti();
+  showToast({emoji:"🍅", msg:t("pomoDone"), sub:t("pomoDoneSub", POMO_XP), levelup:true});
+
+  const pendingToasts = [];
+  if(leveledUp){
+    const stage = getStage(state.level);
+    pendingToasts.push({emoji:stage.emoji, msg:t("levelUp", state.level), sub:t("evolvedInto", L(stage.name)), levelup:true});
+  }
+  checkBadgesQuiet(pendingToasts);
+
+  const rewardTime = (state.pomoToday % POMOS_PER_REWARD === 0);
+  if(rewardTime){
+    pendingToasts.push({emoji:"🎉", msg:t("pomoRewardMsg"), sub:t("pomoRewardSub"), levelup:true});
+    setTimeout(()=>{
+      const games = ["math","piano","memory","reflex"];
+      const focusCat = {game: games[Math.floor(Math.random()*games.length)], kind:"effective", title:{zh:"专注挑战", en:"Focus"}};
+      launchMiniGame(focusCat, (bonusXp)=>{
+        if(bonusXp > 0) applyBonusXp(bonusXp);
+        showToastSequence(pendingToasts);
+      });
+    }, 1300);
+  } else {
+    showToastSequence(pendingToasts);
+  }
 }
 
 /* ===================== 今日目标 & 时间（2×2 宫格，目标直接显示，长名自动换行） ===================== */
