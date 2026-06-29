@@ -55,6 +55,52 @@
   .lb-name{flex:1;font-size:13px;color:var(--ink);font-weight:600;}
   .lb-row.me .lb-name{color:var(--primary-dark);}
   .lb-score{font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;}
+
+  /* 四宫格下方的导航图标 */
+  .nav-bar{
+    display:flex;justify-content:space-around;margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
+  }
+  .nav-item{
+    background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;
+    padding:4px 8px;border-radius:12px;transition:background .15s;
+  }
+  .nav-item:active{background:#f4f4f4;}
+  .nav-item .nav-ic{font-size:24px;}
+  .nav-item .nav-lbl{font-size:11px;font-weight:700;color:var(--ink);}
+
+  /* 导航弹层 */
+  #navModal{
+    position:fixed;inset:0;background:rgba(40,30,20,0.45);display:none;
+    align-items:flex-end;justify-content:center;z-index:1000;
+  }
+  #navModal.open{display:flex;}
+  .nav-card{
+    background:var(--card);width:100%;max-width:480px;border-radius:22px 22px 0 0;
+    padding:16px 18px 26px;max-height:82vh;overflow-y:auto;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.34,1.2,.64,1);
+  }
+  .nav-card.show{transform:translateY(0);}
+  .nav-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .nav-title{font-size:17px;font-weight:800;color:var(--ink);}
+  .nav-close{
+    width:30px;height:30px;border-radius:50%;border:none;background:#f1ece0;color:var(--muted);
+    font-size:15px;cursor:pointer;flex-shrink:0;
+  }
+  /* 信息板 */
+  .info-item{border-bottom:1px solid #f0f0f0;}
+  .info-q{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;cursor:pointer;
+    font-size:14px;font-weight:600;color:var(--ink);}
+  .info-caret{color:var(--muted);transition:transform .2s;}
+  .info-item.open .info-caret{transform:rotate(90deg);}
+  .info-a{display:none;font-size:13px;color:var(--muted);line-height:1.7;padding:0 2px 12px;}
+  .info-item.open .info-a{display:block;}
+  /* 我的 */
+  .me-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .me-stat{background:var(--bg2);border-radius:14px;padding:12px 6px;text-align:center;}
+  .me-stat b{display:block;font-size:20px;font-weight:800;color:var(--primary-dark);}
+  .me-stat span{font-size:11px;color:var(--muted);}
+  .me-proud{margin-top:14px;text-align:center;font-size:13px;font-weight:700;color:var(--accent-dark);
+    background:#eafff0;border-radius:12px;padding:12px;}
   .header{
     background:var(--card);
     border-radius:20px;
@@ -547,8 +593,6 @@
 </head>
 <body>
 <div class="app">
-  <div class="lb-card" id="leaderboardCard"></div>
-
   <div class="topbar">
     <div class="lang-toggle small">
       <button id="langZh" data-lang="zh">中文</button>
@@ -569,10 +613,6 @@
 
   <div class="tasks-card" id="tasksCard"></div>
 
-  <div class="redeem-card" id="rewardsCard"></div>
-
-  <div class="phone-card" id="phoneCard"></div>
-
   <div class="footer-note" id="footerNote">完成任务即可获得经验值，攒够经验角色就会升级进化！</div>
   <button class="reset-btn" id="resetBtn">重置今日任务（测试用）</button>
 </div>
@@ -585,6 +625,10 @@
 
 <div id="editModal">
   <div class="edit-card" id="editCard"></div>
+</div>
+
+<div id="navModal">
+  <div class="nav-card" id="navCard"></div>
 </div>
 
 <script>
@@ -651,6 +695,17 @@ const I18N = {
     lbNote: "本地演示 · 联网好友榜后续开放",
     lbYou: "我",
     lbScore: n => `${n} 经验`,
+    navLeaderboard: "排行榜",
+    navRewards: "积分兑换",
+    navInfo: "信息板",
+    navMe: "我的",
+    meLevel: "等级",
+    meXp: "累计经验",
+    meStreak: "连续天数",
+    mePoints: "总积分",
+    meEffHours: "有效投入",
+    meRedeem: "兑换次数",
+    meProud: "回首往昔，你已经很了不起 ✨ 继续加油！",
     sectionTitle: "🎯 今日任务",
     footerNote: "完成任务即可获得经验值，攒够经验角色就会升级进化！",
     resetBtn: "重置今日任务（测试用）",
@@ -750,6 +805,17 @@ const I18N = {
     lbNote: "Local demo · friends ranking coming online later",
     lbYou: "Me",
     lbScore: n => `${n} XP`,
+    navLeaderboard: "Ranking",
+    navRewards: "Rewards",
+    navInfo: "Tips",
+    navMe: "Me",
+    meLevel: "Level",
+    meXp: "Total XP",
+    meStreak: "Streak",
+    mePoints: "Points",
+    meEffHours: "Focus time",
+    meRedeem: "Redeemed",
+    meProud: "Look how far you've come ✨ Keep it up!",
     sectionTitle: "🎯 Today's Quests",
     footerNote: "Complete quests to earn XP — gather enough and your character evolves!",
     resetBtn: "Reset today's quests (test)",
@@ -1009,8 +1075,6 @@ function render(){
   document.getElementById("langZh").classList.toggle("active", lang==="zh");
   document.getElementById("langEn").classList.toggle("active", lang==="en");
 
-  renderLeaderboard();
-
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
   BADGES.forEach(b=>{
@@ -1022,8 +1086,7 @@ function render(){
   });
 
   renderTasks();
-  renderRewards();
-  renderPhonePlaceholder();
+  refreshNav();   // 若底部弹层开着，同步刷新内容
 }
 
 /* ===================== 排行榜（本地演示，联网好友榜后续支持） ===================== */
@@ -1036,15 +1099,13 @@ const LB_DEMO = [
   {name:"晨晨", score:80},
 ];
 
-function renderLeaderboard(){
-  const el = document.getElementById("leaderboardCard");
+function buildLeaderboard(card){
   const list = LB_DEMO.map(f=>({name:f.name, score:f.score, me:false}));
   list.push({name:t("lbYou"), score:state.totalXp, me:true});
   list.sort((a,b)=>b.score - a.score);
-
   const medals = ["🥇","🥈","🥉"];
   let rows = "";
-  list.slice(0,5).forEach((p,i)=>{
+  list.slice(0,8).forEach((p,i)=>{
     rows += `
       <div class="lb-row${p.me?" me":""}">
         <span class="lb-rank">${medals[i] || (i+1)}</span>
@@ -1052,14 +1113,97 @@ function renderLeaderboard(){
         <span class="lb-score">${t("lbScore", p.score)}</span>
       </div>`;
   });
+  card.innerHTML = navHeader("lbTitle") +
+    `<div class="lb-note" style="margin-bottom:8px">${t("lbNote")}</div>` + rows;
+}
 
-  el.innerHTML = `
-    <div class="lb-head">
-      <span class="lb-title">${t("lbTitle")}</span>
-      <span class="lb-note">${t("lbNote")}</span>
-    </div>
-    ${rows}
-  `;
+/* ===================== 底部导航弹层（排行榜 / 积分兑换 / 信息板 / 我的） ===================== */
+
+let currentNav = null;
+
+function navHeader(titleKey){
+  return `<div class="nav-top"><span class="nav-title">${t(titleKey)}</span><button class="nav-close" aria-label="close">✕</button></div>`;
+}
+
+function renderNavContent(){
+  const card = document.getElementById("navCard");
+  if(currentNav === "leaderboard") buildLeaderboard(card);
+  else if(currentNav === "rewards") buildRewards(card);
+  else if(currentNav === "info") buildInfo(card);
+  else if(currentNav === "me") buildMe(card);
+  const c = card.querySelector(".nav-close");
+  if(c) c.addEventListener("click", closeNav);
+}
+
+function openNav(type){
+  currentNav = type;
+  const modal = document.getElementById("navModal");
+  renderNavContent();
+  modal.classList.add("open");
+  requestAnimationFrame(()=>document.getElementById("navCard").classList.add("show"));
+}
+
+function refreshNav(){ if(currentNav) renderNavContent(); }
+
+function closeNav(){
+  const modal = document.getElementById("navModal");
+  const card = document.getElementById("navCard");
+  card.classList.remove("show");
+  currentNav = null;
+  setTimeout(()=>{ modal.classList.remove("open"); card.innerHTML=""; }, 200);
+}
+
+// 信息板文章（专注 / 时间管理 / 习惯 / 少刷手机）
+const INFO_ARTICLES = [
+  {icon:"🎯",
+   title:{zh:"如何做到专注", en:"How to focus"},
+   body:{zh:"① 用番茄钟：专注 25 分钟 + 休息 5 分钟。\n② 开始前把手机静音、放到看不见的地方。\n③ 一次只做一件事，先写下「现在就做」的那一件。\n④ 收拾好桌面，减少干扰物。",
+         en:"1. Use the pomodoro: 25 min focus + 5 min break.\n2. Silence your phone and keep it out of sight.\n3. Do one thing at a time — pick the single 'do it now' task.\n4. Clear your desk to cut distractions."}},
+  {icon:"⏳",
+   title:{zh:"怎样做好时间管理", en:"Manage your time"},
+   body:{zh:"① 每天先写下最重要的 3 件事。\n② 用四象限分清「重要 / 紧急」，先做重要的事。\n③ 给任务设一个明确的开始时间。\n④ 固定作息，让大脑形成节奏。",
+         en:"1. Write your top 3 tasks each morning.\n2. Sort by important vs. urgent — do important first.\n3. Give each task a clear start time.\n4. Keep a steady routine so your brain finds a rhythm."}},
+  {icon:"💪",
+   title:{zh:"如何坚持好习惯", en:"Build lasting habits"},
+   body:{zh:"① 从「小到不可能失败」开始（比如每天读 1 页）。\n② 把新习惯接在已有习惯后面。\n③ 记录连续天数，尽量别中断。\n④ 完成后立刻给自己一点小奖励。",
+         en:"1. Start absurdly small (e.g. read 1 page a day).\n2. Attach the new habit to an existing one.\n3. Track your streak and try not to break it.\n4. Give yourself a small reward right after."}},
+  {icon:"📵",
+   title:{zh:"少刷手机的小技巧", en:"Less screen time"},
+   body:{zh:"① 设定专门的娱乐时段，其余时间手机放远。\n② 关掉非必要的推送通知。\n③ 用本 App 记录娱乐与有效时间，看见自己的进步。",
+         en:"1. Set a dedicated fun window; keep the phone away otherwise.\n2. Turn off non-essential notifications.\n3. Track fun vs. effective time here to see your progress."}},
+];
+
+function buildInfo(card){
+  let items = "";
+  INFO_ARTICLES.forEach((a,i)=>{
+    items += `
+      <div class="info-item" data-i="${i}">
+        <div class="info-q"><span>${a.icon} ${L(a.title)}</span><span class="info-caret">▸</span></div>
+        <div class="info-a">${escapeHtml(L(a.body)).replace(/\n/g,"<br>")}</div>
+      </div>`;
+  });
+  card.innerHTML = navHeader("navInfo") + items;
+  card.querySelectorAll(".info-item").forEach(it=>{
+    it.querySelector(".info-q").addEventListener("click", ()=>it.classList.toggle("open"));
+  });
+}
+
+function buildMe(card){
+  const totalPts = totalPoints();
+  const effH = (state.effSecTotal/3600).toFixed(1);
+  const stats = [
+    {k:t("meLevel"), v:`Lv.${state.level}`},
+    {k:t("meXp"), v:`${state.totalXp}`},
+    {k:t("meStreak"), v:`${state.streak}`},
+    {k:t("mePoints"), v:`${totalPts}`},
+    {k:t("meEffHours"), v:`${effH} ${t("hoursUnit")}`},
+    {k:t("meRedeem"), v:`${state.redemptions.length}`},
+  ];
+  let grid = "";
+  stats.forEach(s=>{ grid += `<div class="me-stat"><b>${s.v}</b><span>${s.k}</span></div>`; });
+  card.innerHTML = navHeader("navMe") +
+    `<div class="me-grid">${grid}</div>` +
+    `<div class="me-proud">${t("meProud")}</div>`;
 }
 
 /* ===================== 今日目标 & 时间（2×2 宫格，目标直接显示，长名自动换行） ===================== */
@@ -1114,16 +1258,17 @@ function renderTasks(){
   el.innerHTML = `
     <div class="card-title">${t("tasksTitle")}</div>
     <div class="cat-grid">${blocks}</div>
-    <div class="tasks-summary">
-      <div class="time-stats">
-        <div class="time-stat"><div class="v" id="stFun">${fmtHours(funSec)}${t("hoursUnit")}</div><div class="k">${t("statFun")}</div></div>
-        <div class="time-stat"><div class="v" id="stStudy">${fmtHours(studySec)}${t("hoursUnit")}</div><div class="k">${t("statStudy")}</div></div>
-        <div class="time-stat eff"><div class="v" id="stEff">${fmtHours(eff)}${t("hoursUnit")}</div><div class="k">${t("statEff")}</div></div>
-      </div>
-      <div class="ratio-bar"><div class="eff-fill" id="stFill" style="width:${total>0?(eff/total*100):0}%"></div></div>
-      <div class="ratio-note" id="stNote">${t("ratioNote", eff, total)}</div>
+    <div class="nav-bar">
+      <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">🏆</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
+      <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
+      <button class="nav-item" data-nav="info"><span class="nav-ic">📖</span><span class="nav-lbl">${t("navInfo")}</span></button>
+      <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
     </div>
   `;
+
+  el.querySelectorAll(".nav-item").forEach(b=>{
+    b.addEventListener("click", ()=>openNav(b.dataset.nav));
+  });
 
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
@@ -1153,14 +1298,6 @@ function tickTimer(){
   const g = (state.goals[running.catId]||[]).find(x=>x.id===running.goalId);
   if(g) set("gt-"+g.id, fmtClock(goalLiveSec(g)));
   set("ct-"+running.catId, fmtClock(catSeconds(running.catId)));
-  const funSec = catSeconds("fun"), studySec = catSeconds("study"), eff = effectiveSecondsToday();
-  const total = eff + funSec;
-  set("stFun", fmtHours(funSec)+t("hoursUnit"));
-  set("stStudy", fmtHours(studySec)+t("hoursUnit"));
-  set("stEff", fmtHours(eff)+t("hoursUnit"));
-  const fill = document.getElementById("stFill");
-  if(fill) fill.style.width = (total>0?(eff/total*100):0) + "%";
-  set("stNote", t("ratioNote", eff, total));
 }
 
 /* ----- 目标增删改查 ----- */
@@ -1254,24 +1391,9 @@ function awardTimeXp(){
   }
 }
 
-/* ===================== 手机娱乐时间（占位） ===================== */
+/* ===================== 积分 & 兑换（弹层内容） ===================== */
 
-function renderPhonePlaceholder(){
-  const el = document.getElementById("phoneCard");
-  el.innerHTML = `
-    <span class="soon-tag">${t("phoneSoon")}</span>
-    <div class="card-title">${t("phoneTitle")}</div>
-    <div class="soon-body">
-      <span class="soon-emoji">🚧</span>
-      <span class="soon-text">${t("phoneNote")}</span>
-    </div>
-  `;
-}
-
-/* ===================== 积分 & 兑换（合并模块） ===================== */
-
-function renderRewards(){
-  const el = document.getElementById("rewardsCard");
+function buildRewards(el){
   const total = totalPoints();
   const avail = availablePoints();
 
@@ -1312,12 +1434,12 @@ function renderRewards(){
     });
   }
 
-  el.innerHTML = `
+  el.innerHTML = navHeader("rewardsTitle") + `
     <div class="points-head">
-      <span class="pt-title">${t("rewardsTitle")}</span>
       <span class="pt-total">${t("pointsTotalLabel", total)}</span>
+      <span class="pt-avail">${t("availLabel", avail)}</span>
     </div>
-    <div class="pt-breakdown">${breakdown}<span class="pt-avail">${t("availLabel", avail)}</span></div>
+    <div class="pt-breakdown">${breakdown}</div>
     <div class="rules-box">${t("redeemRules")}</div>
     <div class="sub-head">${t("wishListHead")}</div>
     ${items}
@@ -1336,10 +1458,10 @@ function renderRewards(){
   el.querySelectorAll(".w-del").forEach(btn=>{
     btn.addEventListener("click", ()=>{
       state.wishList = state.wishList.filter(w=>w.id !== btn.dataset.del);
-      save(state); renderRewards();
+      save(state); refreshNav();
     });
   });
-  document.getElementById("wishAddBtn").addEventListener("click", addWish);
+  el.querySelector("#wishAddBtn").addEventListener("click", addWish);
 }
 
 function addWish(){
@@ -1347,7 +1469,7 @@ function addWish(){
   const cost = parseInt(document.getElementById("wishCost").value, 10);
   if(!name || !cost || cost < 1) return;
   state.wishList.push({id:"w"+Date.now(), emoji:"🎁", name:{zh:name, en:name}, cost});
-  save(state); renderRewards();
+  save(state); refreshNav();
 }
 
 function redeemWish(id){
@@ -1356,7 +1478,7 @@ function redeemWish(id){
   state.spent += w.cost;
   state.redemptions.unshift({emoji:w.emoji, name:L(w.name), cost:w.cost, date:todayStr()});
   save(state);
-  renderRewards();
+  refreshNav();
   showToast({emoji:"🎉", msg:t("redeemDone", L(w.name)), sub:t("redeemDoneSub"), levelup:true});
 }
 
