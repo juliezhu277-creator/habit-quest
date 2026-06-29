@@ -140,21 +140,25 @@
     background:#fff1e0;padding:6px 10px;border-radius:12px;white-space:nowrap;
   }
   .badges{
-    display:flex;gap:10px;overflow-x:auto;padding:4px 2px 6px;margin-bottom:4px;
+    display:flex;justify-content:space-around;gap:8px;padding:4px 2px 6px;margin-bottom:4px;
   }
   .badge{
-    flex-shrink:0;width:56px;
-    display:flex;flex-direction:column;align-items:center;gap:4px;
+    flex:1;max-width:80px;
+    display:flex;flex-direction:column;align-items:center;gap:3px;
   }
   .badge .icon-box{
-    width:56px;height:56px;border-radius:14px;
+    width:54px;height:54px;border-radius:14px;
     display:flex;align-items:center;justify-content:center;font-size:26px;
     background:var(--card);box-shadow:0 4px 10px rgba(0,0,0,0.06);
     opacity:0.3;filter:grayscale(1);
   }
   .badge.unlocked .icon-box{opacity:1;filter:none;background:linear-gradient(145deg,#fff,#fff7e6);}
   .badge .tip{
-    font-size:10px;color:var(--muted);white-space:nowrap;text-align:center;
+    font-size:11px;color:var(--ink);font-weight:700;white-space:nowrap;text-align:center;
+  }
+  .badge:not(.unlocked) .tip{color:var(--muted);}
+  .badge .tip2{
+    font-size:9px;color:var(--muted);white-space:nowrap;text-align:center;
   }
   .section-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 4px 8px;display:flex;align-items:center;gap:6px;}
 
@@ -525,23 +529,7 @@
     margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
   }
 
-  /* 手机娱乐时间（占位，待接入系统屏幕使用时间） */
-  .phone-card{
-    background:var(--card);border-radius:20px;padding:16px 18px;margin-bottom:4px;
-    box-shadow:0 6px 18px rgba(0,0,0,0.08);
-    border:2px dashed #e0d6c4;position:relative;
-  }
-  .phone-card .soon-tag{
-    position:absolute;top:14px;right:16px;font-size:10px;font-weight:800;
-    background:#fff1e0;color:var(--primary-dark);padding:3px 9px;border-radius:10px;
-  }
-  .phone-card .soon-body{
-    display:flex;align-items:center;gap:12px;margin-top:6px;
-  }
-  .phone-card .soon-emoji{font-size:30px;opacity:0.6;}
-  .phone-card .soon-text{font-size:12px;color:var(--muted);line-height:1.5;}
-
-  /* 积分余额 + 心愿奖励 */
+  /* 积分余额 */
   .points-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;}
   .points-head .pt-title{font-size:14px;font-weight:800;color:var(--ink);}
   .points-head .pt-total{font-size:16px;font-weight:800;color:var(--primary-dark);}
@@ -662,12 +650,12 @@ function defaultGoals(){
   };
 }
 
+// 四个等级徽章：坚持 1 天 / 1 周 / 1 月 / 1 年 → 素人 / 青铜 / 白银 / 黄金
 const BADGES = [
-  {id:"b3", icon:"🔥", name:{zh:"3日连击", en:"3-Day Streak"}, need: s=>s.streak>=3},
-  {id:"b7", icon:"⭐", name:{zh:"7日连击", en:"7-Day Streak"}, need: s=>s.streak>=7},
-  {id:"b100xp", icon:"💎", name:{zh:"百分达人", en:"100 XP Club"}, need: s=>s.totalXp>=100},
-  {id:"blv5", icon:"👑", name:{zh:"5级勇士", en:"Level 5 Hero"}, need: s=>s.level>=5},
-  {id:"ball", icon:"🏆", name:{zh:"全勤一天", en:"Perfect Day"}, need: s=>s.allDoneEver===true},
+  {id:"tier1",   icon:"🔰", name:{zh:"素人", en:"Novice"}, sub:{zh:"坚持 1 天", en:"1 day"},   need: s=>s.streak>=1},
+  {id:"tier7",   icon:"🥉", name:{zh:"青铜", en:"Bronze"}, sub:{zh:"坚持 1 周", en:"1 week"},  need: s=>s.streak>=7},
+  {id:"tier30",  icon:"🥈", name:{zh:"白银", en:"Silver"}, sub:{zh:"坚持 1 月", en:"1 month"}, need: s=>s.streak>=30},
+  {id:"tier365", icon:"🥇", name:{zh:"黄金", en:"Gold"},   sub:{zh:"坚持 1 年", en:"1 year"},  need: s=>s.streak>=365},
 ];
 
 const STAGES = [
@@ -775,10 +763,6 @@ const I18N = {
     ratioNote: (eff, total) => `今日有效利用占比 ${total>0?Math.round(eff/total*100):0}%（有效利用每小时 +${XP_PER_HOUR} 经验，助角色升级）`,
     timePointsToast: n => `有效利用 +${n} 分！`,
     timePointsSub: "时间用得好，奖励自然来～",
-    // 手机娱乐时间（占位）
-    phoneTitle: "📱 手机娱乐时间统计",
-    phoneSoon: "敬请期待",
-    phoneNote: "此板块将自动统计你每天花在手机娱乐上的时间。受网页限制暂未开放，后续将通过手机系统的「屏幕使用时间」实现。",
     // 时间经验
     timeXpToast: n => `有效利用 +${n} 经验！`,
     timeXpSub: "时间用得好，角色升级更快～",
@@ -878,9 +862,6 @@ const I18N = {
     ratioNote: (eff, total) => `${total>0?Math.round(eff/total*100):0}% effective today (+${XP_PER_HOUR} XP per effective hour)`,
     timePointsToast: n => `Effective time +${n} pts!`,
     timePointsSub: "Time well spent earns rewards!",
-    phoneTitle: "📱 Phone Entertainment Time",
-    phoneSoon: "Coming soon",
-    phoneNote: "This panel will automatically track your daily phone entertainment time. It's reserved for now and will later connect to your phone's Screen Time data.",
     timeXpToast: n => `Effective time +${n} XP!`,
     timeXpSub: "Time well spent levels you up faster!",
     rewardsTitle: "🎁 Points & Rewards",
@@ -1078,10 +1059,10 @@ function render(){
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
   BADGES.forEach(b=>{
-    const unlocked = state.unlockedBadges.includes(b.id);
+    const unlocked = b.need(state);
     const div = document.createElement("div");
     div.className = "badge" + (unlocked ? " unlocked" : "");
-    div.innerHTML = `<div class="icon-box">${b.icon}</div><span class="tip">${L(b.name)}</span>`;
+    div.innerHTML = `<div class="icon-box">${b.icon}</div><span class="tip">${L(b.name)}</span><span class="tip2">${L(b.sub)}</span>`;
     badgesEl.appendChild(div);
   });
 
@@ -1395,28 +1376,11 @@ function awardTimeXp(){
 
 function buildRewards(el){
   const total = totalPoints();
-  const avail = availablePoints();
 
   // 计分类别的积分明细（娱乐不计分，不显示）
   let breakdown = "";
   CATEGORIES.filter(c=>c.kind!=="fun").forEach(c=>{
     breakdown += `<span class="pt-cat">${c.icon}${state.catPoints[c.id]||0}</span>`;
-  });
-
-  // 心愿奖励清单（可兑换）
-  let items = "";
-  state.wishList.forEach(w=>{
-    const affordable = avail >= w.cost;
-    items += `
-      <div class="wish-item">
-        <span class="w-ic">${w.emoji}</span>
-        <div class="w-info">
-          <div class="w-name">${L(w.name)}</div>
-          <div class="w-cost">${w.cost} ${t("wishAddCost")}</div>
-        </div>
-        <button class="redeem-btn" data-wid="${w.id}" ${affordable?"":"disabled"}>${t("wishRedeem")}</button>
-        <button class="w-del" data-del="${w.id}" title="✕">✕</button>
-      </div>`;
   });
 
   // 兑换记录
@@ -1437,49 +1401,12 @@ function buildRewards(el){
   el.innerHTML = navHeader("rewardsTitle") + `
     <div class="points-head">
       <span class="pt-total">${t("pointsTotalLabel", total)}</span>
-      <span class="pt-avail">${t("availLabel", avail)}</span>
     </div>
     <div class="pt-breakdown">${breakdown}</div>
     <div class="rules-box">${t("redeemRules")}</div>
-    <div class="sub-head">${t("wishListHead")}</div>
-    ${items}
-    <div class="wish-add">
-      <input class="n" id="wishName" type="text" placeholder="${t("wishAddName")}">
-      <input class="c" id="wishCost" type="number" min="1" placeholder="${t("wishAddCost")}">
-      <button id="wishAddBtn">${t("wishAdd")}</button>
-    </div>
     <div class="sub-head">${t("redeemTitle")}</div>
     ${rows}
   `;
-
-  el.querySelectorAll(".redeem-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>redeemWish(btn.dataset.wid));
-  });
-  el.querySelectorAll(".w-del").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      state.wishList = state.wishList.filter(w=>w.id !== btn.dataset.del);
-      save(state); refreshNav();
-    });
-  });
-  el.querySelector("#wishAddBtn").addEventListener("click", addWish);
-}
-
-function addWish(){
-  const name = document.getElementById("wishName").value.trim();
-  const cost = parseInt(document.getElementById("wishCost").value, 10);
-  if(!name || !cost || cost < 1) return;
-  state.wishList.push({id:"w"+Date.now(), emoji:"🎁", name:{zh:name, en:name}, cost});
-  save(state); refreshNav();
-}
-
-function redeemWish(id){
-  const w = state.wishList.find(x=>x.id===id);
-  if(!w || availablePoints() < w.cost) return;
-  state.spent += w.cost;
-  state.redemptions.unshift({emoji:w.emoji, name:L(w.name), cost:w.cost, date:todayStr()});
-  save(state);
-  refreshNav();
-  showToast({emoji:"🎉", msg:t("redeemDone", L(w.name)), sub:t("redeemDoneSub"), levelup:true});
 }
 
 function checkBadges(){
