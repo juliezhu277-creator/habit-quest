@@ -128,16 +128,17 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
-  .xp-row{display:flex;align-items:center;gap:8px;margin-top:6px;}
+  .xp-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
   .xp-bar-wrap{
     height:10px;background:#eee;border-radius:6px;overflow:hidden;
-    flex:0 0 90px;width:90px;
+    flex:1 1 auto;min-width:0;
   }
   .xp-bar{
     height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));
     border-radius:6px;transition:width .6s ease;
   }
   .streak-inline{
+    flex:0 0 auto;margin-left:auto;
     font-size:11px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
@@ -149,18 +150,20 @@
   }
   .badge .icon-box{
     width:54px;height:54px;border-radius:14px;
-    display:flex;align-items:center;justify-content:center;font-size:26px;
-    background:var(--card);box-shadow:0 4px 10px rgba(0,0,0,0.06);
-    opacity:0.3;filter:grayscale(1);
+    display:flex;align-items:center;justify-content:center;
+    font-size:17px;font-weight:800;color:#fff;letter-spacing:1px;
+    text-shadow:0 1px 2px rgba(0,0,0,0.18);
+    box-shadow:0 4px 10px rgba(0,0,0,0.12);
   }
-  .badge.unlocked .icon-box{opacity:1;filter:none;background:linear-gradient(145deg,#fff,#fff7e6);}
-  .badge .tip{
-    font-size:11px;color:var(--ink);font-weight:700;white-space:nowrap;text-align:center;
-  }
-  .badge:not(.unlocked) .tip{color:var(--muted);}
+  .badge .icon-box.t-novice{background:linear-gradient(145deg,#8fd0c4,#56b0a0);}
+  .badge .icon-box.t-bronze{background:linear-gradient(145deg,#e0a064,#b5703a);}
+  .badge .icon-box.t-silver{background:linear-gradient(145deg,#dde3ea,#a4afbb);color:#465260;text-shadow:0 1px 1px rgba(255,255,255,0.4);}
+  .badge .icon-box.t-gold{background:linear-gradient(145deg,#f8d36b,#e2a521);}
+  .badge:not(.unlocked) .icon-box{filter:grayscale(0.9);opacity:0.4;}
   .badge .tip2{
-    font-size:9px;color:var(--muted);white-space:nowrap;text-align:center;
+    font-size:10px;color:var(--muted);white-space:nowrap;text-align:center;
   }
+  .badge.unlocked .tip2{color:var(--ink);font-weight:600;}
   .section-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 4px 8px;display:flex;align-items:center;gap:6px;}
 
   /* 积分奖励模块 */
@@ -660,10 +663,10 @@ function defaultGoals(){
 
 // 四个等级徽章：坚持 1 天 / 1 周 / 1 月 / 1 年 → 素人 / 青铜 / 白银 / 黄金
 const BADGES = [
-  {id:"tier1",   icon:"🔰", name:{zh:"素人", en:"Novice"}, sub:{zh:"坚持 1 天", en:"1 day"},   need: s=>s.streak>=1},
-  {id:"tier7",   icon:"🥉", name:{zh:"青铜", en:"Bronze"}, sub:{zh:"坚持 1 周", en:"1 week"},  need: s=>s.streak>=7},
-  {id:"tier30",  icon:"🥈", name:{zh:"白银", en:"Silver"}, sub:{zh:"坚持 1 月", en:"1 month"}, need: s=>s.streak>=30},
-  {id:"tier365", icon:"🥇", name:{zh:"黄金", en:"Gold"},   sub:{zh:"坚持 1 年", en:"1 year"},  need: s=>s.streak>=365},
+  {id:"tier1",   tone:"novice", name:{zh:"素人", en:"Novice"}, sub:{zh:"坚持 1 天", en:"1 day"},   need: s=>s.streak>=1},
+  {id:"tier7",   tone:"bronze", name:{zh:"青铜", en:"Bronze"}, sub:{zh:"坚持 1 周", en:"1 week"},  need: s=>s.streak>=7},
+  {id:"tier30",  tone:"silver", name:{zh:"白银", en:"Silver"}, sub:{zh:"坚持 1 月", en:"1 month"}, need: s=>s.streak>=30},
+  {id:"tier365", tone:"gold",   name:{zh:"黄金", en:"Gold"},   sub:{zh:"坚持 1 年", en:"1 year"},  need: s=>s.streak>=365},
 ];
 
 const STAGES = [
@@ -1094,7 +1097,7 @@ function render(){
     const unlocked = b.need(state);
     const div = document.createElement("div");
     div.className = "badge" + (unlocked ? " unlocked" : "");
-    div.innerHTML = `<div class="icon-box">${b.icon}</div><span class="tip">${L(b.name)}</span><span class="tip2">${L(b.sub)}</span>`;
+    div.innerHTML = `<div class="icon-box t-${b.tone}">${L(b.name)}</div><span class="tip2">${L(b.sub)}</span>`;
     badgesEl.appendChild(div);
   });
 
