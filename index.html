@@ -27,7 +27,7 @@
   }
   .app{max-width:480px;margin:0 auto;}
   .topbar{
-    display:flex;justify-content:flex-end;margin-bottom:8px;
+    display:flex;justify-content:flex-end;margin-bottom:12px;
   }
   .lang-toggle{
     display:inline-flex;background:var(--card);border-radius:20px;padding:3px;
@@ -39,6 +39,22 @@
     padding:5px 12px;border-radius:16px;transition:all .2s;
   }
   .lang-toggle button.active{background:var(--primary);color:#fff;}
+  .lang-toggle.small button{font-size:10px;padding:3px 9px;}
+
+  /* 排行榜 */
+  .lb-card{
+    background:var(--card);border-radius:18px;padding:12px 14px;margin-bottom:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  }
+  .lb-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;}
+  .lb-title{font-size:14px;font-weight:800;color:var(--ink);}
+  .lb-note{font-size:10px;color:var(--muted);}
+  .lb-row{display:flex;align-items:center;gap:10px;padding:5px 6px;border-radius:10px;}
+  .lb-row.me{background:#fff3e8;}
+  .lb-rank{font-size:13px;font-weight:800;width:24px;text-align:center;flex-shrink:0;}
+  .lb-name{flex:1;font-size:13px;color:var(--ink);font-weight:600;}
+  .lb-row.me .lb-name{color:var(--primary-dark);}
+  .lb-score{font-size:12px;color:var(--muted);font-weight:700;font-variant-numeric:tabular-nums;}
   .header{
     background:var(--card);
     border-radius:20px;
@@ -50,13 +66,13 @@
     margin-bottom:16px;
   }
   .avatar{
-    width:64px;height:64px;border-radius:50%;
-    background:linear-gradient(145deg,var(--primary),var(--gold));
+    width:60px;height:60px;border-radius:16px;
     display:flex;align-items:center;justify-content:center;
-    font-size:32px;flex-shrink:0;
-    box-shadow:0 4px 10px rgba(255,140,66,0.4);
+    flex-shrink:0;overflow:hidden;
+    box-shadow:0 4px 10px rgba(255,140,66,0.35);
     transition:transform .3s;
   }
+  .avatar img{width:100%;height:100%;display:block;}
   .avatar.pulse{animation:popScale .5s ease;}
   @keyframes popScale{
     0%{transform:scale(1);}
@@ -531,20 +547,22 @@
 </head>
 <body>
 <div class="app">
+  <div class="lb-card" id="leaderboardCard"></div>
+
   <div class="topbar">
-    <div class="lang-toggle">
+    <div class="lang-toggle small">
       <button id="langZh" data-lang="zh">中文</button>
       <button id="langEn" data-lang="en">EN</button>
     </div>
   </div>
+
   <div class="header">
-    <div class="avatar" id="avatar">🌱</div>
+    <div class="avatar" id="avatar"><img src="logo.svg" alt="ProudMe"></div>
     <div class="id">
-      <div class="name" id="charName">习惯小勇士</div>
+      <div class="name" id="charName">了不起的我</div>
       <div class="level" id="levelText">Lv.1 · 0 / 50 XP</div>
       <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
     </div>
-    <div class="streak" id="streakText">🔥 连续 0 天</div>
   </div>
 
   <div class="badges" id="badges"></div>
@@ -628,6 +646,11 @@ const ENCOURAGEMENTS = [
 const I18N = {
   zh: {
     appTitle: "了不起的我 · ProudMe",
+    appName: "了不起的我",
+    lbTitle: "🏆 排行榜",
+    lbNote: "本地演示 · 联网好友榜后续开放",
+    lbYou: "我",
+    lbScore: n => `${n} 经验`,
     sectionTitle: "🎯 今日任务",
     footerNote: "完成任务即可获得经验值，攒够经验角色就会升级进化！",
     resetBtn: "重置今日任务（测试用）",
@@ -722,6 +745,11 @@ const I18N = {
   },
   en: {
     appTitle: "ProudMe",
+    appName: "ProudMe",
+    lbTitle: "🏆 Leaderboard",
+    lbNote: "Local demo · friends ranking coming online later",
+    lbYou: "Me",
+    lbScore: n => `${n} XP`,
     sectionTitle: "🎯 Today's Quests",
     footerNote: "Complete quests to earn XP — gather enough and your character evolves!",
     resetBtn: "Reset today's quests (test)",
@@ -967,14 +995,11 @@ function getStage(level){
 let state = load();
 
 function render(){
-  const stage = getStage(state.level);
-  document.getElementById("avatar").textContent = stage.emoji;
-  document.getElementById("charName").textContent = L(stage.name);
+  document.getElementById("charName").textContent = t("appName");
   document.getElementById("levelText").textContent =
     t("level", state.level, state.xp, xpNeeded(state.level));
   document.getElementById("xpBar").style.width =
     Math.min(100, (state.xp/xpNeeded(state.level))*100) + "%";
-  document.getElementById("streakText").textContent = t("streak", state.streak);
 
   // 静态界面文案
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
@@ -983,6 +1008,8 @@ function render(){
   document.getElementById("resetBtn").textContent = t("resetBtn");
   document.getElementById("langZh").classList.toggle("active", lang==="zh");
   document.getElementById("langEn").classList.toggle("active", lang==="en");
+
+  renderLeaderboard();
 
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
@@ -997,6 +1024,42 @@ function render(){
   renderTasks();
   renderRewards();
   renderPhonePlaceholder();
+}
+
+/* ===================== 排行榜（本地演示，联网好友榜后续支持） ===================== */
+
+// 演示用好友数据；"我"的分数取累计经验值，实时插入排名
+const LB_DEMO = [
+  {name:"Alex", score:340},
+  {name:"小雨", score:225},
+  {name:"Leo",  score:150},
+  {name:"晨晨", score:80},
+];
+
+function renderLeaderboard(){
+  const el = document.getElementById("leaderboardCard");
+  const list = LB_DEMO.map(f=>({name:f.name, score:f.score, me:false}));
+  list.push({name:t("lbYou"), score:state.totalXp, me:true});
+  list.sort((a,b)=>b.score - a.score);
+
+  const medals = ["🥇","🥈","🥉"];
+  let rows = "";
+  list.slice(0,5).forEach((p,i)=>{
+    rows += `
+      <div class="lb-row${p.me?" me":""}">
+        <span class="lb-rank">${medals[i] || (i+1)}</span>
+        <span class="lb-name">${escapeHtml(p.name)}${p.me?" ⭐":""}</span>
+        <span class="lb-score">${t("lbScore", p.score)}</span>
+      </div>`;
+  });
+
+  el.innerHTML = `
+    <div class="lb-head">
+      <span class="lb-title">${t("lbTitle")}</span>
+      <span class="lb-note">${t("lbNote")}</span>
+    </div>
+    ${rows}
+  `;
 }
 
 /* ===================== 今日目标 & 时间（2×2 宫格，目标直接显示，长名自动换行） ===================== */
