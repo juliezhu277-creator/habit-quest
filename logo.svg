@@ -1,4 +1,4 @@
-<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ProudMe 了不起的我">
+<svg viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="ProudMe">
   <defs>
     <linearGradient id="pg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0" stop-color="#FF9A4D"/>
@@ -7,8 +7,8 @@
     </linearGradient>
   </defs>
   <rect x="0" y="0" width="160" height="160" rx="42" fill="url(#pg)"/>
-  <path d="M80 40 L90.6 69.4 L121.8 70.4 L97.1 89.6 L105.9 119.6 L80 102 L54.1 119.6 L62.9 89.6 L38.2 70.4 L69.4 69.4 Z" fill="#FFFFFF"/>
-  <path d="M124 36 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3 Z" fill="#FFFFFF" opacity="0.92"/>
-  <path d="M40 116 l2.2 5 5 2.2 -5 2.2 -2.2 5 -2.2 -5 -5 -2.2 5 -2.2 Z" fill="#FFFFFF" opacity="0.85"/>
-  <circle cx="120" cy="116" r="3" fill="#FFFFFF" opacity="0.8"/>
+  <text x="74" y="120" font-size="112" text-anchor="middle" fill="#FFFFFF"
+        font-family="'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif" font-weight="700">P</text>
+  <path d="M120 38 l3.6 8.4 8.4 3.6 -8.4 3.6 -3.6 8.4 -3.6 -8.4 -8.4 -3.6 8.4 -3.6 Z" fill="#FFFFFF" opacity="0.95"/>
+  <circle cx="40" cy="118" r="3" fill="#FFFFFF" opacity="0.85"/>
 </svg>
