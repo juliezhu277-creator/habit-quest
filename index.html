@@ -110,7 +110,9 @@
     align-items:center;
     gap:14px;
     margin-bottom:16px;
+    position:relative;
   }
+  .header .lang-toggle{position:absolute;top:12px;right:14px;}
   .avatar{
     width:60px;height:60px;border-radius:16px;
     display:flex;align-items:center;justify-content:center;
@@ -473,7 +475,7 @@
     box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
   }
   /* 2×2 四宫格：学习 运动 / 社交 娱乐，目标直接显示 */
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .cat-grid{display:grid;grid-template-columns:1fr;gap:10px;align-items:start;}
   .cat-block{
     border-radius:16px;overflow:hidden;
     border:2px solid #eee;box-shadow:0 3px 10px rgba(0,0,0,0.05);
@@ -498,40 +500,40 @@
   .cat-head .tom-more{font-size:10px;color:#5a6b7a;font-weight:700;margin-left:1px;}
   .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;flex-shrink:0;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
-  .cat-goals{padding:6px 7px 8px;}
-  /* 目标行：单行显示（不换行），控件紧凑靠右 */
+  .cat-goals{padding:6px 14px 10px;}
+  /* 目标行：单行显示，单列全宽更宽松 */
   .goal-row{
-    display:flex;align-items:center;gap:4px;padding:5px 0;
+    display:flex;align-items:center;gap:8px;padding:7px 0;
     border-bottom:1px solid #f0f0f0;
   }
   .goal-row:last-of-type{border-bottom:none;}
   .goal-check{
-    width:15px;height:15px;border-radius:4px;border:2px solid #ccc;background:#fff;cursor:pointer;
-    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;
+    width:18px;height:18px;border-radius:5px;border:2px solid #ccc;background:#fff;cursor:pointer;
+    flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;
     transition:all .15s;
   }
   .goal-row.done .goal-check{background:var(--accent);border-color:var(--accent-dark);}
   .goal-input{
-    flex:1 1 0;border:none;background:transparent;font-size:12px;font-family:inherit;color:var(--ink);
+    flex:1 1 0;border:none;background:transparent;font-size:14px;font-family:inherit;color:var(--ink);
     padding:2px 0;border-bottom:1px solid transparent;min-width:0;
   }
   .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
-  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:2px;}
+  .goal-ctrls{flex:0 0 auto;display:flex;align-items:center;gap:6px;}
   .goal-timer{
-    width:19px;height:19px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
-    cursor:pointer;font-size:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:26px;height:26px;border-radius:50%;border:2px solid #e0e0e0;background:#fff;
+    cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0;
     transition:all .15s;
   }
   .goal-timer.running{border-color:var(--primary);background:#fff3e8;animation:timerPulse 1.4s infinite;}
   .goal-timer.running.fun{border-color:#e84545;background:#ffecec;}
-  .goal-time{font-size:9px;color:var(--muted);min-width:0;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
-  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:11px;padding:0;flex-shrink:0;}
+  .goal-time{font-size:11px;color:var(--muted);min-width:34px;text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
+  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:0 2px;flex-shrink:0;}
   .goal-del:hover{color:#e84545;}
   .goal-add{
-    display:flex;align-items:center;gap:4px;margin-top:3px;
-    color:var(--primary-dark);font-size:11px;font-weight:700;cursor:pointer;
-    background:none;border:none;padding:5px 1px;
+    display:flex;align-items:center;gap:5px;margin-top:5px;
+    color:var(--primary-dark);font-size:13px;font-weight:700;cursor:pointer;
+    background:none;border:none;padding:6px 1px;
   }
   .tasks-summary{
     margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
@@ -589,14 +591,11 @@
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
+  <div class="header">
     <div class="lang-toggle small">
       <button id="langZh" data-lang="zh">中文</button>
       <button id="langEn" data-lang="en">EN</button>
     </div>
-  </div>
-
-  <div class="header">
     <div class="avatar" id="avatar"><img src="logo.svg" alt="ProudMe"></div>
     <div class="id">
       <div class="name" id="charName">了不起的我</div>
@@ -650,7 +649,7 @@ const CATEGORIES = [
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
 const GOALS_VERSION = 3;
-const GOAL_MAX_LEN = 8;   // 每个目标名最多字数，保证一行显示不截断
+const GOAL_MAX_LEN = 14;  // 每个目标名最多字数（单列全宽，空间充足）
 function defaultGoals(){
   const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
