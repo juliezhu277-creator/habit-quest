@@ -20,12 +20,12 @@
   body{
     margin:0;
     font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
-    background:linear-gradient(160deg,var(--bg1),var(--bg2));
+    background:#ffffff;
     min-height:100vh;
     color:var(--ink);
-    padding:20px;
+    padding:14px 6px;
   }
-  .app{max-width:480px;margin:0 auto;}
+  .app{max-width:520px;margin:0 auto;}
   .topbar{
     display:flex;justify-content:flex-end;margin-bottom:12px;
   }
@@ -471,11 +471,11 @@
 
   /* 今日目标 & 时间（合并模块） */
   .tasks-card{
-    background:var(--card);border-radius:20px;padding:14px 16px;
+    background:var(--card);border-radius:20px;padding:12px 8px;
     box-shadow:0 6px 18px rgba(0,0,0,0.08);margin-bottom:4px;
   }
   /* 2×2 四宫格：学习 运动 / 社交 娱乐，目标直接显示 */
-  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start;}
+  .cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start;}
   .cat-block{
     border-radius:16px;overflow:hidden;
     border:2px solid #eee;box-shadow:0 3px 10px rgba(0,0,0,0.05);
@@ -500,7 +500,7 @@
   .cat-head .tom-more{font-size:10px;color:#5a6b7a;font-weight:700;margin-left:1px;}
   .cat-head .c-time{font-size:11px;color:var(--ink);font-weight:800;margin-left:auto;font-variant-numeric:tabular-nums;flex-shrink:0;}
   @keyframes timerPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,140,66,.4);}50%{box-shadow:0 0 0 6px rgba(255,140,66,0);}}
-  .cat-goals{padding:5px 8px 8px;}
+  .cat-goals{padding:5px 6px 8px;}
   /* 目标行：单行；控件紧凑，尽量把宽度留给文字 */
   .goal-row{
     display:flex;align-items:center;gap:4px;padding:6px 0;
@@ -516,6 +516,7 @@
   .goal-input{
     flex:1 1 0;border:none;background:transparent;font-size:13px;font-family:inherit;color:var(--ink);
     padding:2px 0;border-bottom:1px solid transparent;min-width:0;
+    text-overflow:ellipsis;
   }
   .goal-input:focus{outline:none;border-bottom-color:var(--primary);}
   .goal-row.done .goal-input{color:var(--muted);text-decoration:line-through;}
@@ -651,7 +652,7 @@ const CATEGORIES = [
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
 const GOALS_VERSION = 3;
-const GOAL_MAX_LEN = 12;  // 每个目标名最多字数
+const GOAL_MAX_LEN = 10;  // 每个目标名最多字数（超出显示省略号，聚焦查看全文）
 function defaultGoals(){
   const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
