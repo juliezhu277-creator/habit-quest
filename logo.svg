@@ -7,8 +7,15 @@
     </linearGradient>
   </defs>
   <rect x="0" y="0" width="160" height="160" rx="42" fill="url(#pg)"/>
-  <text x="74" y="120" font-size="112" text-anchor="middle" fill="#FFFFFF"
-        font-family="'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif" font-weight="700">P</text>
-  <path d="M120 38 l3.6 8.4 8.4 3.6 -8.4 3.6 -3.6 8.4 -3.6 -8.4 -8.4 -3.6 8.4 -3.6 Z" fill="#FFFFFF" opacity="0.95"/>
-  <circle cx="40" cy="118" r="3" fill="#FFFFFF" opacity="0.85"/>
+  <!-- sparkle -->
+  <path d="M126 38 l2.8 6.4 6.4 2.8 -6.4 2.8 -2.8 6.4 -2.8 -6.4 -6.4 -2.8 6.4 -2.8 Z" fill="#FFFFFF" opacity="0.92"/>
+  <!-- thumb (points up, tilted) -->
+  <rect x="48" y="40" width="24" height="44" rx="12" fill="#FFFFFF" transform="rotate(-8 60 84)"/>
+  <!-- fist / folded fingers -->
+  <rect x="60" y="64" width="46" height="50" rx="16" fill="#FFFFFF"/>
+  <!-- finger crease -->
+  <rect x="79" y="70" width="3" height="38" rx="1.5" fill="#FFD9C2" opacity="0.9"/>
+  <!-- wrist band with PM -->
+  <rect x="56" y="110" width="54" height="22" rx="10" fill="#FFFFFF"/>
+  <text x="83" y="126.5" text-anchor="middle" font-family="'Trebuchet MS','Segoe UI',Helvetica,Arial,sans-serif" font-weight="700" font-size="15" fill="#FF6B33" letter-spacing="0.5">PM</text>
 </svg>

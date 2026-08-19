@@ -17,6 +17,7 @@
     --gold:#ffd166;
   }
   *{box-sizing:border-box;}
+  button{touch-action:manipulation;}
   body{
     margin:0;
     font-family:"PingFang SC","Microsoft YaHei",-apple-system,sans-serif;
@@ -546,7 +547,6 @@
     background:#f1f1f1;color:#9a9aa8;font-size:11px;font-weight:700;line-height:1;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
-  .gt-btn:active{transform:scale(0.92);}
   .gt-btn.active{background:#ff6b6b;color:#fff;}
   .gt-lbl{font-size:10px;font-weight:600;color:var(--muted);}
   .goal-del{
@@ -777,7 +777,7 @@ const I18N = {
     seqEnd: n => `坚持到第 ${n} 关！`,
     // 时间统计
     timeTitle: "⏱ 时间管家",
-    tasksTitle: "🎯 今日目标",
+    tasksTitle: "👍 成为更好的我自己",
     addGoal: "加减目标",
     editingGoals: "点 ✕ 删除，再点 － 完成",
     goalPlaceholder: "输入一个目标…",
@@ -880,7 +880,7 @@ const I18N = {
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
     timeTitle: "⏱ Time Manager",
-    tasksTitle: "🎯 Today's Goals",
+    tasksTitle: "👍 Become a Better Me",
     addGoal: "Add / remove",
     editingGoals: "Tap ✕ to delete, － to finish",
     goalPlaceholder: "Enter a goal…",
