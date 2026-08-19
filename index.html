@@ -131,9 +131,9 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
-  .xp-row{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:nowrap;}
-  .pomo-track{display:flex;align-items:center;gap:0;flex:0 0 auto;line-height:1;}
-  .ptom{font-size:11px;transition:transform .2s;}
+  .xp-row{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:nowrap;}
+  .pomo-track{display:flex;align-items:center;flex:0 0 auto;line-height:1;letter-spacing:-2px;}
+  .ptom{font-size:10px;transition:transform .2s;}
   .ptom.off{filter:grayscale(1);opacity:0.3;}
   .ptom.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
   .streak-inline{
@@ -614,9 +614,6 @@
   <div class="badges" id="badges"></div>
 
   <div class="tasks-card" id="tasksCard"></div>
-
-  <div class="footer-note" id="footerNote">完成任务即可获得经验值，攒够经验角色就会升级进化！</div>
-  <button class="reset-btn" id="resetBtn">重置今日任务（测试用）</button>
 </div>
 
 <div id="toast"></div>
@@ -648,7 +645,7 @@ const CATEGORIES = [
   {id:"study",    icon:"📚", kind:"effective", game:"math",   title:{zh:"学习", en:"Study"}},
   {id:"exercise", icon:"🏃", kind:"effective", game:"piano",  title:{zh:"运动", en:"Exercise"}},
   {id:"social",   icon:"🤝", kind:"effective", game:"reflex", title:{zh:"社交", en:"Social"}},
-  {id:"fun",      icon:"🎮", kind:"fun",       game:"memory", title:{zh:"娱乐", en:"Relax"}},
+  {id:"fun",      icon:"🥤", kind:"fun",       game:"memory", title:{zh:"休闲", en:"Relax"}},
 ];
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
@@ -693,7 +690,7 @@ const I18N = {
   zh: {
     appTitle: "了不起的我 · ProudMe",
     appName: "了不起的我",
-    todayPomos: n => `您今天已经完成 ${n} 个番茄钟`,
+    todayPomos: n => `您今天已经完成 【${n}】 个番茄钟`,
     tomatoMsg: "收获一个 🍅！",
     tomatoSub: cat => `${cat} 满 1 小时，了不起！`,
     lbTitle: "🏆 排行榜",
@@ -1123,8 +1120,6 @@ function render(){
   // 静态界面文案
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   document.title = t("appTitle");
-  document.getElementById("footerNote").textContent = t("footerNote");
-  document.getElementById("resetBtn").textContent = t("resetBtn");
   document.getElementById("langZh").classList.toggle("active", lang==="zh");
   document.getElementById("langEn").classList.toggle("active", lang==="en");
 
@@ -1667,12 +1662,6 @@ function spawnConfetti(){
     setTimeout(()=>dot.remove(), 1200);
   }
 }
-
-document.getElementById("resetBtn").addEventListener("click", ()=>{
-  resetDailyGoals(state);
-  save(state);
-  render();
-});
 
 document.querySelectorAll(".lang-toggle button").forEach(btn=>{
   btn.addEventListener("click", ()=>{
