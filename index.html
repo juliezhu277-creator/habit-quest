@@ -137,7 +137,7 @@
   .ptom.off{filter:grayscale(1);opacity:0.3;}
   .ptom.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
   .streak-inline{
-    flex:0 1 auto;
+    flex:0 0 auto;margin-left:auto;
     font-size:10px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
@@ -149,13 +149,24 @@
   .badge .badge-name{font-size:13px;font-weight:800;color:var(--ink);}
   .badge:not(.unlocked) .badge-name{color:var(--muted);}
   .badge .badge-bar{
-    width:100%;height:9px;border-radius:5px;background:#eceef1;overflow:hidden;
+    width:100%;height:11px;border-radius:6px;background:#f3efe8;overflow:hidden;
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.06);
   }
-  .badge .badge-bar > i{display:block;height:100%;border-radius:5px;transition:width .5s ease;}
-  .badge.t-gold    .badge-bar > i{background:linear-gradient(90deg,#f8d36b,#e2a521);}
-  .badge.t-diamond .badge-bar > i{background:linear-gradient(90deg,#a7e8f7,#4fc2e0);}
-  .badge.t-king    .badge-bar > i{background:linear-gradient(90deg,#c3a3ff,#8b5cf6);}
-  .badge.t-sage    .badge-bar > i{background:linear-gradient(90deg,#ffcf6b,#ff9ecb,#b39cff);}
+  .badge .badge-bar > i{
+    display:block;height:100%;border-radius:6px;transition:width .6s ease;position:relative;overflow:hidden;min-width:0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.45);
+  }
+  /* 流光扫过，进度条更有活力 */
+  .badge .badge-bar > i::after{
+    content:"";position:absolute;top:0;left:-45%;width:45%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.75),transparent);
+    animation:barShine 2s ease-in-out infinite;
+  }
+  @keyframes barShine{0%{left:-45%}55%,100%{left:115%}}
+  .badge.t-gold    .badge-bar > i{background:linear-gradient(90deg,#ffd873,#ef9f1e);}
+  .badge.t-diamond .badge-bar > i{background:linear-gradient(90deg,#8fe6fb,#33b6e0);}
+  .badge.t-king    .badge-bar > i{background:linear-gradient(90deg,#c9a3ff,#7c4dff);}
+  .badge.t-sage    .badge-bar > i{background:linear-gradient(90deg,#ffd166,#ff8fb8,#9d7bff);}
   .badge .badge-sub{font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums;}
   .badge.unlocked .badge-sub{color:var(--accent-dark);font-weight:700;}
   .section-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 4px 8px;display:flex;align-items:center;gap:6px;}
@@ -523,16 +534,16 @@
   /* 计时数字：空的时候不占位，把空间让给文字 */
   .goal-time{font-size:9px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
   .goal-time:empty{display:none;}
-  /* 加减目标 */
-  .goal-tools{display:flex;align-items:center;gap:6px;margin-top:5px;}
+  /* 加减目标（低调，不抢目标的风头） */
+  .goal-tools{display:flex;align-items:center;gap:5px;margin-top:4px;}
   .gt-btn{
-    width:22px;height:22px;border-radius:7px;border:none;cursor:pointer;
-    background:#fff1e6;color:var(--primary-dark);font-size:14px;font-weight:800;line-height:1;
+    width:17px;height:17px;border-radius:6px;border:none;cursor:pointer;
+    background:#f1f1f1;color:#9a9aa8;font-size:11px;font-weight:700;line-height:1;
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
   .gt-btn:active{transform:scale(0.92);}
   .gt-btn.active{background:#ff6b6b;color:#fff;}
-  .gt-lbl{font-size:12px;font-weight:700;color:var(--primary-dark);}
+  .gt-lbl{font-size:10px;font-weight:600;color:var(--muted);}
   .goal-del{
     width:22px;height:22px;border-radius:50%;border:2px solid #ffb3b3;background:#fff;
     color:#e84545;cursor:pointer;font-size:12px;font-weight:700;flex-shrink:0;
@@ -690,7 +701,7 @@ const I18N = {
   zh: {
     appTitle: "了不起的我 · ProudMe",
     appName: "了不起的我",
-    todayPomos: n => `您今天已经完成 【${n}】 个番茄钟`,
+    todayPomos: n => `您今天已经完成 [${n}] 个番茄钟`,
     tomatoMsg: "收获一个 🍅！",
     tomatoSub: cat => `${cat} 满 1 小时，了不起！`,
     lbTitle: "🏆 排行榜",
