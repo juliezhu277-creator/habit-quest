@@ -131,38 +131,33 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
-  .xp-row{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap;}
-  .pomo-track{display:flex;align-items:center;gap:1px;flex:0 0 auto;line-height:1;}
-  .ptom{font-size:14px;transition:transform .2s;}
-  .ptom.off{filter:grayscale(1);opacity:0.32;}
+  .xp-row{display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:nowrap;}
+  .pomo-track{display:flex;align-items:center;gap:0;flex:0 0 auto;line-height:1;}
+  .ptom{font-size:11px;transition:transform .2s;}
+  .ptom.off{filter:grayscale(1);opacity:0.3;}
   .ptom.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
   .streak-inline{
-    flex:0 0 auto;
-    font-size:11px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
+    flex:0 1 auto;
+    font-size:10px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
-    display:flex;justify-content:space-around;gap:8px;padding:4px 2px 6px;margin-bottom:4px;
+    display:flex;gap:10px;padding:4px 4px 6px;margin-bottom:4px;
   }
   .badge{
-    flex:1;max-width:80px;
-    display:flex;flex-direction:column;align-items:center;gap:3px;
+    flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
   }
-  .badge .icon-box{
-    width:54px;height:54px;border-radius:14px;
-    display:flex;align-items:center;justify-content:center;
-    font-size:17px;font-weight:800;color:#fff;letter-spacing:1px;
-    text-shadow:0 1px 2px rgba(0,0,0,0.18);
-    box-shadow:0 4px 10px rgba(0,0,0,0.12);
+  .badge .badge-name{font-size:13px;font-weight:800;color:var(--ink);}
+  .badge:not(.unlocked) .badge-name{color:var(--muted);}
+  .badge .badge-bar{
+    width:100%;height:9px;border-radius:5px;background:#eceef1;overflow:hidden;
   }
-  .badge .icon-box.t-gold{background:linear-gradient(145deg,#f8d36b,#e2a521);}
-  .badge .icon-box.t-diamond{background:linear-gradient(145deg,#a7e8f7,#4fc2e0);color:#0f5a70;text-shadow:0 1px 1px rgba(255,255,255,0.4);}
-  .badge .icon-box.t-king{background:linear-gradient(145deg,#c3a3ff,#8b5cf6);}
-  .badge .icon-box.t-sage{background:linear-gradient(135deg,#ffe08a,#ff9ecb 55%,#b39cff);}
-  .badge:not(.unlocked) .icon-box{filter:grayscale(0.9);opacity:0.4;}
-  .badge .tip2{
-    font-size:10px;color:var(--muted);white-space:nowrap;text-align:center;
-  }
-  .badge.unlocked .tip2{color:var(--ink);font-weight:600;}
+  .badge .badge-bar > i{display:block;height:100%;border-radius:5px;transition:width .5s ease;}
+  .badge.t-gold    .badge-bar > i{background:linear-gradient(90deg,#f8d36b,#e2a521);}
+  .badge.t-diamond .badge-bar > i{background:linear-gradient(90deg,#a7e8f7,#4fc2e0);}
+  .badge.t-king    .badge-bar > i{background:linear-gradient(90deg,#c3a3ff,#8b5cf6);}
+  .badge.t-sage    .badge-bar > i{background:linear-gradient(90deg,#ffcf6b,#ff9ecb,#b39cff);}
+  .badge .badge-sub{font-size:9px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .badge.unlocked .badge-sub{color:var(--accent-dark);font-weight:700;}
   .section-title{font-size:14px;font-weight:700;color:var(--ink);margin:18px 4px 8px;display:flex;align-items:center;gap:6px;}
 
   /* 积分奖励模块 */
@@ -528,13 +523,15 @@
   /* 计时数字：空的时候不占位，把空间让给文字 */
   .goal-time{font-size:9px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums;flex-shrink:0;}
   .goal-time:empty{display:none;}
-  .goal-del{background:none;border:none;color:#ccc;cursor:pointer;font-size:11px;padding:0 1px;flex-shrink:0;}
-  .goal-del:hover{color:#e84545;}
-  .goal-add{
-    display:flex;align-items:center;gap:4px;margin-top:3px;
-    color:var(--primary-dark);font-size:12px;font-weight:700;cursor:pointer;
-    background:none;border:none;padding:5px 1px;
+  /* 加减目标 */
+  .goal-tools{display:flex;align-items:center;gap:6px;margin-top:5px;}
+  .gt-btn{
+    width:22px;height:22px;border-radius:7px;border:none;cursor:pointer;
+    background:#fff1e6;color:var(--primary-dark);font-size:14px;font-weight:800;line-height:1;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
+  .gt-btn:active{transform:scale(0.92);}
+  .gt-lbl{font-size:12px;font-weight:700;color:var(--primary-dark);}
   .tasks-summary{
     margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
   }
@@ -662,10 +659,10 @@ function defaultGoals(){
 
 // 四个等级徽章：累计番茄钟 100 / 500 / 1000 / 1500 → 黄金 / 钻石 / 王者 / 圣人
 const BADGES = [
-  {id:"tier1", tone:"gold",    name:{zh:"黄金", en:"Gold"},    sub:{zh:"100 个番茄钟",  en:"100 pomodoros"},  need: ()=>lifetimePomos()>=100},
-  {id:"tier2", tone:"diamond", name:{zh:"钻石", en:"Diamond"}, sub:{zh:"500 个番茄钟",  en:"500 pomodoros"},  need: ()=>lifetimePomos()>=500},
-  {id:"tier3", tone:"king",    name:{zh:"王者", en:"King"},    sub:{zh:"1000 个番茄钟", en:"1000 pomodoros"}, need: ()=>lifetimePomos()>=1000},
-  {id:"tier4", tone:"sage",    name:{zh:"圣人", en:"Sage"},    sub:{zh:"1500 个番茄钟", en:"1500 pomodoros"}, need: ()=>lifetimePomos()>=1500},
+  {id:"tier1", tone:"gold",    goal:100,  name:{zh:"黄金", en:"Gold"},    need: ()=>lifetimePomos()>=100},
+  {id:"tier2", tone:"diamond", goal:500,  name:{zh:"钻石", en:"Diamond"}, need: ()=>lifetimePomos()>=500},
+  {id:"tier3", tone:"king",    goal:1000, name:{zh:"王者", en:"King"},    need: ()=>lifetimePomos()>=1000},
+  {id:"tier4", tone:"sage",    goal:1500, name:{zh:"大圣", en:"Great Sage"}, need: ()=>lifetimePomos()>=1500},
 ];
 
 const STAGES = [
@@ -760,8 +757,8 @@ const I18N = {
     seqEnd: n => `坚持到第 ${n} 关！`,
     // 时间统计
     timeTitle: "⏱ 时间管家",
-    tasksTitle: "🎯 今日目标 & 时间",
-    addGoal: "＋ 添加目标",
+    tasksTitle: "🎯 今日目标",
+    addGoal: "加减目标",
     goalPlaceholder: "输入一个目标…",
     timerIdle: "点下方按钮开始计时",
     timerRunning: (label) => `正在记录：${label}`,
@@ -862,8 +859,8 @@ const I18N = {
     seqWrong: "Wrong order!",
     seqEnd: n => `Reached round ${n}!`,
     timeTitle: "⏱ Time Manager",
-    tasksTitle: "🎯 Today's Goals & Time",
-    addGoal: "＋ Add goal",
+    tasksTitle: "🎯 Today's Goals",
+    addGoal: "Add / remove",
     goalPlaceholder: "Enter a goal…",
     timerIdle: "Tap a button below to start tracking",
     timerRunning: (label) => `Tracking: ${label}`,
@@ -1124,11 +1121,16 @@ function render(){
 
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
+  const pomos = lifetimePomos();
   BADGES.forEach(b=>{
-    const unlocked = b.need(state);
+    const unlocked = pomos >= b.goal;
+    const pct = Math.min(100, pomos / b.goal * 100);
     const div = document.createElement("div");
-    div.className = "badge" + (unlocked ? " unlocked" : "");
-    div.innerHTML = `<div class="icon-box t-${b.tone}">${L(b.name)}</div><span class="tip2">${L(b.sub)}</span>`;
+    div.className = "badge t-" + b.tone + (unlocked ? " unlocked" : "");
+    div.innerHTML =
+      `<span class="badge-name">${L(b.name)}</span>` +
+      `<div class="badge-bar"><i style="width:${pct}%"></i></div>` +
+      `<span class="badge-sub">${Math.min(pomos,b.goal)}/${b.goal}</span>`;
     badgesEl.appendChild(div);
   });
 
@@ -1282,7 +1284,6 @@ function renderTasks(){
           <div class="goal-ctrls">
             <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
             <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>
-            <button class="goal-del" data-del title="✕">✕</button>
           </div>
         </div>`;
     });
@@ -1297,7 +1298,11 @@ function renderTasks(){
         </div>
         <div class="cat-goals">
           ${rows}
-          <button class="goal-add" data-add>${t("addGoal")}</button>
+          <div class="goal-tools">
+            <button class="gt-btn" data-add>＋</button>
+            <button class="gt-btn" data-sub>－</button>
+            <span class="gt-lbl">${t("addGoal")}</span>
+          </div>
         </div>
       </div>`;
   });
@@ -1320,11 +1325,11 @@ function renderTasks(){
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
     block.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
+    block.querySelector("[data-sub]").addEventListener("click", ()=>removeLastGoal(catId));
     block.querySelectorAll(".goal-row").forEach(row=>{
       const gid = row.dataset.gid;
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
       row.querySelector("[data-timer]").addEventListener("click", ()=>toggleGoalTimer(catId, gid));
-      row.querySelector("[data-del]").addEventListener("click", ()=>deleteGoal(catId, gid));
       row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
     });
   });
@@ -1369,6 +1374,15 @@ function addGoal(catId){
 }
 function deleteGoal(catId, gid){
   state.goals[catId] = state.goals[catId].filter(g=>g.id !== gid);
+  save(state); renderTasks();
+}
+// 减目标：移除该类别最后一个目标（正在计时的先停止）
+function removeLastGoal(catId){
+  const arr = state.goals[catId];
+  if(!arr || arr.length === 0) return;
+  const last = arr[arr.length-1];
+  if(state.timer && state.timer.goalId === last.id) stopTimer();
+  arr.pop();
   save(state); renderTasks();
 }
 function editGoalText(catId, gid, text){
