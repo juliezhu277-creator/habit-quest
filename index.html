@@ -531,7 +531,14 @@
     display:flex;align-items:center;justify-content:center;flex-shrink:0;
   }
   .gt-btn:active{transform:scale(0.92);}
+  .gt-btn.active{background:#ff6b6b;color:#fff;}
   .gt-lbl{font-size:12px;font-weight:700;color:var(--primary-dark);}
+  .goal-del{
+    width:22px;height:22px;border-radius:50%;border:2px solid #ffb3b3;background:#fff;
+    color:#e84545;cursor:pointer;font-size:12px;font-weight:700;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .goal-del:active{transform:scale(0.9);}
   .tasks-summary{
     margin-top:12px;padding-top:12px;border-top:1px solid #f0f0f0;
   }
@@ -759,6 +766,7 @@ const I18N = {
     timeTitle: "⏱ 时间管家",
     tasksTitle: "🎯 今日目标",
     addGoal: "加减目标",
+    editingGoals: "点 ✕ 删除，再点 － 完成",
     goalPlaceholder: "输入一个目标…",
     timerIdle: "点下方按钮开始计时",
     timerRunning: (label) => `正在记录：${label}`,
@@ -861,6 +869,7 @@ const I18N = {
     timeTitle: "⏱ Time Manager",
     tasksTitle: "🎯 Today's Goals",
     addGoal: "Add / remove",
+    editingGoals: "Tap ✕ to delete, － to finish",
     goalPlaceholder: "Enter a goal…",
     timerIdle: "Tap a button below to start tracking",
     timerRunning: (label) => `Tracking: ${label}`,
@@ -1261,6 +1270,9 @@ function escapeHtml(s){
   return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 }
 
+// 各类别是否处于"删除模式"（运行期，不持久化）
+const catEdit = {};
+
 function renderTasks(){
   const el = document.getElementById("tasksCard");
   const running = state.timer;
@@ -1274,6 +1286,7 @@ function renderTasks(){
     const goals = state.goals[cat.id] || [];
     const doneCount = goals.filter(g=>g.done).length;
 
+    const editing = !!catEdit[cat.id];
     let rows = "";
     goals.forEach(g=>{
       const isRunning = running && running.goalId === g.id;
@@ -1282,8 +1295,10 @@ function renderTasks(){
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
           <input class="goal-input" data-text maxlength="${GOAL_MAX_LEN}" value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
           <div class="goal-ctrls">
-            <button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
-            <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>
+            ${editing
+              ? `<button class="goal-del" data-del title="✕">✕</button>`
+              : `<button class="goal-timer${isRunning?" running"+(cat.kind==="fun"?" fun":""):""}" data-timer>${isRunning?"⏹":"▶"}</button>
+                 <span class="goal-time" id="gt-${g.id}">${fmtClock(goalLiveSec(g))}</span>`}
           </div>
         </div>`;
     });
@@ -1300,8 +1315,8 @@ function renderTasks(){
           ${rows}
           <div class="goal-tools">
             <button class="gt-btn" data-add>＋</button>
-            <button class="gt-btn" data-sub>－</button>
-            <span class="gt-lbl">${t("addGoal")}</span>
+            <button class="gt-btn${editing?" active":""}" data-sub>－</button>
+            <span class="gt-lbl">${editing ? t("editingGoals") : t("addGoal")}</span>
           </div>
         </div>
       </div>`;
@@ -1325,11 +1340,17 @@ function renderTasks(){
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
     block.querySelector("[data-add]").addEventListener("click", ()=>addGoal(catId));
-    block.querySelector("[data-sub]").addEventListener("click", ()=>removeLastGoal(catId));
+    block.querySelector("[data-sub]").addEventListener("click", ()=>{
+      catEdit[catId] = !catEdit[catId];   // 切换该类别的删除模式
+      renderTasks();
+    });
     block.querySelectorAll(".goal-row").forEach(row=>{
       const gid = row.dataset.gid;
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
-      row.querySelector("[data-timer]").addEventListener("click", ()=>toggleGoalTimer(catId, gid));
+      const timerBtn = row.querySelector("[data-timer]");
+      if(timerBtn) timerBtn.addEventListener("click", ()=>toggleGoalTimer(catId, gid));
+      const delBtn = row.querySelector("[data-del]");
+      if(delBtn) delBtn.addEventListener("click", ()=>deleteGoal(catId, gid));
       row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
     });
   });
@@ -1373,16 +1394,8 @@ function addGoal(catId){
   if(inputs.length) inputs[inputs.length-1].focus();
 }
 function deleteGoal(catId, gid){
+  if(state.timer && state.timer.goalId === gid) stopTimer();
   state.goals[catId] = state.goals[catId].filter(g=>g.id !== gid);
-  save(state); renderTasks();
-}
-// 减目标：移除该类别最后一个目标（正在计时的先停止）
-function removeLastGoal(catId){
-  const arr = state.goals[catId];
-  if(!arr || arr.length === 0) return;
-  const last = arr[arr.length-1];
-  if(state.timer && state.timer.goalId === last.id) stopTimer();
-  arr.pop();
   save(state); renderTasks();
 }
 function editGoalText(catId, gid, text){
