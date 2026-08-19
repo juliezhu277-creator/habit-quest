@@ -131,14 +131,14 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
-  .xp-row{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:nowrap;}
-  .pomo-track{display:flex;align-items:center;flex:0 0 auto;line-height:1;letter-spacing:-2px;}
+  .xp-row{display:flex;align-items:center;gap:20px;margin-top:7px;flex-wrap:nowrap;}
+  .pomo-track{display:flex;align-items:center;flex:0 0 auto;line-height:1;letter-spacing:-1px;}
   .ptom{font-size:10px;transition:transform .2s;}
   .ptom.off{filter:grayscale(1);opacity:0.3;}
   .ptom.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
   .streak-inline{
-    flex:0 0 auto;margin-left:auto;
-    font-size:10px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
+    flex:0 0 auto;
+    font-size:9px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
     display:flex;gap:10px;padding:4px 4px 6px;margin-bottom:4px;
@@ -149,18 +149,23 @@
   .badge .badge-name{font-size:13px;font-weight:800;color:var(--ink);}
   .badge:not(.unlocked) .badge-name{color:var(--muted);}
   .badge .badge-bar{
-    width:100%;height:11px;border-radius:6px;background:#f3efe8;overflow:hidden;
+    width:100%;height:11px;border-radius:6px;overflow:hidden;position:relative;
     box-shadow:inset 0 1px 2px rgba(0,0,0,0.06);
   }
-  .badge .badge-bar > i{
-    display:block;height:100%;border-radius:6px;transition:width .6s ease;position:relative;overflow:hidden;min-width:0;
-    box-shadow:inset 0 1px 0 rgba(255,255,255,0.45);
+  /* 空进度也带各段位淡色底纹，不再灰灰的 */
+  .badge.t-gold    .badge-bar{background:#fbeecb;}
+  .badge.t-diamond .badge-bar{background:#dcf3fb;}
+  .badge.t-king    .badge-bar{background:#eae1ff;}
+  .badge.t-sage    .badge-bar{background:#ffe6f0;}
+  /* 底纹上一层缓慢流光，空的时候也有活力 */
+  .badge .badge-bar::before{
+    content:"";position:absolute;top:0;left:-45%;width:45%;height:100%;z-index:1;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.55),transparent);
+    animation:barShine 3s ease-in-out infinite;
   }
-  /* 流光扫过，进度条更有活力 */
-  .badge .badge-bar > i::after{
-    content:"";position:absolute;top:0;left:-45%;width:45%;height:100%;
-    background:linear-gradient(90deg,transparent,rgba(255,255,255,0.75),transparent);
-    animation:barShine 2s ease-in-out infinite;
+  .badge .badge-bar > i{
+    display:block;height:100%;border-radius:6px;transition:width .6s ease;min-width:0;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.45);
   }
   @keyframes barShine{0%{left:-45%}55%,100%{left:115%}}
   .badge.t-gold    .badge-bar > i{background:linear-gradient(90deg,#ffd873,#ef9f1e);}
