@@ -131,17 +131,13 @@
   .id{flex:1;}
   .id .name{font-weight:700;font-size:16px;}
   .id .level{font-size:12px;color:var(--muted);}
-  .xp-row{display:flex;align-items:center;gap:10px;margin-top:6px;}
-  .xp-bar-wrap{
-    height:10px;background:#eee;border-radius:6px;overflow:hidden;
-    flex:1 1 auto;min-width:0;
-  }
-  .xp-bar{
-    height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-dark));
-    border-radius:6px;transition:width .6s ease;
-  }
+  .xp-row{display:flex;align-items:center;gap:8px;margin-top:7px;flex-wrap:wrap;}
+  .pomo-track{display:flex;align-items:center;gap:1px;flex:0 0 auto;line-height:1;}
+  .ptom{font-size:14px;transition:transform .2s;}
+  .ptom.off{filter:grayscale(1);opacity:0.32;}
+  .ptom.pop{animation:tomatoPop .6s cubic-bezier(.34,1.56,.64,1);}
   .streak-inline{
-    flex:0 0 auto;margin-left:auto;
+    flex:0 0 auto;
     font-size:11px;color:var(--primary-dark);font-weight:700;white-space:nowrap;
   }
   .badges{
@@ -158,10 +154,10 @@
     text-shadow:0 1px 2px rgba(0,0,0,0.18);
     box-shadow:0 4px 10px rgba(0,0,0,0.12);
   }
-  .badge .icon-box.t-novice{background:linear-gradient(145deg,#8fd0c4,#56b0a0);}
-  .badge .icon-box.t-bronze{background:linear-gradient(145deg,#e0a064,#b5703a);}
-  .badge .icon-box.t-silver{background:linear-gradient(145deg,#dde3ea,#a4afbb);color:#465260;text-shadow:0 1px 1px rgba(255,255,255,0.4);}
   .badge .icon-box.t-gold{background:linear-gradient(145deg,#f8d36b,#e2a521);}
+  .badge .icon-box.t-diamond{background:linear-gradient(145deg,#a7e8f7,#4fc2e0);color:#0f5a70;text-shadow:0 1px 1px rgba(255,255,255,0.4);}
+  .badge .icon-box.t-king{background:linear-gradient(145deg,#c3a3ff,#8b5cf6);}
+  .badge .icon-box.t-sage{background:linear-gradient(135deg,#ffe08a,#ff9ecb 55%,#b39cff);}
   .badge:not(.unlocked) .icon-box{filter:grayscale(0.9);opacity:0.4;}
   .badge .tip2{
     font-size:10px;color:var(--muted);white-space:nowrap;text-align:center;
@@ -605,7 +601,7 @@
       <div class="name" id="charName">了不起的我</div>
       <div class="level" id="levelText">Lv.1 · 0 / 50 XP</div>
       <div class="xp-row">
-        <div class="xp-bar-wrap"><div class="xp-bar" id="xpBar" style="width:0%"></div></div>
+        <div class="pomo-track" id="pomoTrack"></div>
         <span class="streak-inline" id="streakInline"></span>
       </div>
     </div>
@@ -648,7 +644,7 @@ const CATEGORIES = [
   {id:"study",    icon:"📚", kind:"effective", game:"math",   title:{zh:"学习", en:"Study"}},
   {id:"exercise", icon:"🏃", kind:"effective", game:"piano",  title:{zh:"运动", en:"Exercise"}},
   {id:"social",   icon:"🤝", kind:"effective", game:"reflex", title:{zh:"社交", en:"Social"}},
-  {id:"fun",      icon:"🎮", kind:"fun",       game:"memory", title:{zh:"娱乐", en:"Entertainment"}},
+  {id:"fun",      icon:"🎮", kind:"fun",       game:"memory", title:{zh:"娱乐", en:"Relax"}},
 ];
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
@@ -664,12 +660,12 @@ function defaultGoals(){
   };
 }
 
-// 四个等级徽章：坚持 1 天 / 1 周 / 1 月 / 1 年 → 素人 / 青铜 / 白银 / 黄金
+// 四个等级徽章：累计番茄钟 100 / 500 / 1000 / 1500 → 黄金 / 钻石 / 王者 / 圣人
 const BADGES = [
-  {id:"tier1",   tone:"novice", name:{zh:"素人", en:"Novice"}, sub:{zh:"坚持 1 天", en:"1 day"},   need: s=>s.streak>=1},
-  {id:"tier7",   tone:"bronze", name:{zh:"青铜", en:"Bronze"}, sub:{zh:"坚持 1 周", en:"1 week"},  need: s=>s.streak>=7},
-  {id:"tier30",  tone:"silver", name:{zh:"白银", en:"Silver"}, sub:{zh:"坚持 1 月", en:"1 month"}, need: s=>s.streak>=30},
-  {id:"tier365", tone:"gold",   name:{zh:"黄金", en:"Gold"},   sub:{zh:"坚持 1 年", en:"1 year"},  need: s=>s.streak>=365},
+  {id:"tier1", tone:"gold",    name:{zh:"黄金", en:"Gold"},    sub:{zh:"100 个番茄钟",  en:"100 pomodoros"},  need: ()=>lifetimePomos()>=100},
+  {id:"tier2", tone:"diamond", name:{zh:"钻石", en:"Diamond"}, sub:{zh:"500 个番茄钟",  en:"500 pomodoros"},  need: ()=>lifetimePomos()>=500},
+  {id:"tier3", tone:"king",    name:{zh:"王者", en:"King"},    sub:{zh:"1000 个番茄钟", en:"1000 pomodoros"}, need: ()=>lifetimePomos()>=1000},
+  {id:"tier4", tone:"sage",    name:{zh:"圣人", en:"Sage"},    sub:{zh:"1500 个番茄钟", en:"1500 pomodoros"}, need: ()=>lifetimePomos()>=1500},
 ];
 
 const STAGES = [
@@ -693,7 +689,7 @@ const I18N = {
   zh: {
     appTitle: "了不起的我 · ProudMe",
     appName: "了不起的我",
-    transformDays: n => `您已连续蜕变 ${n} 天`,
+    todayPomos: n => `您今天已经完成 ${n} 个番茄钟`,
     tomatoMsg: "收获一个 🍅！",
     tomatoSub: cat => `${cat} 满 1 小时，了不起！`,
     lbTitle: "🏆 排行榜",
@@ -802,7 +798,7 @@ const I18N = {
   en: {
     appTitle: "ProudMe",
     appName: "ProudMe",
-    transformDays: n => `${n} days transforming`,
+    todayPomos: n => `${n} pomodoros done today`,
     tomatoMsg: "Earned a 🍅!",
     tomatoSub: cat => `1 hour of ${cat} — awesome!`,
     lbTitle: "🏆 Leaderboard",
@@ -935,6 +931,7 @@ function defaultState(){
     spent: 0,             // 已兑换消耗的积分
     timer: null,          // 正在计时的目标 { catId, goalId, start:时间戳 }
     effSecTotal: 0,       // 累计有效利用秒数（学习+运动+社交，跨天，用于经验）
+    pomoSecEver: 0,       // 累计计时秒数（所有类别，跨天，用于番茄钟段位）
     timeXpAwarded: 0,     // 已根据有效时间发放的经验值（累计，用于等级）
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
@@ -956,6 +953,7 @@ function load(){
   CATEGORIES.forEach(c=>{ if(typeof state.catPoints[c.id] !== "number") state.catPoints[c.id] = 0; });
   if(typeof state.spent !== "number") state.spent = 0;
   if(typeof state.effSecTotal !== "number") state.effSecTotal = 0;
+  if(typeof state.pomoSecEver !== "number") state.pomoSecEver = 0;
   if(typeof state.timeXpAwarded !== "number") state.timeXpAwarded = state.timePointsAwarded || 0;
   // 计时器结构升级为按目标计时；旧结构(.activity)或缺失则清空
   if(!state.timer || typeof state.timer.goalId === "undefined") state.timer = null;
@@ -1069,6 +1067,38 @@ function tomatoHTML(catId, animateLast){
   if(n > cap) html += `<span class="tom-more">×${n}</span>`;
   return html;
 }
+// 今日完成的番茄钟总数（四个板块 🍅 之和）
+function todayPomos(){
+  return CATEGORIES.reduce((sum,c)=>sum + tomatoCount(c.id), 0);
+}
+// 累计番茄钟（跨天，用于段位徽章）：累计计时秒数 / 3600
+function pomoSecEverLive(){
+  let s = state.pomoSecEver || 0;
+  if(state.timer) s += (Date.now() - state.timer.start)/1000;
+  return s;
+}
+function lifetimePomos(){
+  return Math.floor(pomoSecEverLive() / 3600);
+}
+// 头部：12 个小番茄进度（完成几个亮红，其余灰）+ 今日完成番茄钟数
+const POMO_SLOTS = 12;
+function updatePomoHeader(animate){
+  const done = todayPomos();
+  const track = document.getElementById("pomoTrack");
+  if(track){
+    const prev = parseInt(track.dataset.done || "0", 10);
+    let html = "";
+    for(let i=0;i<POMO_SLOTS;i++){
+      const on = i < Math.min(done, POMO_SLOTS);
+      const pop = animate && on && i === Math.min(done, POMO_SLOTS)-1 && done > prev;
+      html += `<span class="ptom${on?" on":" off"}${pop?" pop":""}">🍅</span>`;
+    }
+    track.innerHTML = html;
+    track.dataset.done = done;
+  }
+  const s = document.getElementById("streakInline");
+  if(s) s.textContent = t("todayPomos", done);
+}
 
 function getStage(level){
   let stage = STAGES[0];
@@ -1082,9 +1112,7 @@ function render(){
   document.getElementById("charName").textContent = t("appName");
   document.getElementById("levelText").textContent =
     t("level", state.level, state.xp, xpNeeded(state.level));
-  document.getElementById("xpBar").style.width =
-    Math.min(100, (state.xp/xpNeeded(state.level))*100) + "%";
-  document.getElementById("streakInline").textContent = t("transformDays", state.streak);
+  updatePomoHeader(false);
 
   // 静态界面文案
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
@@ -1324,6 +1352,7 @@ function tickTimer(){
     if(n > parseInt(tomEl.dataset.n || "0", 10)){
       tomEl.dataset.n = n;
       tomEl.innerHTML = tomatoHTML(running.catId, true);
+      updatePomoHeader(true);   // 头部 12 番茄进度 + 今日计数同步点亮
       showToast({emoji:"🍅", msg:t("tomatoMsg"), sub:t("tomatoSub", L(CATEGORIES.find(c=>c.id===running.catId).title))});
     }
   }
@@ -1387,6 +1416,8 @@ function stopTimer(){
   if(g) g.sec = (g.sec||0) + elapsed;
   const cat = CATEGORIES.find(c=>c.id===catId);
   state.timer = null;
+  // 累计番茄钟（所有类别计时）
+  state.pomoSecEver = (state.pomoSecEver||0) + elapsed;
   // 有效利用时间（学习/运动/社交）累积并换算经验值
   if(cat && cat.kind !== "fun"){
     state.effSecTotal = (state.effSecTotal||0) + elapsed;
