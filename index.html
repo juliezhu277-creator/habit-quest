@@ -1146,7 +1146,7 @@ function render(){
     div.innerHTML =
       `<span class="badge-name">${L(b.name)}</span>` +
       `<div class="badge-bar">${segs}</div>` +
-      `<span class="badge-sub">${unlocked ? t("tierDone") : "🍅 "+b.goal}</span>`;
+      `<span class="badge-sub">${unlocked ? t("tierDone") : b.goal+" 🍅"}</span>`;
     badgesEl.appendChild(div);
   });
 
