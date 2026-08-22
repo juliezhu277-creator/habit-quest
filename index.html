@@ -13,7 +13,14 @@
   gtag('config', 'G-SRQ4P0J3XC');
 </script>
 <link rel="icon" type="image/svg+xml" href="logo.svg">
-<link rel="apple-touch-icon" href="logo.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#ff8c42">
+<meta name="description" content="番茄钟 + 目标清单：专注 1 小时，休息 10 分钟，每天为更好的自己感到自豪。">
+<!-- 装到主屏后全屏运行，不显示浏览器地址栏 -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="了不起的我">
 <title>了不起的我 · ProudMe</title>
 <style>
@@ -562,6 +569,7 @@
   .pt-breakdown{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:10px;}
   .pt-breakdown .pt-cat{font-size:12px;font-weight:700;color:var(--ink);background:#f3f3f3;padding:3px 9px;border-radius:10px;}
   .pt-breakdown .pt-avail{font-size:12px;font-weight:700;color:var(--accent-dark);margin-left:auto;}
+  .points-head .pt-avail{font-size:13px;font-weight:800;color:var(--accent-dark);}
   .rules-box{
     font-size:11px;color:var(--muted);line-height:1.6;background:#fff8ef;
     border-radius:12px;padding:9px 11px;margin-bottom:12px;
@@ -613,6 +621,9 @@
   }
   #focusScreen.open{display:flex;}
   #focusScreen.brk{background:linear-gradient(165deg,#f0fbf3,#d8f2e3);}
+  #focusScreen.fn{background:linear-gradient(165deg,#f8f4ff,#eae0fc);}
+  #focusScreen.fn .fs-prog{stroke:var(--purple);}
+  #focusScreen.fn .fs-phase{color:#6d4bd8;}
   .fs-cat{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;}
   .fs-goal{
     font-size:19px;font-weight:800;color:var(--ink);
@@ -709,6 +720,93 @@
   .me-warn{
     font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;
     background:#fff8ef;border-radius:12px;padding:9px 11px;
+  }
+
+  /* ===================== 开场提示 / 安装引导 ===================== */
+  .kick{
+    display:flex;align-items:center;gap:10px;
+    background:linear-gradient(135deg,#fff4e8,#ffe6d4);
+    border:1px solid rgba(255,140,66,0.25);
+    border-radius:16px;padding:11px 13px;margin-bottom:10px;
+  }
+  .kick.install{
+    background:linear-gradient(135deg,#eef8ff,#dcefff);
+    border-color:rgba(76,201,240,0.35);
+  }
+  .kick .k-ic{font-size:22px;flex-shrink:0;}
+  .kick .k-txt{flex:1;font-size:12.5px;font-weight:800;color:var(--ink);line-height:1.5;min-width:0;}
+  .kick .k-txt small{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-top:2px;line-height:1.55;}
+  .kick .k-go{
+    border:none;border-radius:12px;background:var(--primary);color:#fff;
+    font-family:inherit;font-size:12px;font-weight:800;padding:9px 13px;
+    cursor:pointer;flex-shrink:0;box-shadow:0 3px 9px rgba(255,140,66,0.35);
+  }
+  .kick.install .k-go{background:#2196c4;box-shadow:0 3px 9px rgba(33,150,196,0.3);}
+  .kick .k-x{
+    border:none;background:none;color:var(--muted);font-size:14px;
+    cursor:pointer;padding:2px 4px;flex-shrink:0;
+  }
+
+  /* ===================== 今日小结（四象限） ===================== */
+  .today-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .today-cell{
+    position:relative;overflow:hidden;border-radius:14px;
+    padding:10px 12px;background:#f5f5f7;
+  }
+  .today-fill{
+    position:absolute;left:0;top:0;bottom:0;width:0;
+    opacity:0.3;transition:width .55s cubic-bezier(.34,1,.64,1);
+  }
+  .today-cell .t-top,.today-cell .t-min,.today-cell .t-pom{position:relative;}
+  .today-cell .t-top{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:800;color:var(--ink);}
+  .today-cell .t-min{font-size:19px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.2;}
+  .today-cell .t-min small{font-size:10px;font-weight:600;color:var(--muted);margin-left:3px;}
+  .today-cell .t-pom{font-size:10.5px;color:var(--muted);font-weight:700;}
+  .today-line{
+    font-size:12.5px;font-weight:700;text-align:center;line-height:1.6;
+    background:#fff8ef;color:var(--primary-dark);border-radius:12px;padding:9px 11px;margin-bottom:16px;
+  }
+  .sec-label{
+    font-size:11px;font-weight:800;color:var(--muted);letter-spacing:.08em;
+    margin:2px 0 8px;
+  }
+
+  /* ===================== 我的：提醒设置 ===================== */
+  .me-set{
+    display:flex;flex-direction:column;gap:8px;margin-top:12px;
+    padding:12px 13px;border-radius:14px;background:var(--bg2);
+  }
+  .me-set .s-row{display:flex;align-items:center;gap:9px;}
+  .me-set .s-ic{font-size:18px;flex-shrink:0;}
+  .me-set .s-title{flex:1;font-size:13px;font-weight:800;color:var(--ink);min-width:0;}
+  .me-set .s-title em{
+    display:block;font-style:normal;font-size:10.5px;font-weight:700;
+    color:var(--accent-dark);margin-top:1px;
+  }
+  .me-set .s-note{font-size:10.5px;font-weight:600;color:var(--muted);line-height:1.65;}
+  .me-set input[type="time"]{
+    border:2px solid #fff;border-radius:10px;padding:6px 8px;background:#fff;
+    font-family:inherit;font-size:13px;font-weight:800;color:var(--ink);flex-shrink:0;
+  }
+  .me-set .s-off{
+    border:none;background:none;color:var(--muted);font-size:11px;
+    text-decoration:underline;cursor:pointer;font-family:inherit;flex-shrink:0;
+  }
+
+  /* ===================== 休闲时长兑换 ===================== */
+  .start-balance{
+    display:flex;align-items:baseline;justify-content:space-between;
+    font-size:12px;font-weight:700;color:var(--muted);margin-top:4px;
+  }
+  .start-balance b{font-size:15px;font-weight:800;color:var(--accent-dark);font-variant-numeric:tabular-nums;}
+  .dur-chip.fun.on{border-color:var(--purple);background:#f3eefe;color:#6d4bd8;}
+  .dur-chip.fun.on small{color:#6d4bd8;}
+  .dur-chip:disabled{opacity:0.4;cursor:not-allowed;}
+  .start-go.fun{background:var(--purple);box-shadow:0 5px 14px rgba(167,139,250,0.45);}
+  .start-go:disabled{background:#e2e2e2;color:#aaa;cursor:not-allowed;box-shadow:none;}
+  .start-short{
+    font-size:11.5px;font-weight:700;color:var(--primary-dark);
+    background:#fff8ef;border-radius:11px;padding:9px 11px;margin:8px 0 0;line-height:1.6;
   }
 </style>
 </head>
@@ -811,6 +909,19 @@ const BREAK_MIN     = 10;                // 休息 10 分钟
 const STARTER_MIN   = 5;                 // 「先做 5 分钟」起步档，不计 🍅
 const POMO_MIN_LEN  = 25;                // 满这么久的完整专注段才算 1 个 🍅
 
+// 休闲经济：专注赚的积分可以换成休闲时长，让"玩"是挣来的而不是偷来的
+const FUN_OPTIONS   = [10, 20, 30, 45];  // 可兑换的休闲时长（分钟）
+const POINTS_PER_FUN_MIN = 1;            // 1 积分 = 1 分钟休闲
+
+// 积分与经验配置（必须在 I18N 之前声明：文案里的模板字符串会立即求值）
+const POINTS_PER_GOAL = 10;        // 每完成一个目标 +10 分
+const POINTS_PER_POMO = 20;        // 每完成一个完整专注段 +20 分（可换休闲时长）
+const XP_PER_POMO = 5;             // 每完成一个完整专注段 +5 经验（奖励"坚持到底"）
+const XP_PER_HOUR = 10;            // 每有效利用 1 小时 +10 经验值（用于角色升级）
+const SECONDS_PER_XP = 3600 / XP_PER_HOUR; // 360 秒/经验
+// 有效利用 = 学习 + 运动 + 社交；娱乐(fun) 不计入有效时间
+const EFFECTIVE_ACTS = ["study","exercise","social"];
+
 // 四个等级徽章：累计完成的专注段 10 / 50 / 150 / 365 → 黄金 / 钻石 / 王者 / 大圣
 // （首枚徽章第一天就能拿到，最后一枚对应"一年 365 个专注段"）
 const BADGES = [
@@ -887,6 +998,49 @@ const I18N = {
     progSame: "和上周持平，保持住这个节奏",
     progFirst: "这是你的第一周记录，把今天的格子填起来吧",
     weekDays: ["一","二","三","四","五","六","日"],
+    // 今日小结
+    todayLabel: "今天",
+    weekLabel: "本周",
+    minUnit: "分钟",
+    pomoUnit: n => `${n} 个 🍅`,
+    todayEmpty: "今天还是空的 —— 挑一件事，先做 5 分钟就好",
+    todayLine: (m, n) => `今天专注了 ${m} 分钟，完成 ${n} 个番茄钟`,
+    todayVsYest: d => d > 0 ? `比昨天多了 ${d} 分钟 👏` : (d < 0 ? `比昨天少了 ${-d} 分钟，明天补回来` : "和昨天一样稳"),
+    // 开场提示
+    kickTitle: "今天还没有开始",
+    kickSub: "不用一上来就一小时。挑一件事，先做 5 分钟。",
+    kickGo: "先做 5 分钟",
+    // 安装引导
+    installTitle: "装到手机主屏",
+    installSub: "像 App 一样全屏打开，没网也能用，专注结束还能收到提醒。",
+    installGo: "安装",
+    installIosSub: "点底部的「分享」按钮 → 选「添加到主屏幕」，就能像 App 一样打开。",
+    installedMsg: "已装到主屏 🎉",
+    installedSub: "以后从桌面图标打开就好",
+    // 每日提醒
+    remindTitle: "每日提醒",
+    remindOff: "未开启",
+    remindSub: "到点如果今天还没开始，会提醒你一次。需要 App 在后台开着；没开着的话，下次打开会看到今天的开场提示。",
+    remindClear: "关闭",
+    remindOn: hm => `每天 ${hm} 提醒`,
+    remindNotifyTitle: "今天还没有开始 👋",
+    remindNotifyBody: "挑一件事，先做 5 分钟就好",
+    // 休闲时长兑换
+    funTitle: "兑换休闲时间",
+    funSub: "用专注赚来的积分，换一段心安理得的休闲",
+    funBalance: "可用积分",
+    funCost: n => `${n} 分`,
+    funGo: n => `花 ${n} 分，开始`,
+    funShort: n => `还差 ${n} 分。再完成一个专注段就有 ${POINTS_PER_POMO} 分`,
+    funRule: `专注段 +${POINTS_PER_POMO} 分，完成目标 +${POINTS_PER_GOAL} 分；1 分 = 1 分钟休闲。`,
+    funPhase: "休闲中",
+    funHint: "这段时间是你自己挣来的，放心玩。",
+    funOver: "休闲时间到 ⏰",
+    funOverSub: "回去做下一件事吧",
+    funRedeemed: min => `休闲 ${min} 分钟`,
+    // 专注段积分
+    pomoPoints: n => `专注段 +${n} 分`,
+    pomoPointsSub: "积分可以换休闲时间",
     navLeaderboard: "我的进步",
     navRewards: "积分兑换",
     navInfo: "信息板",
@@ -985,7 +1139,7 @@ const I18N = {
     rewardsTitle: "🎁 积分 & 兑换",
     pointsTotalLabel: n => `总积分 ${n} 分`,
     availLabel: n => `可用 ${n} 分`,
-    redeemRules: "积分规则：每完成 1 个学习/运动/社交目标 +10 分；总积分 = 学习+运动+社交 三项之和（娱乐目标只打卡、不计分）。兑换标准：100 分 = 10 分钟游戏时间 或 1 个心愿礼物。",
+    redeemRules: `积分怎么来：完成 1 个专注段 +${POINTS_PER_POMO} 分，完成 1 个学习/运动/社交目标 +${POINTS_PER_GOAL} 分。\n积分怎么花：① 在「休闲」板块直接兑换休闲时长，1 分 = 1 分钟；② 兑换下面的心愿礼物，找家长兑现。`,
     wishListHead: "心愿奖励清单",
     wishRedeem: "兑换",
     wishAddName: "心愿名称",
@@ -1042,6 +1196,43 @@ const I18N = {
     progSame: "Same as last week — hold this rhythm",
     progFirst: "This is your first week. Fill in today's bar!",
     weekDays: ["Mo","Tu","We","Th","Fr","Sa","Su"],
+    todayLabel: "Today",
+    weekLabel: "This week",
+    minUnit: "min",
+    pomoUnit: n => `${n} 🍅`,
+    todayEmpty: "Today is still empty — pick one thing and do just 5 minutes",
+    todayLine: (m, n) => `${m} minutes focused today, ${n} pomodoro${n===1?"":"s"} done`,
+    todayVsYest: d => d > 0 ? `${d} min more than yesterday 👏` : (d < 0 ? `${-d} min less than yesterday — catch up tomorrow` : "Same as yesterday"),
+    kickTitle: "You haven't started today",
+    kickSub: "You don't have to begin with a full hour. Pick one thing, do 5 minutes.",
+    kickGo: "Do 5 minutes",
+    installTitle: "Add to your home screen",
+    installSub: "Opens full screen like an app, works offline, and can notify you when a block ends.",
+    installGo: "Install",
+    installIosSub: "Tap Share at the bottom, then 'Add to Home Screen'.",
+    installedMsg: "Added to home screen 🎉",
+    installedSub: "Open it from the icon next time",
+    remindTitle: "Daily reminder",
+    remindOff: "Off",
+    remindSub: "If you haven't started by then, you get one nudge. Needs the app open in the background; otherwise you'll see the prompt next time you open it.",
+    remindClear: "Turn off",
+    remindOn: hm => `Daily at ${hm}`,
+    remindNotifyTitle: "You haven't started today 👋",
+    remindNotifyBody: "Pick one thing — five minutes is enough",
+    funTitle: "Trade points for downtime",
+    funSub: "Spend what your focus earned on guilt-free time off",
+    funBalance: "Available",
+    funCost: n => `${n} pts`,
+    funGo: n => `Spend ${n} pts & start`,
+    funShort: n => `${n} pts short. One more focus block earns ${POINTS_PER_POMO}.`,
+    funRule: `Focus block +${POINTS_PER_POMO} pts, goal done +${POINTS_PER_GOAL} pts; 1 pt = 1 minute of downtime.`,
+    funPhase: "Downtime",
+    funHint: "You earned this. Enjoy it.",
+    funOver: "Downtime's up ⏰",
+    funOverSub: "Time for the next thing",
+    funRedeemed: min => `${min} min downtime`,
+    pomoPoints: n => `Focus block +${n} pts`,
+    pomoPointsSub: "Points buy downtime",
     navLeaderboard: "Progress",
     navRewards: "Rewards",
     navInfo: "Tips",
@@ -1131,7 +1322,7 @@ const I18N = {
     rewardsTitle: "🎁 Points & Rewards",
     pointsTotalLabel: n => `${n} pts total`,
     availLabel: n => `${n} available`,
-    redeemRules: "Rules: each completed Study/Exercise/Social goal = +10 pts; total = Study + Exercise + Social (Fun goals are check-only, no points). Redeem: 100 pts = 10 min game time or 1 wish gift.",
+    redeemRules: `Earning: a finished focus block = +${POINTS_PER_POMO} pts, a completed Study/Exercise/Social goal = +${POINTS_PER_GOAL} pts.\nSpending: 1) trade for downtime in the Relax block, 1 pt = 1 minute; 2) redeem a wish gift below with a parent.`,
     wishListHead: "Wish reward list",
     wishRedeem: "Redeem",
     wishAddName: "Reward name",
@@ -1165,15 +1356,19 @@ function yesterdayStr(){
 }
 
 // 兑换基准：100 积分 = 10 分钟游戏时间 或 1 个心愿礼物
-const WISHLIST_VERSION = 2;
+const WISHLIST_VERSION = 3;
 function defaultWishList(){
   return [
-    {id:"w1", emoji:"🎮", name:{zh:"10 分钟游戏时间", en:"10 min game time"}, cost:100},
-    {id:"w2", emoji:"🎮", name:{zh:"30 分钟游戏时间", en:"30 min game time"}, cost:300},
-    {id:"w3", emoji:"🎮", name:{zh:"1 小时游戏时间", en:"1 hour game time"}, cost:600},
+    // 屏幕内的休闲时长已经可以在「休闲」板块直接兑换（1 分 = 1 分钟），
+    // 所以这里只放现实里的奖励，避免两套价格互相打架。
+    {id:"w1", emoji:"🍦", name:{zh:"一个甜筒", en:"An ice cream"}, cost:60},
+    {id:"w2", emoji:"🎬", name:{zh:"一起看场电影", en:"A movie together"}, cost:200},
+    {id:"w3", emoji:"📚", name:{zh:"想要的那本书", en:"That book you want"}, cost:300},
     {id:"w4", emoji:"🎁", name:{zh:"心愿礼物（自定义）", en:"Wish gift (custom)"}, cost:100},
   ];
 }
+// 旧版默认清单里的"游戏时间"条目，迁移时移除（用户自己加的一律保留）
+const LEGACY_WISH_IDS = ["w1","w2","w3","w4"];
 
 function defaultState(){
   return {
@@ -1195,6 +1390,10 @@ function defaultState(){
     pomoEver: 0,          // 累计完成的专注段数（跨天，用于段位徽章）
     timeXpAwarded: 0,     // 已根据有效时间发放的经验值（累计，用于等级）
     history: {},          // { "YYYY-MM-DD": {p:番茄钟数, s:专注秒数} }，用于周对比
+    reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
+    remindedDate: null,   // 今天是否已提醒过
+    kickDismissed: null,  // 今天是否已关掉开场提示
+    installDismissed: false,
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
   };
@@ -1220,6 +1419,10 @@ function load(){
   if(typeof state.pomoEver !== "number") state.pomoEver = Math.floor(state.pomoSecEver / 3600);
   if(typeof state.focusMin !== "number" || !FOCUS_OPTIONS.includes(state.focusMin)) state.focusMin = FOCUS_DEFAULT;
   if(!state.history || typeof state.history !== "object") state.history = {};
+  if(typeof state.reminder === "undefined") state.reminder = null;
+  if(typeof state.remindedDate === "undefined") state.remindedDate = null;
+  if(typeof state.kickDismissed === "undefined") state.kickDismissed = null;
+  if(typeof state.installDismissed !== "boolean") state.installDismissed = false;
   if(typeof state.timeXpAwarded !== "number") state.timeXpAwarded = state.timePointsAwarded || 0;
   // 计时器结构升级为「有固定时长的专注段」；旧结构（无 durSec）一律作废，
   // 避免旧版本忘记停止的秒表把一整夜都算成学习时间
@@ -1231,7 +1434,9 @@ function load(){
   delete state.timeLog;
   if(!state.wishList) state.wishList = defaultWishList();
   if(state.wishListVersion !== WISHLIST_VERSION){
-    state.wishList = defaultWishList();
+    // 只替换旧的默认条目，用户自己添加的心愿保留下来
+    const custom = state.wishList.filter(w => !LEGACY_WISH_IDS.includes(w.id));
+    state.wishList = defaultWishList().concat(custom);
     state.wishListVersion = WISHLIST_VERSION;
   }
   if(!state.redemptions) state.redemptions = [];
@@ -1267,14 +1472,6 @@ function save(state){
 function xpNeeded(level){
   return 50 + (level-1)*25;
 }
-
-// 积分系统配置
-const POINTS_PER_GOAL = 10;        // 每完成一个目标 +10 分
-const XP_PER_POMO = 5;             // 每完成一个完整专注段 +5 经验（奖励"坚持到底"）
-const XP_PER_HOUR = 10;            // 每有效利用 1 小时 +10 经验值（用于角色升级）
-const SECONDS_PER_XP = 3600 / XP_PER_HOUR; // 360 秒/经验
-// 有效利用 = 学习 + 运动 + 社交；娱乐(fun) 不计入有效时间
-const EFFECTIVE_ACTS = ["study","exercise","social"];
 
 // 总积分 = 四个类别积分之和（每类 = 该类已完成目标数 × 10）
 function totalPoints(){
@@ -1452,6 +1649,44 @@ function weekDays(offsetWeeks){
   return out;
 }
 
+// 今日小结：四个板块各投入了多少，一眼看清今天的形状
+const CAT_TINT = {study:"#4cc9f0", exercise:"#7bd389", social:"#ff8c42", fun:"#a78bfa"};
+
+function buildToday(){
+  const mins = {}, poms = {};
+  CATEGORIES.forEach(c=>{
+    mins[c.id] = Math.round(catSeconds(c.id)/60);
+    poms[c.id] = tomatoCount(c.id);
+  });
+  const maxMin = Math.max(1, ...CATEGORIES.map(c=>mins[c.id]));
+  const effMin = EFFECTIVE_ACTS.reduce((s,a)=>s+mins[a], 0);
+  const totalPom = todayPomos();
+
+  let cells = "";
+  CATEGORIES.forEach(c=>{
+    const pct = Math.round(mins[c.id]/maxMin*100);
+    cells += `
+      <div class="today-cell">
+        <span class="today-fill" style="width:${mins[c.id]>0?pct:0}%;background:${CAT_TINT[c.id]}"></span>
+        <div class="t-top">${c.icon} ${L(c.title)}</div>
+        <div class="t-min">${mins[c.id]}<small>${t("minUnit")}</small></div>
+        <div class="t-pom">${poms[c.id]>0 ? t("pomoUnit", poms[c.id]) : "—"}</div>
+      </div>`;
+  });
+
+  // 和昨天比：具体的对比比抽象的分数更能带来胜任感
+  const yRec = state.history[yesterdayStr()];
+  const yMin = yRec ? Math.round(yRec.s/60) : null;
+  let line;
+  if(effMin === 0 && totalPom === 0) line = t("todayEmpty");
+  else if(yMin === null)             line = t("todayLine", effMin, totalPom);
+  else                               line = `${t("todayLine", effMin, totalPom)} · ${t("todayVsYest", effMin - yMin)}`;
+
+  return `<div class="sec-label">${t("todayLabel")}</div>
+          <div class="today-grid">${cells}</div>
+          <div class="today-line">${line}</div>`;
+}
+
 function buildProgress(card){
   const cur  = weekDays(0);
   const prev = weekDays(1);
@@ -1479,7 +1714,8 @@ function buildProgress(card){
       </div>`;
   });
 
-  card.innerHTML = navHeader("progTitle") + `
+  card.innerHTML = navHeader("progTitle") + buildToday() + `
+    <div class="sec-label">${t("weekLabel")}</div>
     <div class="wk-kpis">
       <div class="wk-kpi"><b>${curP}</b><span>${t("progThisWeek")}</span></div>
       <div class="wk-kpi"><b>${prevP}</b><span>${t("progLastWeek")}</span></div>
@@ -1581,9 +1817,31 @@ function buildMe(card){
        <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
        <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
      </div>
+     <div class="me-set">
+       <div class="s-row">
+         <span class="s-ic">🔔</span>
+         <span class="s-title">${t("remindTitle")}
+           <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
+         </span>
+         <input type="time" data-remind value="${state.reminder || ""}">
+         ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+       </div>
+       <div class="s-note">${t("remindSub")}</div>
+     </div>
      <div class="me-warn">${t("meBackupWarn")}</div>`;
   card.querySelector("[data-backup]").addEventListener("click", exportBackup);
   card.querySelector("[data-restore]").addEventListener("click", importBackup);
+  card.querySelector("[data-remind]").addEventListener("change", e=>{
+    state.reminder = e.target.value || null;
+    state.remindedDate = null;
+    save(state);
+    if(state.reminder) askNotifyPermission();
+    refreshNav();
+  });
+  const off = card.querySelector("[data-remind-off]");
+  if(off) off.addEventListener("click", ()=>{
+    state.reminder = null; save(state); refreshNav();
+  });
 }
 
 /* ----- 备份：数据只在本机 localStorage，导出一份是唯一的安全网 ----- */
@@ -1687,6 +1945,7 @@ function renderTasks(){
 
   el.innerHTML = `
     <div class="card-title">${t("tasksTitle")}</div>
+    ${buildBanners()}
     <div class="cat-grid">${blocks}</div>
     <div class="nav-bar">
       <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">📈</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
@@ -1699,6 +1958,7 @@ function renderTasks(){
   el.querySelectorAll(".nav-item").forEach(b=>{
     b.addEventListener("click", ()=>openNav(b.dataset.nav));
   });
+  bindBanners(el);
 
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
@@ -1736,7 +1996,9 @@ function tickTimer(){
 
   if(phaseRemain() <= 0){
     stopTicking();
-    if(tm.phase === "focus") finishFocus(); else finishBreak();
+    if(tm.phase === "focus") finishFocus();
+    else if(tm.phase === "fun") finishFun();
+    else finishBreak();
     return;
   }
 
@@ -1844,13 +2106,15 @@ function bumpHistory(pomos, sec){
 }
 
 /* ---------- 开始专注：先选时长，再进入全屏 ---------- */
-function openStartSheet(catId, gid){
+function openStartSheet(catId, gid, preset){
   // 已有专注段在跑：直接回到专注界面，不允许同时开两个
   if(state.timer){ openFocusScreen(); return; }
   const g = (state.goals[catId]||[]).find(x=>x.id===gid);
   if(!g) return;
   const cat = CATEGORIES.find(c=>c.id===catId);
-  let picked = state.focusMin;
+  // 休闲类走「用积分兑换时长」的路径
+  if(cat.kind === "fun"){ openFunSheet(catId, gid); return; }
+  let picked = preset || state.focusMin;
 
   const modal = document.getElementById("startModal");
   const card  = document.getElementById("startCard");
@@ -1887,6 +2151,80 @@ function openStartSheet(catId, gid){
   requestAnimationFrame(()=>card.classList.add("show"));
 }
 
+/* ---------- 休闲：用积分兑换一段心安理得的休息 ---------- */
+function openFunSheet(catId, gid){
+  if(state.timer){ openFocusScreen(); return; }
+  const g = (state.goals[catId]||[]).find(x=>x.id===gid);
+  if(!g) return;
+  const cat = CATEGORIES.find(c=>c.id===catId);
+  let picked = FUN_OPTIONS[0];
+
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+
+  const paint = ()=>{
+    const avail = availablePoints();
+    const cost  = picked * POINTS_PER_FUN_MIN;
+    const short = Math.max(0, cost - avail);
+    const chips = FUN_OPTIONS.map(m=>{
+      const c = m * POINTS_PER_FUN_MIN;
+      return `<button class="dur-chip fun${picked===m?" on":""}" data-min="${m}"${c>avail?" disabled":""}>${
+        m}<small>${t("funCost", c)}</small></button>`;
+    }).join("");
+    card.innerHTML = `
+      <div class="nav-top">
+        <span class="nav-title">${t("funTitle")}</span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="start-goal">${cat.icon} ${escapeHtml(g.text || t("goalPlaceholder"))}</div>
+      <div class="start-sub">${t("funSub")}</div>
+      <div class="start-balance"><span>${t("funBalance")}</span><b>${avail}</b></div>
+      <div class="dur-chips">${chips}</div>
+      ${short > 0 ? `<div class="start-short">${t("funShort", short)}</div>` : ""}
+      <div class="start-note">${t("funRule")}</div>
+      <button class="start-go fun"${short>0?" disabled":""}>${t("funGo", cost)}</button>`;
+    card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+    card.querySelectorAll(".dur-chip").forEach(b=>{
+      b.addEventListener("click", ()=>{ picked = parseInt(b.dataset.min,10); paint(); });
+    });
+    const go = card.querySelector(".start-go");
+    if(!go.disabled) go.addEventListener("click", ()=>{
+      closeStartSheet();
+      startFun(catId, gid, picked);
+    });
+  };
+
+  paint();
+  modal.classList.add("open");
+  requestAnimationFrame(()=>card.classList.add("show"));
+}
+
+function startFun(catId, gid, minutes){
+  const cost = minutes * POINTS_PER_FUN_MIN;
+  if(cost > availablePoints()) return;
+  state.spent += cost;
+  state.redemptions.unshift({
+    emoji: CATEGORIES.find(c=>c.id===catId).icon,
+    name: t("funRedeemed", minutes),
+    cost, date: todayStr()
+  });
+  state.timer = {catId, goalId:gid, start:Date.now(), durSec:minutes*60, phase:"fun"};
+  save(state);
+  chime(1);
+  openFocusScreen();
+  render();
+  startTicking();
+}
+
+function finishFun(){
+  const r = settleFocus(true);
+  if(!r) return;
+  chime(2);
+  render();
+  notify(t("funOver"), t("funOverSub"));
+  paintFocusScreen({done:"fun"});
+}
+
 function closeStartSheet(){
   const modal = document.getElementById("startModal");
   const card  = document.getElementById("startCard");
@@ -1916,12 +2254,15 @@ function startBreak(){
 /* ---------- 结算一个专注段 ---------- */
 // finished=true 表示走完了全程；false 表示用户中途结束
 function settleFocus(finished){
-  if(!state.timer || state.timer.phase !== "focus") return null;
+  if(!state.timer) return null;
+  const isFun = state.timer.phase === "fun";
+  if(state.timer.phase !== "focus" && !isFun) return null;
+
   const {catId, goalId, durSec} = state.timer;
   const elapsed = finished ? durSec : Math.min((Date.now()-state.timer.start)/1000, durSec);
   const mins = Math.round(elapsed/60);
-  // 走完全程且不短于 25 分钟，才算一个真正的番茄钟
-  const earnedPomo = finished && durSec >= POMO_MIN_LEN*60;
+  // 走完全程且不短于 25 分钟，才算一个真正的番茄钟（休闲时段永远不算）
+  const earnedPomo = finished && !isFun && durSec >= POMO_MIN_LEN*60;
 
   const g = (state.goals[catId]||[]).find(x=>x.id===goalId);
   if(g){
@@ -1930,9 +2271,13 @@ function settleFocus(finished){
   }
   const cat = CATEGORIES.find(c=>c.id===catId);
   state.timer = null;
-  state.pomoSecEver = (state.pomoSecEver||0) + elapsed;
-  if(earnedPomo) state.pomoEver = (state.pomoEver||0) + 1;
-  bumpHistory(earnedPomo?1:0, elapsed);
+
+  // 休闲时段不计入专注统计，也不进周对比
+  if(!isFun){
+    state.pomoSecEver = (state.pomoSecEver||0) + elapsed;
+    if(earnedPomo) state.pomoEver = (state.pomoEver||0) + 1;
+    bumpHistory(earnedPomo?1:0, elapsed);
+  }
 
   // 有效利用时间（学习/运动/社交）累积并换算经验值
   if(cat && cat.kind !== "fun"){
@@ -1941,6 +2286,8 @@ function settleFocus(finished){
   if(earnedPomo){
     state.xp += XP_PER_POMO;
     state.totalXp += XP_PER_POMO;
+    // 专注段给积分，积分能换休闲时长 —— 四个板块由此形成闭环
+    state.catPoints[catId] = (state.catPoints[catId]||0) + POINTS_PER_POMO;
     while(state.xp >= xpNeeded(state.level)){
       state.xp -= xpNeeded(state.level);
       state.level += 1;
@@ -1949,7 +2296,7 @@ function settleFocus(finished){
   save(state);
   if(cat && cat.kind !== "fun") awardTimeXp();
   checkBadges();
-  return {mins, earnedPomo, catId, finished, durSec};
+  return {mins, earnedPomo, catId, finished, durSec, isFun};
 }
 
 // 中途结束：记录已完成的时间，回到首页
@@ -2023,7 +2370,7 @@ function paintFocusScreen(mode){
     elGoal.textContent = mode.pomo ? t("pomoDone") : t("starterDone");
     elTime.textContent = mode.pomo ? "🍅" : "👍";
     elPh.textContent   = t("fsOf", mode.mins);
-    elOf.textContent   = "";
+    elOf.textContent   = mode.pomo ? t("pomoPoints", POINTS_PER_POMO) : "";
     elProg.setAttribute("stroke-dashoffset", "0");
     if(mode.pomo){
       elHint.innerHTML = `${escapeHtml(t("pomoDoneSub", mode.mins))}<br>${escapeHtml(t("fsHintBreak"))}`;
@@ -2034,6 +2381,20 @@ function paintFocusScreen(mode){
       elHint.textContent = t("starterDoneSub");
       elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
     }
+    bindFsBtns();
+    return;
+  }
+  // ---- 结算态：休闲时间用完 ----
+  if(mode && mode.done === "fun"){
+    scr.classList.remove("brk"); scr.classList.add("fn");
+    elCat.textContent  = "";
+    elGoal.textContent = t("funOver");
+    elTime.textContent = "⏰";
+    elPh.textContent   = "";
+    elOf.textContent   = "";
+    elProg.setAttribute("stroke-dashoffset", "0");
+    elHint.textContent = t("funOverSub");
+    elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
     bindFsBtns();
     return;
   }
@@ -2056,14 +2417,25 @@ function paintFocusScreen(mode){
   const tm = state.timer;
   if(!tm){ closeFocusScreen(); return; }
   const isBreak = tm.phase === "break";
+  const isFun   = tm.phase === "fun";
   scr.classList.toggle("brk", isBreak);
+  scr.classList.toggle("fn", isFun);
 
   const remain = phaseRemain();
   const mm = Math.floor(remain/60), ss = Math.floor(remain%60);
   elTime.textContent = `${mm}:${ss<10?"0":""}${ss}`;
   elProg.setAttribute("stroke-dashoffset", (RING_LEN * (1 - remain/tm.durSec)).toFixed(2));
 
-  if(isBreak){
+  if(isFun){
+    const cat = CATEGORIES.find(c=>c.id===tm.catId);
+    const g = (state.goals[tm.catId]||[]).find(x=>x.id===tm.goalId);
+    elCat.textContent  = cat ? `${cat.icon} ${L(cat.title)}` : "";
+    elGoal.textContent = g ? (g.text || t("funPhase")) : t("funPhase");
+    elPh.textContent   = t("funPhase");
+    elOf.textContent   = t("fsOf", Math.round(tm.durSec/60));
+    elHint.textContent = t("funHint");
+    elBtns.innerHTML = `<button class="fs-btn ghost" data-act="give">${t("fsGiveUp")}</button>`;
+  } else if(isBreak){
     elCat.textContent  = "";
     elGoal.textContent = t("fsBreakTitle");
     elPh.textContent   = t("fsBreak");
@@ -2144,15 +2516,75 @@ function buildRewards(el){
     });
   }
 
+  // 心愿奖励清单：积分的另一个出口（现实里的奖励，找家长兑现）
+  const avail = availablePoints();
+  let wishes = "";
+  state.wishList.forEach(w=>{
+    const afford = avail >= w.cost;
+    wishes += `
+      <div class="wish-item">
+        <span class="w-ic">${w.emoji}</span>
+        <span class="w-info">
+          <span class="w-name">${escapeHtml(typeof w.name === "object" ? L(w.name) : w.name)}</span>
+          <span class="w-cost">${t("funCost", w.cost)}</span>
+        </span>
+        <button class="redeem-btn" data-wish="${w.id}"${afford?"":" disabled"}>${t("wishRedeem")}</button>
+        <button class="w-del" data-wish-del="${w.id}" aria-label="delete">✕</button>
+      </div>`;
+  });
+
   el.innerHTML = navHeader("rewardsTitle") + `
     <div class="points-head">
       <span class="pt-total">${t("pointsTotalLabel", total)}</span>
+      <span class="pt-avail">${t("availLabel", avail)}</span>
     </div>
     <div class="pt-breakdown">${breakdown}</div>
-    <div class="rules-box">${t("redeemRules")}</div>
+    <div class="rules-box">${escapeHtml(t("redeemRules")).replace(/\n/g,"<br>")}</div>
+    <div class="sub-head">${t("wishListHead")}</div>
+    ${wishes}
+    <div class="wish-add">
+      <input class="n" data-wish-name placeholder="${t("wishAddName")}" maxlength="16">
+      <input class="c" data-wish-cost type="number" min="1" step="1" placeholder="${t("wishAddCost")}">
+      <button data-wish-add>${t("wishAdd")}</button>
+    </div>
     <div class="sub-head">${t("redeemTitle")}</div>
     ${rows}
   `;
+
+  el.querySelectorAll("[data-wish]").forEach(b=>{
+    b.addEventListener("click", ()=>redeemWish(b.dataset.wish));
+  });
+  el.querySelectorAll("[data-wish-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.wishList = state.wishList.filter(w=>w.id !== b.dataset.wishDel);
+      save(state); refreshNav();
+    });
+  });
+  el.querySelector("[data-wish-add]").addEventListener("click", ()=>{
+    const nameEl = el.querySelector("[data-wish-name]");
+    const costEl = el.querySelector("[data-wish-cost]");
+    const name = nameEl.value.trim();
+    const cost = parseInt(costEl.value, 10);
+    if(!name || !(cost > 0)) return;
+    state.wishList.push({id:"w"+Date.now().toString(36), emoji:"🎁", name, cost});
+    save(state); refreshNav();
+  });
+}
+
+function redeemWish(id){
+  const w = state.wishList.find(x=>x.id === id);
+  if(!w || availablePoints() < w.cost) return;
+  state.spent += w.cost;
+  state.redemptions.unshift({
+    emoji: w.emoji,
+    name: typeof w.name === "object" ? L(w.name) : w.name,
+    cost: w.cost,
+    date: todayStr()
+  });
+  save(state);
+  refreshNav();
+  spawnConfetti();
+  showToast({emoji:"🎁", msg:t("redeemDone", typeof w.name === "object" ? L(w.name) : w.name), sub:t("redeemDoneSub")});
 }
 
 function checkBadges(){
@@ -2708,6 +3140,119 @@ function shuffle(arr){
   return a;
 }
 
+/* ===================== PWA：装到主屏、离线可用 ===================== */
+
+let deferredInstall = null;
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(()=>{ /* 不支持就当普通网页用 */ });
+  });
+}
+
+function isStandalone(){
+  return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
+}
+function isIOS(){
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+// 安卓/桌面等 beforeinstallprompt；iOS 只能手动添加，给出图文说明
+function canInstall(){
+  if(isStandalone()) return false;
+  return !!deferredInstall || isIOS();
+}
+
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault();
+  deferredInstall = e;
+  renderTasks();
+});
+window.addEventListener("appinstalled", ()=>{
+  deferredInstall = null;
+  state.installDismissed = true;
+  save(state);
+  showToast({emoji:"🎉", msg:t("installedMsg"), sub:t("installedSub")});
+  renderTasks();
+});
+
+async function doInstall(){
+  if(!deferredInstall) return;
+  deferredInstall.prompt();
+  try{ await deferredInstall.userChoice; }catch(e){}
+  deferredInstall = null;
+  renderTasks();
+}
+
+/* ===================== 首页提示条 ===================== */
+
+// 今天第一个还没完成的非休闲目标，用于「先做 5 分钟」一键开始
+function firstOpenGoal(){
+  for(const c of CATEGORIES){
+    if(c.kind === "fun") continue;
+    const g = (state.goals[c.id]||[]).find(x=>!x.done && (x.text||"").trim());
+    if(g) return {catId:c.id, gid:g.id};
+  }
+  return null;
+}
+
+function buildBanners(){
+  let html = "";
+  // 今天还没开始 —— 温和地邀请，不施压
+  if(!state.timer && todayPomos() === 0 && state.kickDismissed !== todayStr() && firstOpenGoal()){
+    html += `<div class="kick">
+      <span class="k-ic">🌤</span>
+      <span class="k-txt">${t("kickTitle")}<small>${t("kickSub")}</small></span>
+      <button class="k-go" data-kick-go>${t("kickGo")}</button>
+      <button class="k-x" data-kick-x aria-label="close">✕</button>
+    </div>`;
+  }
+  if(canInstall() && !state.installDismissed){
+    const ios = isIOS();
+    html += `<div class="kick install">
+      <span class="k-ic">📲</span>
+      <span class="k-txt">${t("installTitle")}<small>${ios ? t("installIosSub") : t("installSub")}</small></span>
+      ${ios ? "" : `<button class="k-go" data-install>${t("installGo")}</button>`}
+      <button class="k-x" data-install-x aria-label="close">✕</button>
+    </div>`;
+  }
+  return html;
+}
+
+function bindBanners(el){
+  const kickGo = el.querySelector("[data-kick-go]");
+  if(kickGo) kickGo.addEventListener("click", ()=>{
+    const g = firstOpenGoal();
+    if(g) openStartSheet(g.catId, g.gid, STARTER_MIN);
+  });
+  const kickX = el.querySelector("[data-kick-x]");
+  if(kickX) kickX.addEventListener("click", ()=>{
+    state.kickDismissed = todayStr(); save(state); renderTasks();
+  });
+  const inst = el.querySelector("[data-install]");
+  if(inst) inst.addEventListener("click", doInstall);
+  const instX = el.querySelector("[data-install-x]");
+  if(instX) instX.addEventListener("click", ()=>{
+    state.installDismissed = true; save(state); renderTasks();
+  });
+}
+
+/* ===================== 每日提醒 ===================== */
+
+// 没有后端就没法做真正的定时推送。这里只在 App 还开着（哪怕在后台）时提醒；
+// 没开着的话，用户下次打开会看到首页的开场提示 —— 界面里如实说明了这一点。
+function checkReminder(){
+  if(!state.reminder) return;
+  const today = todayStr();
+  if(state.remindedDate === today) return;
+  if(todayPomos() > 0) return;               // 今天已经开始了，不打扰
+  const [h, m] = state.reminder.split(":").map(Number);
+  const now = new Date();
+  if(now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) return;
+  state.remindedDate = today;
+  save(state);
+  notify(t("remindNotifyTitle"), t("remindNotifyBody"));
+}
+
 /* ===================== 启动：恢复中断的专注段 ===================== */
 
 // 关掉标签页 / 手机锁屏后重新打开时，把当时那一段补结算掉。
@@ -2719,7 +3264,7 @@ function resumeSession(){
 
   if(past >= tm.durSec){
     // 离开期间这一段已经跑完了
-    if(tm.phase === "focus"){
+    if(tm.phase === "focus" || tm.phase === "fun"){
       const r = settleFocus(true);
       render();
       if(r && r.earnedPomo){
@@ -2740,10 +3285,14 @@ function resumeSession(){
 
 // 从后台切回前台时立刻校准一次，避免手机休眠导致 setInterval 被节流
 document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden || !state.timer) return;
+  if(document.hidden) return;
+  checkReminder();
+  if(!state.timer) return;
   if(phaseRemain() <= 0){
     stopTicking();
-    if(state.timer.phase === "focus") finishFocus(); else finishBreak();
+    if(state.timer.phase === "focus") finishFocus();
+    else if(state.timer.phase === "fun") finishFun();
+    else finishBreak();
   } else {
     paintFocusScreen(null);
   }
@@ -2751,6 +3300,8 @@ document.addEventListener("visibilitychange", ()=>{
 
 render();
 resumeSession();
+checkReminder();
+setInterval(checkReminder, 60000);
 </script>
 </body>
 </html>
