@@ -808,6 +808,32 @@
     font-size:11.5px;font-weight:700;color:var(--primary-dark);
     background:#fff8ef;border-radius:11px;padding:9px 11px;margin:8px 0 0;line-height:1.6;
   }
+
+  /* 安装指引 */
+  .how-block{
+    background:#f7f7f9;border-radius:14px;padding:12px 14px;margin-top:12px;
+  }
+  .how-block.warn{background:#fff4e8;border:1px solid rgba(255,140,66,0.28);}
+  .how-title{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:6px;}
+  .how-block.warn .how-title{color:var(--primary-dark);}
+  .how-steps{
+    margin:0;padding-left:18px;font-size:12px;color:var(--ink-soft,#5a5a6a);line-height:1.75;
+  }
+  .how-steps li{margin-bottom:4px;}
+  .how-steps li:last-child{margin-bottom:0;}
+  .start-go[data-copy]{margin-top:10px;}
+  .how-link{
+    margin-top:12px;padding:10px 12px;border-radius:12px;background:#f2f2f4;
+  }
+  .how-link .hl-label{
+    display:block;font-size:10px;font-weight:800;color:var(--muted);
+    letter-spacing:.06em;margin-bottom:3px;
+  }
+  .how-link .hl-url{
+    display:block;font-size:12px;font-weight:600;color:var(--ink);
+    word-break:break-all;line-height:1.55;
+    -webkit-user-select:all;user-select:all;   /* 长按可一次性全选 */
+  }
 </style>
 </head>
 <body>
@@ -1014,9 +1040,50 @@ const I18N = {
     installTitle: "装到手机主屏",
     installSub: "像 App 一样全屏打开，没网也能用，专注结束还能收到提醒。",
     installGo: "安装",
-    installIosSub: "点底部的「分享」按钮 → 选「添加到主屏幕」，就能像 App 一样打开。",
+    installHow: "怎么装",
     installedMsg: "已装到主屏 🎉",
     installedSub: "以后从桌面图标打开就好",
+    // 内置浏览器（微信/QQ/小红书等）：根本没有"添加到主屏幕"，必须先跳出去
+    installInAppSub: app => `${app}的内置浏览器不支持添加到主屏幕，需要先用系统浏览器打开。`,
+    installInAppTitle: app => `先从${app}里跳出来`,
+    installInAppSteps: app => [
+      `点右上角的 ⋯（三个点）`,
+      `选「在浏览器中打开」或「在 Safari 中打开」`,
+      `打开后回到这个页面，再按下面的步骤装`
+    ],
+    appWechat:"微信", appQQ:"QQ", appWeibo:"微博", appXhs:"小红书",
+    appAlipay:"支付宝", appDouyin:"抖音", appOther:"这个 App",
+    // 各浏览器的具体位置
+    installIosSafariTitle: "iPhone / iPad 的 Safari",
+    installIosSafariSteps: [
+      "点屏幕底部中间的「分享」按钮：一个方框加向上箭头 ⬆️",
+      "找不到的话，先往下滑一点，或者点一下屏幕最底部，工具栏会重新出现",
+      "在弹出的菜单里往下滑，选「添加到主屏幕」"
+    ],
+    installIosOtherTitle: "iPhone 上的其他浏览器",
+    installIosOtherSteps: [
+      "分享/菜单按钮在右上角或地址栏旁边，不在底部",
+      "部分浏览器（夸克、UC）在菜单里叫「添加到桌面」",
+      "如果找不到，建议改用 Safari 打开这个链接，最稳"
+    ],
+    installAndroidTitle: "安卓浏览器",
+    installAndroidSteps: [
+      "点浏览器右上角的菜单（⋮ 或 ≡）",
+      "选「安装应用」「添加到主屏幕」或「添加到桌面」",
+      "确认后桌面上就会出现图标"
+    ],
+    installDesktopTitle: "电脑浏览器",
+    installDesktopSteps: [
+      "Chrome / Edge：点地址栏右侧的安装图标（⊕ 或显示器形状）",
+      "也可以从右上角菜单里选「安装…」",
+      "Safari：菜单栏「文件」→「添加到程序坞」"
+    ],
+    copyLink: "复制链接",
+    copied: "链接已复制 ✂️",
+    copiedSub: "粘贴到浏览器地址栏就能打开",
+    copyFail: "这个浏览器不让自动复制",
+    copyFailSub: "长按下面那行网址，手动选中复制",
+    linkLabel: "本页网址",
     // 每日提醒
     remindTitle: "每日提醒",
     remindOff: "未开启",
@@ -1209,9 +1276,48 @@ const I18N = {
     installTitle: "Add to your home screen",
     installSub: "Opens full screen like an app, works offline, and can notify you when a block ends.",
     installGo: "Install",
-    installIosSub: "Tap Share at the bottom, then 'Add to Home Screen'.",
+    installHow: "How",
     installedMsg: "Added to home screen 🎉",
     installedSub: "Open it from the icon next time",
+    installInAppSub: app => `${app}'s built-in browser can't add to the home screen — open this in a real browser first.`,
+    installInAppTitle: app => `First, leave ${app}`,
+    installInAppSteps: app => [
+      "Tap the ⋯ menu in the top-right corner",
+      "Choose 'Open in Browser' / 'Open in Safari'",
+      "Come back to this page there, then follow the steps below"
+    ],
+    appWechat:"WeChat", appQQ:"QQ", appWeibo:"Weibo", appXhs:"Xiaohongshu",
+    appAlipay:"Alipay", appDouyin:"Douyin", appOther:"This app",
+    installIosSafariTitle: "Safari on iPhone / iPad",
+    installIosSafariSteps: [
+      "Tap the Share button at the bottom centre — a square with an up arrow ⬆️",
+      "Can't see it? Scroll down slightly, or tap the very bottom of the screen to bring the toolbar back",
+      "Scroll down the menu and choose 'Add to Home Screen'"
+    ],
+    installIosOtherTitle: "Other browsers on iPhone",
+    installIosOtherSteps: [
+      "The share/menu button is top-right or beside the address bar, not at the bottom",
+      "Some browsers call it 'Add to Desktop'",
+      "If you can't find it, open the link in Safari instead — that always works"
+    ],
+    installAndroidTitle: "Android browsers",
+    installAndroidSteps: [
+      "Tap the browser menu (⋮ or ≡) in the top-right",
+      "Choose 'Install app' or 'Add to Home screen'",
+      "Confirm, and the icon appears on your home screen"
+    ],
+    installDesktopTitle: "Desktop browsers",
+    installDesktopSteps: [
+      "Chrome / Edge: click the install icon at the right of the address bar",
+      "Or pick 'Install…' from the top-right menu",
+      "Safari: File menu → 'Add to Dock'"
+    ],
+    copyLink: "Copy link",
+    copied: "Link copied ✂️",
+    copiedSub: "Paste it into a browser's address bar",
+    copyFail: "This browser blocks auto-copy",
+    copyFailSub: "Long-press the address below and copy it by hand",
+    linkLabel: "This page's address",
     remindTitle: "Daily reminder",
     remindOff: "Off",
     remindSub: "If you haven't started by then, you get one nudge. Needs the app open in the background; otherwise you'll see the prompt next time you open it.",
@@ -3150,16 +3256,45 @@ if("serviceWorker" in navigator){
   });
 }
 
+// 每次现取，而不是启动时缓存 —— 便于排查问题时直接改 UA 验证
+function ua(){ return navigator.userAgent; }
+
 function isStandalone(){
   return window.matchMedia("(display-mode: standalone)").matches || navigator.standalone === true;
 }
+function isAndroid(){ return /Android/i.test(ua()); }
+// iPadOS 的 Safari 会把自己报成 Macintosh，得靠触点数补判；安卓优先排除
 function isIOS(){
-  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  if(isAndroid()) return false;
+  return /iPad|iPhone|iPod/.test(ua()) ||
+         (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
 }
-// 安卓/桌面等 beforeinstallprompt；iOS 只能手动添加，给出图文说明
+
+// 微信/QQ/小红书等 App 的内置浏览器：压根没有"添加到主屏幕"这个功能，
+// 必须先「在浏览器中打开」。之前只判断了 iOS，才会给出错误的指引。
+function inAppBrowser(){
+  if(/MicroMessenger/i.test(ua()))                       return t("appWechat");
+  if(/\bQQ\/|MQQBrowser|QQBrowser/i.test(ua()))          return t("appQQ");
+  if(/Weibo/i.test(ua()))                                return t("appWeibo");
+  if(/xhsdiscover|XiaoHongShu/i.test(ua()))              return t("appXhs");
+  if(/AlipayClient/i.test(ua()))                         return t("appAlipay");
+  if(/aweme|BytedanceWebview|ToutiaoMicroApp/i.test(ua())) return t("appDouyin");
+  if(/DingTalk|Lark|Feishu/i.test(ua()))                 return t("appOther");
+  return null;
+}
+// iOS 上只有 Safari 本体支持添加到主屏幕
+function isIOSSafari(){
+  return isIOS() && !inAppBrowser() &&
+         !/CriOS|FxiOS|EdgiOS|OPiOS|UCBrowser|Quark|Baidu|SogouMobileBrowser/i.test(ua());
+}
+
+// 装完了就不再提示；其余情况都提示，只是给的指引不同
 function canInstall(){
-  if(isStandalone()) return false;
-  return !!deferredInstall || isIOS();
+  return !isStandalone();
+}
+// 能不能一键装（安卓/桌面 Chrome 系）
+function canOneTapInstall(){
+  return !!deferredInstall;
 }
 
 window.addEventListener("beforeinstallprompt", e=>{
@@ -3207,15 +3342,100 @@ function buildBanners(){
     </div>`;
   }
   if(canInstall() && !state.installDismissed){
-    const ios = isIOS();
+    const app = inAppBrowser();
     html += `<div class="kick install">
       <span class="k-ic">📲</span>
-      <span class="k-txt">${t("installTitle")}<small>${ios ? t("installIosSub") : t("installSub")}</small></span>
-      ${ios ? "" : `<button class="k-go" data-install>${t("installGo")}</button>`}
+      <span class="k-txt">${t("installTitle")}<small>${
+        app ? t("installInAppSub", app) : t("installSub")
+      }</small></span>
+      <button class="k-go" data-install>${canOneTapInstall() ? t("installGo") : t("installHow")}</button>
       <button class="k-x" data-install-x aria-label="close">✕</button>
     </div>`;
   }
   return html;
+}
+
+/* ---------- 安装指引：按实际所在的浏览器给出准确步骤 ---------- */
+function openInstallSheet(){
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+  const app   = inAppBrowser();
+
+  // 按当前环境组装步骤：内置浏览器要先跳出去，再按目标浏览器的做法装
+  const blocks = [];
+  if(app){
+    blocks.push({title:t("installInAppTitle", app), steps:t("installInAppSteps", app), warn:true});
+  }
+  // 三条路径互斥，只给用户看跟他这台设备有关的那一段
+  if(isAndroid()){
+    blocks.push({title:t("installAndroidTitle"), steps:t("installAndroidSteps")});
+  } else if(isIOS()){
+    // 内置浏览器跳出去之后落到的是 Safari，所以这里总是给 Safari 的步骤
+    blocks.push({title:t("installIosSafariTitle"), steps:t("installIosSafariSteps")});
+    if(!app && !isIOSSafari()){
+      blocks.push({title:t("installIosOtherTitle"), steps:t("installIosOtherSteps")});
+    }
+  } else {
+    blocks.push({title:t("installDesktopTitle"), steps:t("installDesktopSteps")});
+  }
+
+  const html = blocks.map(b=>`
+    <div class="how-block${b.warn?" warn":""}">
+      <div class="how-title">${escapeHtml(b.title)}</div>
+      <ol class="how-steps">${b.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ol>
+    </div>`).join("");
+
+  card.innerHTML = `
+    <div class="nav-top">
+      <span class="nav-title">${t("installTitle")}</span>
+      <button class="nav-close" aria-label="close">✕</button>
+    </div>
+    <div class="start-sub">${t("installSub")}</div>
+    ${html}
+    <div class="how-link">
+      <span class="hl-label">${t("linkLabel")}</span>
+      <span class="hl-url" data-url>${escapeHtml(pageLink())}</span>
+    </div>
+    <button class="start-go" data-copy>${t("copyLink")}</button>`;
+  card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+  card.querySelector("[data-copy]").addEventListener("click", copyPageLink);
+
+  modal.classList.add("open");
+  requestAnimationFrame(()=>card.classList.add("show"));
+}
+
+function pageLink(){ return location.href.split("#")[0]; }
+
+async function copyPageLink(){
+  const url = pageLink();
+  let ok = false;
+  try{
+    await navigator.clipboard.writeText(url);
+    ok = true;
+  }catch(e){
+    // 内置浏览器常禁用 clipboard API，退回老办法
+    const ta = document.createElement("textarea");
+    ta.value = url;
+    ta.style.cssText = "position:fixed;top:-999px;opacity:0";
+    document.body.appendChild(ta);
+    ta.select();
+    try{ ok = document.execCommand("copy"); }catch(err){ ok = false; }
+    ta.remove();
+  }
+  // 复制不成功就别谎报成功，指给用户页面上那行可以手动选中的网址
+  if(ok){
+    showToast({emoji:"✂️", msg:t("copied"), sub:t("copiedSub")});
+  }else{
+    showToast({emoji:"👇", msg:t("copyFail"), sub:t("copyFailSub")});
+    const el = document.querySelector("[data-url]");
+    if(el){
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+    }
+  }
 }
 
 function bindBanners(el){
@@ -3229,7 +3449,9 @@ function bindBanners(el){
     state.kickDismissed = todayStr(); save(state); renderTasks();
   });
   const inst = el.querySelector("[data-install]");
-  if(inst) inst.addEventListener("click", doInstall);
+  if(inst) inst.addEventListener("click", ()=>{
+    if(canOneTapInstall()) doInstall(); else openInstallSheet();
+  });
   const instX = el.querySelector("[data-install-x]");
   if(instX) instX.addEventListener("click", ()=>{
     state.installDismissed = true; save(state); renderTasks();
