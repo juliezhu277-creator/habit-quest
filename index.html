@@ -722,6 +722,40 @@
     background:#fff8ef;border-radius:12px;padding:9px 11px;
   }
 
+  /* ===================== 顶部两个小提示（并排，不抢四个板块的镜） ===================== */
+  .quick-row{display:flex;gap:7px;margin-bottom:10px;}
+  .qk{
+    flex:1 1 0;min-width:0;display:flex;align-items:center;
+    border-radius:13px;overflow:hidden;
+  }
+  .qk-start  {background:linear-gradient(135deg,#fff5e9,#ffe9d6);border:1px solid rgba(255,140,66,.24);}
+  .qk-install{background:linear-gradient(135deg,#f7f1ff,#ffeaf3);border:1px solid rgba(167,139,250,.28);}
+  .qk .q-main{
+    flex:1;min-width:0;display:flex;align-items:center;gap:7px;
+    border:none;background:none;cursor:pointer;font-family:inherit;
+    padding:8px 4px 8px 9px;text-align:left;
+  }
+  .qk .q-main:active{opacity:.65;}
+  .qk .q-ic{font-size:16px;flex-shrink:0;line-height:1;}
+  .qk .q-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+  .qk .q-t{
+    font-size:12px;font-weight:800;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .qk-start .q-t{color:var(--primary-dark);}
+  .qk-install .q-t{color:#7c4dd8;}
+  .qk .q-s{
+    font-size:9.5px;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .qk .q-x{
+    flex-shrink:0;border:none;background:none;color:#bdb6ad;
+    font-size:11px;cursor:pointer;padding:8px 8px 8px 4px;line-height:1;
+  }
+  .qk .q-x:active{color:var(--ink);}
+  /* 只剩一条时也不要拉得太宽，留白反而好看 */
+  .quick-row:has(.qk:only-child) .qk{flex:0 1 62%;}
+
   /* ===================== 开场提示 / 安装引导 ===================== */
   .kick{
     display:flex;align-items:center;gap:10px;
@@ -1348,13 +1382,15 @@ const SECONDS_PER_XP = 3600 / XP_PER_HOUR; // 360 秒/经验
 // 有效利用 = 学习 + 运动 + 社交；娱乐(fun) 不计入有效时间
 const EFFECTIVE_ACTS = ["study","exercise","social"];
 
-// 四个等级徽章：累计完成的专注段 10 / 50 / 150 / 365 → 黄金 / 钻石 / 王者 / 大圣
-// （首枚徽章第一天就能拿到，最后一枚对应"一年 365 个专注段"）
+// 四个等级徽章按「打卡天数」算：10 / 21 / 30 / 60 天。
+// 番茄钟数衡量的是"某天很拼"，天数衡量的才是"习惯"——而习惯才是这个产品要的。
+// 用累计天数而不是连续天数：断一天就清零会让高段位在一次失误后彻底无望，
+// 那正是最容易让人直接放弃的设计。连续天数另有单独一项在「我的成长」里。
 const BADGES = [
-  {id:"tier1", tone:"gold",    goal:10,  icon:"🥇", name:{zh:"黄金", en:"Gold"},        need: ()=>lifetimePomos()>=10},
-  {id:"tier2", tone:"diamond", goal:50,  icon:"💎", name:{zh:"钻石", en:"Diamond"},     need: ()=>lifetimePomos()>=50},
-  {id:"tier3", tone:"king",    goal:150, icon:"👑", name:{zh:"王者", en:"King"},        need: ()=>lifetimePomos()>=150},
-  {id:"tier4", tone:"sage",    goal:365, icon:"🐉", name:{zh:"大圣", en:"Great Sage"},  need: ()=>lifetimePomos()>=365},
+  {id:"tier1", tone:"gold",    goal:10, icon:"🥇", name:{zh:"黄金", en:"Gold"},       need: ()=>checkinDays()>=10},
+  {id:"tier2", tone:"diamond", goal:21, icon:"💎", name:{zh:"钻石", en:"Diamond"},    need: ()=>checkinDays()>=21},
+  {id:"tier3", tone:"king",    goal:30, icon:"👑", name:{zh:"王者", en:"King"},       need: ()=>checkinDays()>=30},
+  {id:"tier4", tone:"sage",    goal:60, icon:"🐉", name:{zh:"大圣", en:"Great Sage"}, need: ()=>checkinDays()>=60},
 ];
 
 const STAGES = [
@@ -1436,6 +1472,10 @@ const I18N = {
     kickTitle: "今天还没有开始",
     kickSub: "不用一上来就一小时。挑一件事，先做 5 分钟。",
     kickGo: "先做 5 分钟",
+    kickShort: "今天还没开始",
+    installShort: "装成 App 更好用",
+    installShortApp: app => `先用浏览器打开`,
+    tierDays: (a,b) => `${a} / ${b} 天`,
     // 安装引导
     installTitle: "装到手机主屏",
     installSub: "像 App 一样全屏打开，没网也能用，还能收到提醒。",
@@ -1812,6 +1852,10 @@ const I18N = {
     kickTitle: "You haven't started today",
     kickSub: "You don't have to begin with a full hour. Pick one thing, do 5 minutes.",
     kickGo: "Do 5 minutes",
+    kickShort: "Not started today",
+    installShort: "Nicer as an app",
+    installShortApp: app => `Open in a browser first`,
+    tierDays: (a,b) => `${a} / ${b} days`,
     installTitle: "Add to your home screen",
     installSub: "Opens full screen like an app, works offline, and can notify you when a block ends.",
     installGo: "Install now",
@@ -2349,9 +2393,22 @@ function todayPomos(){
 function pomoSecEverLive(){
   return (state.pomoSecEver || 0) + focusElapsed();
 }
-// 累计完成的专注段（跨天，用于段位徽章）
+// 累计完成的专注段
 function lifetimePomos(){
   return state.pomoEver || 0;
+}
+// 今天是否已经开始过（哪怕只是 5 分钟的起步段）
+function startedToday(){
+  const rec = state.history[todayStr()];
+  if(rec && rec.s > 0) return true;
+  return !!(state.timer && state.timer.phase === "focus");
+}
+// 打卡天数：当天专注过、或记录过心情，就算这一天来过。用于段位徽章。
+function checkinDays(){
+  const days = new Set();
+  for(const d in state.history){ if(state.history[d].s > 0) days.add(d); }
+  for(const d in state.moods){ days.add(d); }
+  return days.size;
 }
 // 头部：8 个小番茄进度（完成几个亮红，其余灰）+ 今日完成番茄钟数
 const POMO_SLOTS = 8;
@@ -2395,14 +2452,14 @@ function render(){
 
   const badgesEl = document.getElementById("badges");
   badgesEl.innerHTML = "";
-  const pomos = lifetimePomos();
+  const days = checkinDays();
   const SEG_COUNT = 7;
   BADGES.forEach(b=>{
-    const unlocked = pomos >= b.goal;
+    const unlocked = days >= b.goal;
     const div = document.createElement("div");
     div.className = "badge t-" + b.tone + (unlocked ? " unlocked" : "");
-    // 分段信号格：按真实进度点亮（已完成的专注段 / 该段位门槛），下一格轻微呼吸提示
-    const lit = unlocked ? SEG_COUNT : Math.floor(pomos / b.goal * SEG_COUNT);
+    // 分段信号格：按真实进度点亮（已打卡天数 / 该段位门槛），下一格轻微呼吸提示
+    const lit = unlocked ? SEG_COUNT : Math.floor(days / b.goal * SEG_COUNT);
     let segs = "";
     for(let i=0;i<SEG_COUNT;i++){
       if(i < lit) segs += `<span class="seg on"></span>`;
@@ -2412,7 +2469,7 @@ function render(){
     div.innerHTML =
       `<span class="badge-name">${L(b.name)}</span>` +
       `<div class="badge-bar">${segs}</div>` +
-      `<span class="badge-sub">${unlocked ? t("tierDone") : `${Math.min(pomos,b.goal)} / ${b.goal} 🍅`}</span>`;
+      `<span class="badge-sub">${unlocked ? t("tierDone") : t("tierDays", Math.min(days,b.goal), b.goal)}</span>`;
     badgesEl.appendChild(div);
   });
 
@@ -2797,8 +2854,8 @@ function renderTasks(){
   });
 
   el.innerHTML = `
-    <div class="card-title">${t("tasksTitle")}</div>
     ${buildBanners()}
+    <div class="card-title">${t("tasksTitle")}</div>
     <div class="cat-grid">${blocks}</div>
     <div class="nav-bar">
       <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">📈</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
@@ -4851,35 +4908,37 @@ function firstOpenGoal(){
 }
 
 function buildBanners(){
-  let html = "";
-  // 今天还没开始 —— 温和地邀请，不施压
-  if(!state.timer && todayPomos() === 0 && state.kickDismissed !== todayStr() && firstOpenGoal()){
-    html += `<div class="kick">
-      <span class="k-ic">🌤</span>
-      <span class="k-txt">${t("kickTitle")}<small>${t("kickSub")}</small></span>
-      <button class="k-go" data-kick-go>${t("kickGo")}</button>
-      <button class="k-x" data-kick-x aria-label="close">✕</button>
-    </div>`;
+  const chips = [];
+
+  // 今天已经开始过（哪怕只是 5 分钟起步段）就收起来，明天再出现
+  if(!startedToday() && state.kickDismissed !== todayStr() && firstOpenGoal()){
+    chips.push(`<div class="qk qk-start">
+      <button class="q-main" data-kick-go>
+        <span class="q-ic">🌤</span>
+        <span class="q-txt"><span class="q-t">${t("kickGo")}</span><span class="q-s">${t("kickShort")}</span></span>
+      </button>
+      <button class="q-x" data-kick-x aria-label="close">✕</button>
+    </div>`);
   }
+
   if(canInstall() && !state.installDismissed){
     const app = inAppBrowser();
-    // 按钮直接给出这台设备上最短的那条路：
-    // 安卓/电脑 = 真一键安装；iPhone = 一键唤起系统分享菜单；其余 = 打开图文步骤
-    let act, label, sub;
-    if(canOneTapInstall()){      act = "install"; label = t("installGo");     sub = t("installSub"); }
-    else if(canShareSheet()){    act = "share";   label = t("installAddGo");  sub = t("installShareSub"); }
-    else {                       act = "how";     label = t("installHow");
-                                 sub = app ? t("installInAppSub", app) : t("installSub"); }
-    const fallback = (act === "share" && sharedOnce)
-      ? `<button class="k-more" data-install-how>${t("installNotFound")}</button>` : "";
-    html += `<div class="kick install">
-      <span class="k-ic">📲</span>
-      <span class="k-txt">${t("installTitle")}<small>${sub}</small>${fallback}</span>
-      <button class="k-go" data-install="${act}">${label}</button>
-      <button class="k-x" data-install-x aria-label="close">✕</button>
-    </div>`;
+    let act, label;
+    if(canOneTapInstall()){   act = "install"; label = t("installGo"); }
+    else if(canShareSheet()){ act = "share";   label = t("installAddGo"); }
+    else {                    act = "how";     label = t("installHow"); }
+    chips.push(`<div class="qk qk-install">
+      <button class="q-main" data-install="${act}">
+        <span class="q-ic">📲</span>
+        <span class="q-txt"><span class="q-t">${label}</span><span class="q-s">${
+          app ? t("installShortApp", app) : t("installShort")}</span></span>
+      </button>
+      <button class="q-x" data-install-x aria-label="close">✕</button>
+    </div>`);
   }
-  return html;
+
+  if(chips.length === 0) return "";
+  return `<div class="quick-row">${chips.join("")}</div>`;
 }
 
 /* ---------- 安装指引：按实际所在的浏览器给出准确步骤 ---------- */
@@ -5012,7 +5071,7 @@ function checkReminder(){
   if(!state.reminder) return;
   const today = todayStr();
   if(state.remindedDate === today) return;
-  if(todayPomos() > 0) return;               // 今天已经开始了，不打扰
+  if(startedToday()) return;                 // 今天已经开始了，不打扰
   const [h, m] = state.reminder.split(":").map(Number);
   const now = new Date();
   if(now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) return;
