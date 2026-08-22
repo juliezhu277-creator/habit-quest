@@ -3,7 +3,9 @@
    策略：页面导航走「网络优先」，保证一发新版本用户下次打开就能拿到；
         静态资源走「缓存优先」，省流量也更快。 */
 
-const CACHE  = "proudme-v1";
+// 改版时把版本号往上加一位：activate 会清掉所有旧缓存，
+// 避免老用户被钉在旧版本上
+const CACHE  = "proudme-v2";
 const ASSETS = [
   "./",
   "./index.html",

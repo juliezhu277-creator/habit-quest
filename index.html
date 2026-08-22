@@ -1163,6 +1163,50 @@
   }
   .sup-in:focus{outline:none;border-color:var(--primary);}
 
+  /* ===================== 「我的」分区 ===================== */
+  .me-sec{
+    border-top:1px solid #f0f0f0;padding-top:14px;margin-top:14px;
+  }
+  .me-sec:first-of-type{border-top:none;padding-top:2px;margin-top:0;}
+  .ms-head{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:9px;}
+  .ms-sub{font-size:11.5px;color:var(--muted);line-height:1.65;margin-bottom:10px;}
+  .me-link{
+    display:block;width:100%;margin-top:10px;padding:9px;border:none;
+    background:none;font-family:inherit;font-size:12px;font-weight:700;
+    color:var(--primary-dark);cursor:pointer;text-align:center;
+  }
+  .me-link:active{opacity:.6;}
+  .me-tool.primary{
+    border-color:transparent;color:#fff;
+    background:linear-gradient(135deg,#FF9A4D,#FF7A8E);
+    box-shadow:0 4px 12px rgba(255,120,110,.32);
+  }
+  .me-tool.wide{width:100%;margin-top:10px;}
+
+  /* 情绪晴雨表 */
+  .bw-label{font-size:11px;font-weight:800;color:var(--muted);margin:14px 0 7px;}
+  .bw-week{display:flex;gap:4px;}
+  .bw-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+  .bw-face{display:flex;align-items:center;justify-content:center;height:28px;}
+  .bw-face svg{display:block;}
+  .bw-none{width:16px;height:3px;border-radius:2px;background:#e6e6e6;display:block;}
+  .bw-lbl{font-size:9.5px;color:var(--muted);}
+  .bw-day.today .bw-lbl{color:var(--primary-dark);font-weight:800;}
+
+  /* 选姐姐还是哥哥 */
+  .bud-picker{display:flex;gap:9px;}
+  .bud-pick{
+    flex:1;border:2px solid #eee;background:#fff;border-radius:16px;
+    padding:11px 6px;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .15s;
+  }
+  .bud-pick .bp-face{width:46px;height:46px;display:block;}
+  .bud-pick .bp-face svg{display:block;width:100%;height:100%;border-radius:50%;}
+  .bud-pick .bp-name{font-size:13px;font-weight:800;color:var(--ink);}
+  .bud-pick .bp-kind{font-size:10px;color:var(--muted);}
+  .bud-pick.on{border-color:var(--primary);background:#fff8f2;}
+  .bud-pick:not(.on) .bp-face{opacity:.5;filter:saturate(.5);}
+
   /* 心情卡里的一次性引导：低调、不吓人 */
   .sup-nudge{
     display:flex;align-items:center;gap:9px;margin-top:11px;
@@ -1205,8 +1249,6 @@
   </div>
 
   <div class="badges" id="badges"></div>
-
-  <div class="mood-card" id="moodCard"></div>
 
   <div class="tasks-card" id="tasksCard"></div>
 </div>
@@ -1455,16 +1497,16 @@ const I18N = {
     moodPicked: n => `今天：${n}`,
     moodChange: "心情变了可以随时改",
     // ===== 小暖 =====
-    buddyName: "小暖",
-    buddyRole: "知心姐姐 · 陪你一天天变好",
-    buddyDisclaimer: "小暖是这个小程序里的角色，不是真人，也不能代替专业帮助。心里难受的时候，记得也告诉身边真实的大人。",
+    buddyTag: "陪你一天天变好",
+    buddyDisclaimer: n => `${n}是这个小程序里的角色，不是真人，也不能代替专业帮助。心里难受的时候，记得也告诉身边真实的大人。`,
+    buddyPick: "换一个陪你的人",
     chatOpen: "聊聊",
     greetMorning: "早上好呀",
     greetNoon: "中午好",
     greetAfternoon: "下午好",
     greetEvening: "晚上好",
     greetNight: "这么晚还没睡呀",
-    openHi: "，我是小暖。",
+    openHi: n => `，我是${n}。`,
     openNoMood: "今天还没记录心情呢。回到上面点一张脸，我就知道该怎么陪你啦。",
     openGood: "看到你今天心情不错，我也跟着高兴。",
     openGoodDone: n => `今天已经完成 ${n} 个番茄钟啦，难怪心情好。`,
@@ -1533,6 +1575,15 @@ const I18N = {
     supNotSet: "还没设置",
     supNote: "趁心情还好的时候写下来。真难受的那一刻，人是没力气现找的。",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
+    secGrowth: "我的成长",
+    secGrowthLink: "看本周的进步",
+    secMood: "我的心情",
+    moodChartTitle: "情绪晴雨表 · 最近 7 天",
+    secHollow: "我的树洞",
+    secHollowSub: "想说什么就说什么，只有你自己看得到。",
+    secBuddy: "我的蜜友",
+    secSettings: "设置",
+    chatWith: n => `和${n}聊聊`,
     supNudgeTitle: "顺手存两个人吧",
     supNudgeSub: "谁都有不好受的时候。趁现在心情还行，写下一两个你愿意找的人，以后就不用现找了。",
     supNudgeGo: "去写",
@@ -1578,7 +1629,7 @@ const I18N = {
     remindSub: "到点如果今天还没开始，会提醒你一次。需要 App 在后台开着；没开着的话，下次打开会看到今天的开场提示。",
     remindClear: "关闭",
     remindOn: hm => `每天 ${hm} 提醒`,
-    remindNotifyTitle: "小暖来找你啦 👋",
+    remindNotifyTitle: n => `${n}来找你啦 👋`,
     remindNotifyBody: "今天还没开始呢 —— 挑一件事，先做 5 分钟就好",
     // 休闲时长兑换
     funTitle: "兑换休闲时间",
@@ -1816,16 +1867,16 @@ const I18N = {
     moodSub: "Pick one — only you can see it",
     moodPicked: n => `Today: ${n}`,
     moodChange: "You can change it any time",
-    buddyName: "Nuan",
-    buddyRole: "Your big sister · here every day",
-    buddyDisclaimer: "Nuan is a character inside this app, not a real person, and can't replace real help. When things feel heavy, please also tell a real adult you trust.",
+    buddyTag: "here every day",
+    buddyDisclaimer: n => `${n} is a character inside this app, not a real person, and can't replace real help. When things feel heavy, please also tell a real adult you trust.`,
+    buddyPick: "Choose who keeps you company",
     chatOpen: "Talk",
     greetMorning: "Good morning",
     greetNoon: "Hi there",
     greetAfternoon: "Good afternoon",
     greetEvening: "Good evening",
     greetNight: "Still up this late",
-    openHi: " — I'm Nuan.",
+    openHi: n => ` — I'm ${n}.`,
     openNoMood: "You haven't logged a mood yet today. Tap one of the faces above and I'll know how to keep you company.",
     openGood: "Glad to see you're doing okay today — that makes me happy too.",
     openGoodDone: n => `${n} pomodoro${n===1?"":"s"} done already today. No wonder you're in a good mood.`,
@@ -1888,6 +1939,15 @@ const I18N = {
     supCount: n => `${n} saved`,
     supNotSet: "Not set up yet",
     supNote: "Write it down while you're feeling okay. In the moment it's hard, nobody has the energy to go looking.",
+    secGrowth: "My growth",
+    secGrowthLink: "See this week's progress",
+    secMood: "My mood",
+    moodChartTitle: "Mood barometer · last 7 days",
+    secHollow: "My tree hollow",
+    secHollowSub: "Say anything you like — only you can see it.",
+    secBuddy: "My people",
+    secSettings: "Settings",
+    chatWith: n => `Talk with ${n}`,
     supNudgeTitle: "Save a couple of people",
     supNudgeSub: "Everyone has rough days. While you're feeling alright, jot down one or two people you'd reach out to — so you don't have to go looking later.",
     supNudgeGo: "Write it",
@@ -1930,7 +1990,7 @@ const I18N = {
     remindSub: "If you haven't started by then, you get one nudge. Needs the app open in the background; otherwise you'll see the prompt next time you open it.",
     remindClear: "Turn off",
     remindOn: hm => `Daily at ${hm}`,
-    remindNotifyTitle: "You haven't started today 👋",
+    remindNotifyTitle: n => `${n} is checking in 👋`,
     remindNotifyBody: "Pick one thing — five minutes is enough",
     funTitle: "Trade points for downtime",
     funSub: "Spend what your focus earned on guilt-free time off",
@@ -2114,6 +2174,7 @@ function defaultState(){
     supPromptShown: 0,    // 提示过几次（最多 3 次，之后不再提）
     supPromptDate: null,  // 上次提示的日期，同一天不重复
     supPromptOff: false,  // 用户点了"不用了"，永久不再提
+    buddy: "sis",         // 知心姐姐 sis / 知心哥哥 bro，由用户自己选
     careShown: null,      // 上次给出"找人聊聊"提示的日期，避免反复打扰
     reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
     remindedDate: null,   // 今天是否已提醒过
@@ -2150,6 +2211,8 @@ function load(){
   if(typeof state.supPromptShown !== "number") state.supPromptShown = 0;
   if(typeof state.supPromptDate === "undefined") state.supPromptDate = null;
   if(typeof state.supPromptOff !== "boolean") state.supPromptOff = false;
+  // 这里只能写字面量：角色表声明在本函数之后，load() 初始化时引用会落进暂时性死区
+  if(state.buddy !== "sis" && state.buddy !== "bro") state.buddy = "sis";
   if(typeof state.careShown === "undefined") state.careShown = null;
   if(typeof state.reminder === "undefined") state.reminder = null;
   if(typeof state.remindedDate === "undefined") state.remindedDate = null;
@@ -2353,7 +2416,6 @@ function render(){
     badgesEl.appendChild(div);
   });
 
-  renderMood();
   renderTasks();
   refreshNav();   // 若底部弹层开着，同步刷新内容
 }
@@ -2530,6 +2592,8 @@ function buildInfo(card){
   });
 }
 
+// 「我的」= 我的成长 / 我的心情 / 我的树洞 / 我的蜜友
+// 心情、树洞这些私密的东西都收在这里，首页只留四个板块
 function buildMe(card){
   const totalPts = totalPoints();
   const effH = (state.effSecTotal/3600).toFixed(1);
@@ -2541,56 +2605,85 @@ function buildMe(card){
     {k:t("meEffHours"), v:`${effH} ${t("hoursUnit")}`},
     {k:t("meRedeem"), v:`${state.redemptions.length}`},
   ];
-  let grid = "";
-  stats.forEach(s=>{ grid += `<div class="me-stat"><b>${s.v}</b><span>${s.k}</span></div>`; });
-  card.innerHTML = navHeader("navMe") +
-    `<div class="me-grid">${grid}</div>` +
-    `<div class="me-proud">${t("meProud")}</div>` +
-    `<div class="me-tools">
-       <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
-       <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
-     </div>
-     <div class="me-set">
-       <div class="s-row">
-         <span class="s-ic">🌳</span>
-         <span class="s-title">${t("jListTitle")}
-           <em>${t("jListSub", state.journal.length)}</em>
-         </span>
-         <button class="me-tool" style="flex:0 0 auto" data-journal-list>${t("jOpen")}</button>
-       </div>
-     </div>
-     <div class="me-set">
-       <div class="s-row">
-         <span class="s-ic">💛</span>
-         <span class="s-title">${t("supTitle")}
-           <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
-         </span>
-         <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
-       </div>
-       <div class="s-note">${t("supNote")}</div>
-     </div>
-     <div class="me-set">
-       <div class="s-row">
-         <span class="s-ic">🔔</span>
-         <span class="s-title">${t("remindTitle")}
-           <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
-         </span>
-         <input type="time" data-remind value="${state.reminder || ""}">
-         ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
-       </div>
-       <div class="s-note">${t("remindSub")}</div>
-     </div>
-     <div class="me-warn">${t("meBackupWarn")}</div>`;
+  const grid = stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("");
+  const b = buddy();
+  const picker = Object.values(BUDDIES).map(x=>`
+    <button class="bud-pick${x.id===b.id?" on":""}" data-buddy="${x.id}">
+      <span class="bp-face">${buddySvg(x.id)}</span>
+      <span class="bp-name">${L(x.name)}</span>
+      <span class="bp-kind">${L(x.kind)}</span>
+    </button>`).join("");
+
+  card.innerHTML = navHeader("navMe") + `
+    <div class="me-sec">
+      <div class="ms-head">🌱 ${t("secGrowth")}</div>
+      <div class="me-grid">${grid}</div>
+      <div class="me-proud">${t("meProud")}</div>
+      <button class="me-link" data-goto-progress>${t("secGrowthLink")} →</button>
+    </div>
+
+    <div class="me-sec">
+      <div class="ms-head">🌤 ${t("secMood")}</div>
+      ${moodSectionHTML()}
+    </div>
+
+    <div class="me-sec">
+      <div class="ms-head">🌳 ${t("secHollow")}</div>
+      <div class="ms-sub">${t("secHollowSub")}</div>
+      <div class="me-tools">
+        <button class="me-tool primary" data-journal>✍️ ${t("moodWrite")}</button>
+        <button class="me-tool" data-journal-list>📖 ${t("jOpen")}${state.journal.length?` (${state.journal.length})`:""}</button>
+      </div>
+    </div>
+
+    <div class="me-sec">
+      <div class="ms-head">💛 ${t("secBuddy")}</div>
+      <div class="ms-sub">${t("buddyPick")}</div>
+      <div class="bud-picker">${picker}</div>
+      <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", buddyName())}</button>
+      <div class="me-set">
+        <div class="s-row">
+          <span class="s-ic">🤝</span>
+          <span class="s-title">${t("supTitle")}
+            <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
+          </span>
+          <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
+        </div>
+        <div class="s-note">${t("supNote")}</div>
+      </div>
+    </div>
+
+    <div class="me-sec">
+      <div class="ms-head">⚙️ ${t("secSettings")}</div>
+      <div class="me-set">
+        <div class="s-row">
+          <span class="s-ic">🔔</span>
+          <span class="s-title">${t("remindTitle")}
+            <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
+          </span>
+          <input type="time" data-remind value="${state.reminder || ""}">
+          ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+        </div>
+        <div class="s-note">${t("remindSub")}</div>
+      </div>
+      <div class="me-tools">
+        <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
+        <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
+      </div>
+      <div class="me-warn">${t("meBackupWarn")}</div>
+    </div>`;
+
+  bindMoodSection(card);
+  card.querySelectorAll("[data-buddy]").forEach(x=>{
+    x.addEventListener("click", ()=>{ state.buddy = x.dataset.buddy; save(state); refreshNav(); });
+  });
+  card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
+  card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
+  card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
+  card.querySelector("[data-support]").addEventListener("click", ()=>{ closeNav(); setTimeout(openSupportSheet, 240); });
+  card.querySelector("[data-goto-progress]").addEventListener("click", ()=>{ currentNav = "leaderboard"; renderNavContent(); });
   card.querySelector("[data-backup]").addEventListener("click", exportBackup);
   card.querySelector("[data-restore]").addEventListener("click", importBackup);
-  card.querySelector("[data-journal-list]").addEventListener("click", ()=>{
-    closeNav();
-    setTimeout(openJournalList, 240);
-  });
-  card.querySelector("[data-support]").addEventListener("click", ()=>{
-    closeNav();
-    setTimeout(openSupportSheet, 240);
-  });
   card.querySelector("[data-remind]").addEventListener("change", e=>{
     state.reminder = e.target.value || null;
     state.remindedDate = null;
@@ -3948,23 +4041,46 @@ function moodFace(m, size){
   </svg>`;
 }
 
-// 小暖：暖橙渐变的圆脸，编成两个小啾啾，永远在笑
-function buddySvg(){
+// 知心姐姐 / 知心哥哥，由用户自己选。两张脸共用同一套画法，只换发型和底色。
+const BUDDIES = {
+  sis: {
+    id:"sis", g1:"#FFB36B", g2:"#FF7E8E",
+    name:{zh:"小暖", en:"Nuan"},
+    kind:{zh:"知心姐姐", en:"Big sister"},
+  },
+  bro: {
+    id:"bro", g1:"#7FC9F5", g2:"#6A8FE8",
+    name:{zh:"小阳", en:"Yang"},
+    kind:{zh:"知心哥哥", en:"Big brother"},
+  },
+};
+function buddy(){ return BUDDIES[state.buddy] || BUDDIES.sis; }
+function buddyName(){ return L(buddy().name); }
+function buddyRole(){ return `${L(buddy().kind)} · ${t("buddyTag")}`; }
+
+function buddySvg(who){
+  const b = who ? BUDDIES[who] : buddy();
+  const gid = "bd_" + b.id;
+  // 姐姐：两个小啾啾 + 长一点的头发；哥哥：短发 + 一撮翘起来的呆毛
+  const hair = b.id === "sis"
+    ? `<circle cx="13" cy="22" r="7" fill="#FFF" opacity=".92"/>
+       <circle cx="51" cy="22" r="7" fill="#FFF" opacity=".92"/>
+       <path d="M32 13c-11 0-18 7.5-18 17 4-4 9-6 18-6s14 2 18 6c0-9.5-7-17-18-17z" fill="#5C3A2E"/>`
+    : `<path d="M32 12c-11 0-18 7.5-18 18 3.5-4.5 8-7 18-7s14.5 2.5 18 7c0-10.5-7-18-18-18z" fill="#4A3328"/>
+       <path d="M38 12.5q7-4.5 9.5.5-4-1.5-8 2z" fill="#4A3328"/>`;
   return `<svg viewBox="0 0 64 64" aria-hidden="true">
-    <defs><linearGradient id="bd" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#FFB36B"/><stop offset="1" stop-color="#FF7E8E"/>
+    <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="${b.g1}"/><stop offset="1" stop-color="${b.g2}"/>
     </linearGradient></defs>
-    <circle cx="32" cy="32" r="32" fill="url(#bd)"/>
-    <circle cx="13" cy="22" r="7" fill="#FFF" opacity=".92"/>
-    <circle cx="51" cy="22" r="7" fill="#FFF" opacity=".92"/>
+    <circle cx="32" cy="32" r="32" fill="url(#${gid})"/>
     <path d="M32 13c-11 0-18 7.5-18 17v6c0 10 8 17 18 17s18-7 18-17v-6c0-9.5-7-17-18-17z" fill="#FFF2E4"/>
-    <path d="M32 13c-11 0-18 7.5-18 17 4-4 9-6 18-6s14 2 18 6c0-9.5-7-17-18-17z" fill="#5C3A2E"/>
+    ${hair}
     <circle cx="24" cy="34" r="3.2" fill="#5C3A2E"/>
     <circle cx="40" cy="34" r="3.2" fill="#5C3A2E"/>
     <circle cx="25.2" cy="32.9" r="1.1" fill="#FFF"/>
     <circle cx="41.2" cy="32.9" r="1.1" fill="#FFF"/>
-    <circle cx="18" cy="40" r="3.4" fill="#FFB6A8" opacity=".75"/>
-    <circle cx="46" cy="40" r="3.4" fill="#FFB6A8" opacity=".75"/>
+    <circle cx="18" cy="40" r="3.4" fill="#FFB6A8" opacity=".7"/>
+    <circle cx="46" cy="40" r="3.4" fill="#FFB6A8" opacity=".7"/>
     <path d="M26 41q6 5.5 12 0" stroke="#5C3A2E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
   </svg>`;
 }
@@ -3990,7 +4106,7 @@ function setMood(id){
   const keys = Object.keys(state.moods).sort();
   while(keys.length > 70) delete state.moods[keys.shift()];
   save(state);
-  renderMood();
+  refreshNav();
   const m = moodById(id);
   if(m && !m.low) spawnConfetti();
 }
@@ -4014,8 +4130,8 @@ function markSupportPrompted(){
   save(state);
 }
 
-function renderMood(){
-  const el = document.getElementById("moodCard");
+// 心情打卡现在是「我的」里的一节，不再出现在首页 —— 心情是私密的东西
+function moodSectionHTML(){
   const cur = todayMood();
 
   let faces = "";
@@ -4024,7 +4140,7 @@ function renderMood(){
       ${moodFace(m, 38)}<span class="mb-lbl">${L(m.name)}</span></button>`;
   });
 
-  // 最近 7 天心情条
+  // 情绪晴雨表：最近 7 天，有记录的画一张小脸，没记录的留一道浅痕
   let week = "";
   const names = t("weekDays");
   for(let i=6;i>=0;i--){
@@ -4033,50 +4149,25 @@ function renderMood(){
     const rec = state.moods[k];
     const m = rec ? moodById(rec.m) : null;
     const dow = (d.getDay()+6)%7;
-    week += `<div class="mw-day${k===todayStr()?" today":""}">
-      <span class="mw-dot" style="${m?`background:${m.tone}`:""}"></span>
-      <span class="mw-lbl">${names[dow]}</span></div>`;
+    week += `<div class="bw-day${k===todayStr()?" today":""}">
+      <span class="bw-face">${m ? moodFace(m, 26) : `<span class="bw-none"></span>`}</span>
+      <span class="bw-lbl">${names[dow]}</span></div>`;
   }
 
-  el.innerHTML = `
-    <div class="mood-head">
-      <div class="buddy-avatar tap" data-chat>${buddySvg()}</div>
-      <div class="mh-txt">
-        <div class="mh-title">${cur ? t("moodPicked", L(cur.name)) : t("moodAsk")}</div>
-        <div class="mh-sub">${cur ? t("moodChange") : t("moodSub")}</div>
-      </div>
-    </div>
+  return `
+    <div class="mh-title">${cur ? t("moodPicked", L(cur.name)) : t("moodAsk")}</div>
+    <div class="mh-sub">${cur ? t("moodChange") : t("moodSub")}</div>
     <div class="mood-row${cur?" picked":""}">${faces}</div>
     ${cur ? `<div class="mood-say">
         <span class="ms-txt">${escapeHtml(buddyLineFor(cur))}</span>
-        <button class="ms-go" data-journal>${t("moodWrite")}</button>
-        <button class="ms-go alt" data-chat>${t("chatOpen")}</button>
       </div>` : ""}
-    <div class="mood-week">${week}</div>
-    ${shouldPromptSupport() ? `<div class="sup-nudge">
-      <span class="sn-ic">💛</span>
-      <span class="sn-txt">${t("supNudgeTitle")}<small>${t("supNudgeSub")}</small></span>
-      <button class="sn-go" data-support-go>${t("supNudgeGo")}</button>
-      <button class="sn-x" data-support-off aria-label="close">✕</button>
-    </div>` : ""}`;
+    <div class="bw-label">${t("moodChartTitle")}</div>
+    <div class="bw-week">${week}</div>`;
+}
 
+function bindMoodSection(el){
   el.querySelectorAll("[data-mood]").forEach(b=>{
     b.addEventListener("click", ()=>setMood(b.dataset.mood));
-  });
-  el.querySelectorAll("[data-chat]").forEach(b=>{
-    b.addEventListener("click", ()=>openChat());
-  });
-  el.querySelectorAll("[data-journal]").forEach(b=>{
-    b.addEventListener("click", ()=>openJournal());
-  });
-  const supGo = el.querySelector("[data-support-go]");
-  if(supGo) supGo.addEventListener("click", ()=>{ markSupportPrompted(); openSupportSheet(); });
-  const supOff = el.querySelector("[data-support-off]");
-  if(supOff) supOff.addEventListener("click", ()=>{
-    // 关掉一次只是今天不提；提满三次就彻底不再提
-    markSupportPrompted();
-    if(state.supPromptShown >= 3){ state.supPromptOff = true; save(state); }
-    renderMood();
   });
 }
 
@@ -4155,12 +4246,12 @@ function finishJournal(text, keep){
   card.innerHTML = `
     <div class="chat-top">
       <div class="buddy-avatar">${buddySvg()}</div>
-      <span class="ct-name">${t("buddyName")}<small>${t("buddyRole")}</small></span>
+      <span class="ct-name">${buddyName()}<small>${buddyRole()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="chat-body" id="chatBody"></div>
     <div class="chat-opts" id="chatOpts"></div>
-    <div class="chat-note">${t("buddyDisclaimer")}</div>`;
+    <div class="chat-note">${t("buddyDisclaimer", buddyName())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
 
   const lines = [
@@ -4179,7 +4270,6 @@ function finishJournal(text, keep){
         {label:t("jReadBack"), next:"jlist", quiet:true},
         {label:t("optBye"), act:"close", quiet:true},
       ]);
-  renderMood();
 }
 
 // 树洞回顾
@@ -4264,12 +4354,12 @@ function openChat(){
   card.innerHTML = `
     <div class="chat-top">
       <div class="buddy-avatar">${buddySvg()}</div>
-      <span class="ct-name">${t("buddyName")}<small>${t("buddyRole")}</small></span>
+      <span class="ct-name">${buddyName()}<small>${buddyRole()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="chat-body" id="chatBody"></div>
     <div class="chat-opts" id="chatOpts"></div>
-    <div class="chat-note">${t("buddyDisclaimer")}</div>`;
+    <div class="chat-note">${t("buddyDisclaimer", buddyName())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -4477,7 +4567,7 @@ function chatNode(id){
   switch(id){
 
     case "open": {
-      const lines = [L_(`${greetWord()}${t("openHi")}`)];
+      const lines = [L_(`${greetWord()}${t("openHi", buddyName())}`)];
       if(!m){
         lines.push(L_(t("openNoMood")));
         return {lines, opts:[
@@ -4928,7 +5018,7 @@ function checkReminder(){
   if(now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) return;
   state.remindedDate = today;
   save(state);
-  notify(t("remindNotifyTitle"), t("remindNotifyBody"));
+  notify(t("remindNotifyTitle", buddyName()), t("remindNotifyBody"));
 }
 
 /* ===================== 启动：恢复中断的专注段 ===================== */
