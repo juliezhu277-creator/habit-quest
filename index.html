@@ -723,9 +723,14 @@
   }
 
   /* ===================== 顶部两个小提示（并排，不抢四个板块的镜） ===================== */
-  .quick-row{display:flex;gap:7px;margin-bottom:10px;}
+  /* 和下面的 .cat-grid 用同一套栅格：两列等宽、同样的 8px 间距，
+     所以只剩一格时它正好落在左列上，边界和四宫格是对齐的 */
+  .quick-row{
+    display:grid;grid-template-columns:1fr 1fr;gap:8px;
+    align-items:stretch;margin-bottom:10px;
+  }
   .qk{
-    flex:1 1 0;min-width:0;display:flex;align-items:center;
+    min-width:0;display:flex;align-items:center;
     border-radius:13px;overflow:hidden;
   }
   .qk-start  {background:linear-gradient(135deg,#fff5e9,#ffe9d6);border:1px solid rgba(255,140,66,.24);}
@@ -753,8 +758,10 @@
     font-size:11px;cursor:pointer;padding:8px 8px 8px 4px;line-height:1;
   }
   .qk .q-x:active{color:var(--ink);}
-  /* 只剩一条时也不要拉得太宽，留白反而好看 */
-  .quick-row:has(.qk:only-child) .qk{flex:0 1 62%;}
+  /* 完成态：换成绿色，读起来是"做到了"而不是"该做了" */
+  .qk-start.done{background:linear-gradient(135deg,#eefaf1,#daf3e3);border-color:rgba(76,175,110,.3);}
+  .qk-start.done .q-t{color:var(--accent-dark);}
+  .qk .q-main[disabled]{cursor:default;}
 
   /* ===================== 开场提示 / 安装引导 ===================== */
   .kick{
@@ -1349,17 +1356,25 @@ const CATEGORIES = [
 ];
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
-const GOALS_VERSION = 3;
+const GOALS_VERSION = 4;
 const GOAL_MAX_LEN = 20;  // 每个目标名最多字数（超出显示省略号，聚焦查看全文）
-function defaultGoals(){
-  const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
-  return {
-    study: ["几何第11单元","MUN作业","预习经济学","读书"].map(mk),
-    exercise: ["跳绳200个","跑步20分钟","拉伸10分钟","打球"].map(mk),
-    social: ["和同学聊天","和家人分享","帮家人做事","鼓励朋友"].map(mk),
-    fun: ["玩30分钟游戏","看一集剧","听音乐","陪家人聊天"].map(mk),
-  };
+// 目标一律留空，由用户自己写 —— 预置的目标只对写它的人合适，
+// 对别人是噪音，而且会让人以为这就是"应该做的事"
+const GOAL_SLOTS = 4;
+function blankGoal(){
+  return {id:uid("g"), text:"", done:false, sec:0, pomos:0};
 }
+function defaultGoals(){
+  const four = () => Array.from({length:GOAL_SLOTS}, blankGoal);
+  return {study:four(), exercise:four(), social:four(), fun:four()};
+}
+// 旧版本预置过的目标文案。迁移时把还是原样的清掉，用户自己改过的留下。
+const LEGACY_GOAL_TEXTS = new Set([
+  "几何第11单元","MUN作业","预习经济学","读书",
+  "跳绳200个","跑步20分钟","拉伸10分钟","打球",
+  "和同学聊天","和家人分享","帮家人做事","鼓励朋友",
+  "玩30分钟游戏","看一集剧","听音乐","陪家人聊天",
+]);
 
 // ===== 番茄钟设置：面向初高中生与成人，1 小时专注 + 10 分钟休息 =====
 // 一个完整专注段 = 1 个 🍅（不论时长），至少 25 分钟才计入
@@ -1473,6 +1488,11 @@ const I18N = {
     kickSub: "不用一上来就一小时。挑一件事，先做 5 分钟。",
     kickGo: "先做 5 分钟",
     kickShort: "今天还没开始",
+    kickDoneTitle: n => `今天专注 ${n} 分钟`,
+    kickDoneSub: "继续加油，再来一段？",
+    kickDoneSubPomo: n => `完成 ${n} 个 🍅，继续加油`,
+    kickWriteTitle: "先写个目标",
+    kickWriteSub: "小到不会失败的那种",
     installShort: "装成 App 更好用",
     installShortApp: app => `先用浏览器打开`,
     tierDays: (a,b) => `${a} / ${b} 天`,
@@ -1853,6 +1873,11 @@ const I18N = {
     kickSub: "You don't have to begin with a full hour. Pick one thing, do 5 minutes.",
     kickGo: "Do 5 minutes",
     kickShort: "Not started today",
+    kickDoneTitle: n => `${n} min focused today`,
+    kickDoneSub: "Nice — go for another?",
+    kickDoneSubPomo: n => `${n} 🍅 done. Keep going!`,
+    kickWriteTitle: "Write a goal first",
+    kickWriteSub: "Small enough that you can't fail",
     installShort: "Nicer as an app",
     installShortApp: app => `Open in a browser first`,
     tierDays: (a,b) => `${a} / ${b} days`,
@@ -2280,12 +2305,23 @@ function load(){
   }
   if(!state.redemptions) state.redemptions = [];
   // 目标结构迁移（旧版本用 completed/customGoals）
-  if(!state.goals || state.goalsVersion !== GOALS_VERSION){
+  if(!state.goals){
     state.goals = defaultGoals();
     state.goalsVersion = GOALS_VERSION;
-    delete state.completed;
-    delete state.customGoals;
+  } else if(state.goalsVersion !== GOALS_VERSION){
+    // v4：不再预置目标。把还是原样的默认项清掉，用户自己写过的一律保留。
+    for(const cat in state.goals){
+      const kept = state.goals[cat].filter(g=>{
+        const txt = (g.text||"").trim();
+        return txt && !LEGACY_GOAL_TEXTS.has(txt);
+      });
+      while(kept.length < GOAL_SLOTS) kept.push(blankGoal());
+      state.goals[cat] = kept;
+    }
+    state.goalsVersion = GOALS_VERSION;
   }
+  delete state.completed;
+  delete state.customGoals;
   // 确保每个目标都有 sec / pomos 字段
   for(const cat in state.goals){
     state.goals[cat].forEach(g=>{
@@ -2963,6 +2999,12 @@ function toggleGoal(catId, gid){
     save(state); render();
     return;
   }
+  // 空目标不能打勾：否则光点空格子就能刷分，也没有任何意义
+  if(!(g.text||"").trim()){
+    const input = document.querySelector(`.goal-row[data-gid="${gid}"] .goal-input`);
+    if(input) input.focus();
+    return;
+  }
   g.done = true;
   completeGoal(catId, g);
 }
@@ -3021,6 +3063,12 @@ function openStartSheet(catId, gid, preset){
   if(state.timer){ openFocusScreen(); return; }
   const g = (state.goals[catId]||[]).find(x=>x.id===gid);
   if(!g) return;
+  // 还没写内容的格子，先让他把目标写下来再开始
+  if(!(g.text||"").trim()){
+    const input = document.querySelector(`.goal-row[data-gid="${gid}"] .goal-input`);
+    if(input){ input.focus(); input.scrollIntoView({block:"center", behavior:"smooth"}); }
+    return;
+  }
   const cat = CATEGORIES.find(c=>c.id===catId);
   // 休闲类走「用积分兑换时长」的路径
   if(cat.kind === "fun"){ openFunSheet(catId, gid); return; }
@@ -4910,12 +4958,30 @@ function firstOpenGoal(){
 function buildBanners(){
   const chips = [];
 
-  // 今天已经开始过（哪怕只是 5 分钟起步段）就收起来，明天再出现
-  if(!startedToday() && state.kickDismissed !== todayStr() && firstOpenGoal()){
-    chips.push(`<div class="qk qk-start">
-      <button class="q-main" data-kick-go>
-        <span class="q-ic">🌤</span>
-        <span class="q-txt"><span class="q-t">${t("kickGo")}</span><span class="q-s">${t("kickShort")}</span></span>
+  // 左边这格一直在，只是随着今天的进展换内容：
+  // 还没写目标 → 先写一个；写了没开始 → 先做 5 分钟；开始过 → 恭喜 + 继续
+  if(state.kickDismissed !== todayStr()){
+    const open = firstOpenGoal();
+    let t1, t2, act;
+    if(startedToday()){
+      const mins = Math.round((state.history[todayStr()] || {s:0}).s / 60);
+      const poms = todayPomos();
+      t1 = t("kickDoneTitle", mins);
+      t2 = poms > 0 ? t("kickDoneSubPomo", poms) : t("kickDoneSub");
+      act = open ? "go" : "none";
+    } else if(!open){
+      t1 = t("kickWriteTitle");
+      t2 = t("kickWriteSub");
+      act = "write";
+    } else {
+      t1 = t("kickGo");
+      t2 = t("kickShort");
+      act = "go";
+    }
+    chips.push(`<div class="qk qk-start${startedToday()?" done":""}">
+      <button class="q-main" data-kick="${act}"${act==="none"?" disabled":""}>
+        <span class="q-ic">${startedToday()?"🎉":(act==="write"?"📝":"🌤")}</span>
+        <span class="q-txt"><span class="q-t">${t1}</span><span class="q-s">${t2}</span></span>
       </button>
       <button class="q-x" data-kick-x aria-label="close">✕</button>
     </div>`);
@@ -5039,10 +5105,17 @@ async function copyPageLink(){
 }
 
 function bindBanners(el){
-  const kickGo = el.querySelector("[data-kick-go]");
-  if(kickGo) kickGo.addEventListener("click", ()=>{
+  const kickBtn = el.querySelector("[data-kick]");
+  if(kickBtn) kickBtn.addEventListener("click", ()=>{
+    const act = kickBtn.dataset.kick;
+    if(act === "write"){
+      // 一个目标都还没写：把光标送到第一个输入框
+      const first = el.querySelector(".goal-input");
+      if(first){ first.focus(); first.scrollIntoView({block:"center", behavior:"smooth"}); }
+      return;
+    }
     const g = firstOpenGoal();
-    if(g) openStartSheet(g.catId, g.gid, STARTER_MIN);
+    if(g) openStartSheet(g.catId, g.gid, startedToday() ? state.focusMin : STARTER_MIN);
   });
   const kickX = el.querySelector("[data-kick-x]");
   if(kickX) kickX.addEventListener("click", ()=>{
