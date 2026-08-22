@@ -741,26 +741,24 @@
     padding:8px 4px 8px 9px;text-align:left;
   }
   .qk .q-main:active{opacity:.65;}
-  .qk .q-ic{font-size:16px;flex-shrink:0;line-height:1;}
-  .qk .q-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
-  .qk .q-t{
-    font-size:12px;font-weight:800;color:var(--ink);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  .qk .q-ic{font-size:16px;flex-shrink:0;line-height:1;align-self:flex-start;margin-top:1px;}
+  /* 整句话一种字号、一种字重、一种颜色，不再分粗标题和灰小字 */
+  .qk .q-txt{
+    flex:1;min-width:0;
+    font-size:11.5px;font-weight:700;line-height:1.55;
+    word-break:break-word;
   }
-  .qk-start .q-t{color:var(--primary-dark);}
-  .qk-install .q-t{color:#7c4dd8;}
-  .qk .q-s{
-    font-size:9.5px;color:var(--muted);
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-  }
+  .qk-start   .q-txt{color:var(--primary-dark);}
+  .qk-install .q-txt{color:#7c4dd8;}
   .qk .q-x{
     flex-shrink:0;border:none;background:none;color:#bdb6ad;
     font-size:11px;cursor:pointer;padding:8px 8px 8px 4px;line-height:1;
+    align-self:flex-start;
   }
   .qk .q-x:active{color:var(--ink);}
   /* 完成态：换成绿色，读起来是"做到了"而不是"该做了" */
   .qk-start.done{background:linear-gradient(135deg,#eefaf1,#daf3e3);border-color:rgba(76,175,110,.3);}
-  .qk-start.done .q-t{color:var(--accent-dark);}
+  .qk-start.done .q-txt{color:var(--accent-dark);}
   .qk .q-main[disabled]{cursor:default;}
 
   /* ===================== 开场提示 / 安装引导 ===================== */
@@ -1549,14 +1547,11 @@ const I18N = {
     kickTitle: "今天还没有开始",
     kickSub: "不用一上来就一小时。挑一件事，先做 5 分钟。",
     kickGo: "先做 5 分钟",
-    kickShort: "今天还没开始",
-    kickDoneTitle: n => `今天专注 ${n} 分钟`,
-    kickDoneSub: "继续加油，再来一段？",
-    kickDoneSubPomo: n => `完成 ${n} 个 🍅，继续加油`,
-    kickWriteTitle: "先写个目标",
-    kickWriteSub: "小到不会失败的那种",
-    installShort: "装成 App 更好用",
-    installShortApp: app => `先用浏览器打开`,
+    kickWriteLine: "先写一个小目标吧",
+    kickGoLine: "今天还没开始，先做 5 分钟 💪",
+    kickDoneLine: n => `恭喜您已经专注 ${n} 分钟，继续加油 💪`,
+    installLine: verb => `${verb}，装成 App 更好用`,
+    installLineApp: verb => `先用浏览器打开，才能装到主屏`,
     tierDays: (a,b) => `${a} / ${b} 天`,
     // 安装引导
     installTitle: "装到手机主屏",
@@ -1938,14 +1933,11 @@ const I18N = {
     kickTitle: "You haven't started today",
     kickSub: "You don't have to begin with a full hour. Pick one thing, do 5 minutes.",
     kickGo: "Do 5 minutes",
-    kickShort: "Not started today",
-    kickDoneTitle: n => `${n} min focused today`,
-    kickDoneSub: "Nice — go for another?",
-    kickDoneSubPomo: n => `${n} 🍅 done. Keep going!`,
-    kickWriteTitle: "Write a goal first",
-    kickWriteSub: "Small enough that you can't fail",
-    installShort: "Nicer as an app",
-    installShortApp: app => `Open in a browser first`,
+    kickWriteLine: "Write one small goal first",
+    kickGoLine: "Not started yet — do 5 minutes 💪",
+    kickDoneLine: n => `${n} minutes focused today. Keep going 💪`,
+    installLine: verb => `${verb} — nicer as an app`,
+    installLineApp: verb => `Open in a browser to install it`,
     tierDays: (a,b) => `${a} / ${b} days`,
     installTitle: "Add to your home screen",
     installSub: "Opens full screen like an app, works offline, and can notify you when a block ends.",
@@ -5101,30 +5093,21 @@ function firstOpenGoal(){
 function buildBanners(){
   const chips = [];
 
-  // 左边这格一直在，只是随着今天的进展换内容：
-  // 还没写目标 → 先写一个；写了没开始 → 先做 5 分钟；开始过 → 恭喜 + 继续
+  // 每个胶囊只说一句话，一种字号一种颜色，emoji 之外不做任何强弱区分
   if(state.kickDismissed !== todayStr()){
     const open = firstOpenGoal();
-    let t1, t2, act;
+    let line, ic, act;
     if(startedToday()){
       const mins = Math.round((state.history[todayStr()] || {s:0}).s / 60);
-      const poms = todayPomos();
-      t1 = t("kickDoneTitle", mins);
-      t2 = poms > 0 ? t("kickDoneSubPomo", poms) : t("kickDoneSub");
-      act = open ? "go" : "none";
+      line = t("kickDoneLine", mins); ic = "🎉"; act = open ? "go" : "none";
     } else if(!open){
-      t1 = t("kickWriteTitle");
-      t2 = t("kickWriteSub");
-      act = "write";
+      line = t("kickWriteLine");      ic = "📝"; act = "write";
     } else {
-      t1 = t("kickGo");
-      t2 = t("kickShort");
-      act = "go";
+      line = t("kickGoLine");         ic = "🌤"; act = "go";
     }
     chips.push(`<div class="qk qk-start${startedToday()?" done":""}">
       <button class="q-main" data-kick="${act}"${act==="none"?" disabled":""}>
-        <span class="q-ic">${startedToday()?"🎉":(act==="write"?"📝":"🌤")}</span>
-        <span class="q-txt"><span class="q-t">${t1}</span><span class="q-s">${t2}</span></span>
+        <span class="q-ic">${ic}</span><span class="q-txt">${line}</span>
       </button>
       <button class="q-x" data-kick-x aria-label="close">✕</button>
     </div>`);
@@ -5132,15 +5115,14 @@ function buildBanners(){
 
   if(canInstall() && !state.installDismissed){
     const app = inAppBrowser();
-    let act, label;
-    if(canOneTapInstall()){   act = "install"; label = t("installGo"); }
-    else if(canShareSheet()){ act = "share";   label = t("installAddGo"); }
-    else {                    act = "how";     label = t("installHow"); }
+    let act, verb;
+    if(canOneTapInstall()){   act = "install"; verb = t("installGo"); }
+    else if(canShareSheet()){ act = "share";   verb = t("installAddGo"); }
+    else {                    act = "how";     verb = t("installHow"); }
+    const line = app ? t("installLineApp", verb) : t("installLine", verb);
     chips.push(`<div class="qk qk-install">
       <button class="q-main" data-install="${act}">
-        <span class="q-ic">📲</span>
-        <span class="q-txt"><span class="q-t">${label}</span><span class="q-s">${
-          app ? t("installShortApp", app) : t("installShort")}</span></span>
+        <span class="q-ic">📲</span><span class="q-txt">${line}</span>
       </button>
       <button class="q-x" data-install-x aria-label="close">✕</button>
     </div>`);
