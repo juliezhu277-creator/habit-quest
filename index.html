@@ -1204,7 +1204,69 @@
   }
   .sup-in:focus{outline:none;border-color:var(--primary);}
 
-  /* ===================== 「我的」分区 ===================== */
+  /* ===================== 「我的」：与首页同构的 2×2 ===================== */
+  /* 用和 .cat-grid 一样的栅格和卡片做法，颜色也是首页那四种，
+     只是重新分配 —— 一眼认得出是同一个 App，又不会和"要做的事"混淆 */
+  .me-grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start;}
+  .me-blk{
+    border-radius:16px;overflow:hidden;border:2px solid #eee;
+    box-shadow:0 3px 10px rgba(0,0,0,0.05);display:flex;flex-direction:column;
+    cursor:pointer;transition:transform .12s;
+  }
+  .me-blk:active{transform:scale(.985);}
+  .mb-growth{border-color:#c4ecd0;}
+  .mb-growth .mb-head{background:linear-gradient(135deg,#eafbef,#d8f6e2);}
+  .mb-mood  {border-color:#bfe9f7;}
+  .mb-mood   .mb-head{background:linear-gradient(135deg,#e8f7fd,#d4f0fa);}
+  .mb-hollow{border-color:#ffd9bd;}
+  .mb-hollow .mb-head{background:linear-gradient(135deg,#fff1e6,#ffe3cc);}
+  .mb-buddy {border-color:#e0d4fb;}
+  .mb-buddy  .mb-head{background:linear-gradient(135deg,#f3eefe,#e9defc);}
+  .mb-head{display:flex;align-items:center;gap:6px;padding:9px 10px;}
+  .mb-ic{font-size:17px;flex-shrink:0;}
+  .mb-name{font-weight:800;font-size:13.5px;color:var(--ink);}
+  .mb-body{padding:10px 11px 12px;display:flex;flex-direction:column;gap:3px;}
+  .mb-big{font-size:24px;font-weight:800;color:var(--primary-dark);line-height:1.15;}
+  .mb-line{font-size:11px;color:var(--muted);font-weight:600;}
+  .mb-line.strong{font-size:13px;font-weight:800;color:var(--ink);}
+  .mb-avatar{width:38px;height:38px;margin-bottom:2px;}
+  .mb-avatar svg{display:block;width:100%;height:100%;border-radius:50%;}
+  .mb-cta{
+    margin-top:7px;border:none;border-radius:11px;padding:8px;cursor:pointer;
+    background:var(--primary);color:#fff;font-family:inherit;font-size:11.5px;font-weight:800;
+  }
+  .mb-cta:active{transform:scale(.95);}
+  /* 心情格子里的六张小脸：一点就打卡，不用再进一层 */
+  /* 六张脸必须在半宽格子里排得下，所以用等分栅格让它们自己缩 */
+  .mini-faces{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;}
+  .mini-face{
+    border:none;background:none;padding:0;cursor:pointer;border-radius:50%;
+    width:100%;min-width:0;transition:transform .15s;line-height:0;
+  }
+  .mini-face svg{display:block;width:100%;height:auto;}
+  .mini-face:not(.on){opacity:.45;filter:saturate(.5);}
+  .mini-face.on{transform:scale(1.12);}
+  .mini-dots{display:flex;gap:3px;margin-top:8px;}
+  .mini-dot{flex:1;height:5px;border-radius:3px;background:#ededed;}
+  /* 底部安静的一行设置 */
+  .me-row{
+    display:flex;align-items:center;gap:9px;width:100%;margin-top:10px;
+    border:none;background:#f7f7f8;border-radius:14px;padding:12px 13px;
+    cursor:pointer;font-family:inherit;text-align:left;
+  }
+  .me-row:active{background:#f0f0f2;}
+  .me-row .mr-ic{font-size:16px;}
+  .me-row .mr-txt{flex:1;font-size:13px;font-weight:800;color:var(--ink);}
+  .me-row .mr-sub{font-size:11px;color:var(--muted);font-weight:600;}
+  .me-row .mr-arrow{font-size:17px;color:#c9c9d0;line-height:1;}
+  /* 二级页的返回箭头 */
+  .nav-back{
+    border:none;background:none;color:var(--muted);font-size:26px;line-height:1;
+    cursor:pointer;padding:0 8px 3px 0;flex-shrink:0;font-family:inherit;
+  }
+  .nav-back:active{color:var(--ink);}
+
+  /* ===================== 「我的」分区（二级页仍在用） ===================== */
   .me-sec{
     border-top:1px solid #f0f0f0;padding-top:14px;margin-top:14px;
   }
@@ -1636,6 +1698,10 @@ const I18N = {
     supNote: "趁心情还好的时候写下来。真难受的那一刻，人是没力气现找的。",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
     secGrowth: "我的成长",
+    meDays: n => `打卡 ${n} 天`,
+    meStreakLine: n => `连续 ${n} 天`,
+    meCheckin: "打卡天数",
+    jKept: "条心里话",
     secGrowthLink: "看本周的进步",
     secMood: "我的心情",
     moodChartTitle: "情绪晴雨表 · 最近 7 天",
@@ -2009,6 +2075,10 @@ const I18N = {
     supNotSet: "Not set up yet",
     supNote: "Write it down while you're feeling okay. In the moment it's hard, nobody has the energy to go looking.",
     secGrowth: "My growth",
+    meDays: n => `${n} days in`,
+    meStreakLine: n => `${n}-day streak`,
+    meCheckin: "Days in",
+    jKept: "kept",
     secGrowthLink: "See this week's progress",
     secMood: "My mood",
     moodChartTitle: "Mood barometer · last 7 days",
@@ -2618,8 +2688,11 @@ function buildProgress(card){
 
 let currentNav = null;
 
-function navHeader(titleKey){
-  return `<div class="nav-top"><span class="nav-title">${t(titleKey)}</span><button class="nav-close" aria-label="close">✕</button></div>`;
+function navHeader(titleKey, backTo){
+  const back = backTo
+    ? `<button class="nav-back" data-back="${backTo}" aria-label="back">‹</button>` : "";
+  return `<div class="nav-top">${back}<span class="nav-title">${t(titleKey)}</span>` +
+         `<button class="nav-close" aria-label="close">✕</button></div>`;
 }
 
 function renderNavContent(){
@@ -2628,8 +2701,15 @@ function renderNavContent(){
   else if(currentNav === "rewards") buildRewards(card);
   else if(currentNav === "info") buildInfo(card);
   else if(currentNav === "me") buildMe(card);
+  else if(currentNav === "me-growth") buildMeGrowth(card);
+  else if(currentNav === "me-mood") buildMeMood(card);
+  else if(currentNav === "me-buddy") buildMeBuddy(card);
+  else if(currentNav === "me-set") buildMeSettings(card);
   const c = card.querySelector(".nav-close");
   if(c) c.addEventListener("click", closeNav);
+  const bk = card.querySelector("[data-back]");
+  if(bk) bk.addEventListener("click", ()=>{ currentNav = bk.dataset.back; renderNavContent(); });
+  card.scrollTop = 0;
 }
 
 function openNav(type){
@@ -2685,20 +2765,114 @@ function buildInfo(card){
   });
 }
 
-// 「我的」= 我的成长 / 我的心情 / 我的树洞 / 我的蜜友
-// 心情、树洞这些私密的东西都收在这里，首页只留四个板块
+// 「我的」用和首页一样的 2×2 卡片栅格：结构上呼应，颜色沿用首页那四种
+// 但重新分配，内容从"要做的事"换成"关于我自己"。
 function buildMe(card){
-  const totalPts = totalPoints();
+  const cur = todayMood();
+  const b = buddy();
+
+  // 心情：六张脸直接放在格子里，一点就打卡，不用再进一层
+  const faces = MOODS.map(m=>
+    `<button class="mini-face${cur && cur.id===m.id ? " on":""}" data-mood="${m.id}"
+             title="${L(m.name)}">${moodFace(m, 30)}</button>`).join("");
+
+  // 情绪晴雨表缩略：最近 7 天的色点
+  let dots = "";
+  for(let i=6;i>=0;i--){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const rec = state.moods[dateKey(d)];
+    const m = rec ? moodById(rec.m) : null;
+    dots += `<span class="mini-dot" style="${m?`background:${m.tone}`:""}"></span>`;
+  }
+
+  card.innerHTML = navHeader("navMe") + `
+    <div class="me-grid2">
+
+      <div class="me-blk mb-growth" data-go="me-growth">
+        <div class="mb-head"><span class="mb-ic">🌱</span><span class="mb-name">${t("secGrowth")}</span></div>
+        <div class="mb-body">
+          <div class="mb-big">Lv.${state.level}</div>
+          <div class="mb-line">${t("meDays", checkinDays())}</div>
+          <div class="mb-line">${t("meStreakLine", state.streak)}</div>
+        </div>
+      </div>
+
+      <div class="me-blk mb-mood">
+        <div class="mb-head" data-go="me-mood"><span class="mb-ic">🌤</span><span class="mb-name">${t("secMood")}</span></div>
+        <div class="mb-body">
+          <div class="mini-faces">${faces}</div>
+          <div class="mini-dots">${dots}</div>
+        </div>
+      </div>
+
+      <div class="me-blk mb-hollow" data-go="hollow">
+        <div class="mb-head"><span class="mb-ic">🌳</span><span class="mb-name">${t("secHollow")}</span></div>
+        <div class="mb-body">
+          <div class="mb-big">${state.journal.length}</div>
+          <div class="mb-line">${t("jKept")}</div>
+          <button class="mb-cta" data-journal>✍️ ${t("moodWrite")}</button>
+        </div>
+      </div>
+
+      <div class="me-blk mb-buddy" data-go="me-buddy">
+        <div class="mb-head"><span class="mb-ic">💛</span><span class="mb-name">${t("secBuddy")}</span></div>
+        <div class="mb-body">
+          <div class="mb-avatar">${buddySvg()}</div>
+          <div class="mb-line strong">${buddyName()}</div>
+          <div class="mb-line">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</div>
+        </div>
+      </div>
+
+    </div>
+    <button class="me-row" data-go="me-set">
+      <span class="mr-ic">⚙️</span><span class="mr-txt">${t("secSettings")}</span>
+      <span class="mr-sub">${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</span>
+      <span class="mr-arrow">›</span>
+    </button>`;
+
+  card.querySelectorAll("[data-mood]").forEach(x=>{
+    x.addEventListener("click", e=>{ e.stopPropagation(); setMood(x.dataset.mood); });
+  });
+  card.querySelector("[data-journal]").addEventListener("click", e=>{
+    e.stopPropagation(); closeNav(); setTimeout(openJournal, 240);
+  });
+  card.querySelectorAll("[data-go]").forEach(x=>{
+    x.addEventListener("click", ()=>{
+      const to = x.dataset.go;
+      if(to === "hollow"){ closeNav(); setTimeout(openJournalList, 240); return; }
+      currentNav = to; renderNavContent();
+    });
+  });
+}
+
+/* ---- 我的成长 ---- */
+function buildMeGrowth(card){
   const effH = (state.effSecTotal/3600).toFixed(1);
   const stats = [
     {k:t("meLevel"), v:`Lv.${state.level}`},
-    {k:t("meXp"), v:`${state.totalXp}`},
+    {k:t("meCheckin"), v:`${checkinDays()}`},
     {k:t("meStreak"), v:`${state.streak}`},
-    {k:t("mePoints"), v:`${totalPts}`},
-    {k:t("meEffHours"), v:`${effH} ${t("hoursUnit")}`},
-    {k:t("meRedeem"), v:`${state.redemptions.length}`},
+    {k:t("meXp"), v:`${state.totalXp}`},
+    {k:t("mePoints"), v:`${totalPoints()}`},
+    {k:t("meEffHours"), v:`${effH}`},
   ];
-  const grid = stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("");
+  card.innerHTML = navHeader("secGrowth", "me") +
+    `<div class="me-grid">${stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("")}</div>
+     <div class="me-proud">${t("meProud")}</div>
+     <button class="me-link" data-goto-progress>${t("secGrowthLink")} →</button>`;
+  card.querySelector("[data-goto-progress]").addEventListener("click", ()=>{
+    currentNav = "leaderboard"; renderNavContent();
+  });
+}
+
+/* ---- 我的心情 ---- */
+function buildMeMood(card){
+  card.innerHTML = navHeader("secMood", "me") + moodSectionHTML();
+  bindMoodSection(card);
+}
+
+/* ---- 我的蜜友 ---- */
+function buildMeBuddy(card){
   const b = buddy();
   const picker = Object.values(BUDDIES).map(x=>`
     <button class="bud-pick${x.id===b.id?" on":""}" data-buddy="${x.id}">
@@ -2706,75 +2880,46 @@ function buildMe(card){
       <span class="bp-name">${L(x.name)}</span>
       <span class="bp-kind">${L(x.kind)}</span>
     </button>`).join("");
-
-  card.innerHTML = navHeader("navMe") + `
-    <div class="me-sec">
-      <div class="ms-head">🌱 ${t("secGrowth")}</div>
-      <div class="me-grid">${grid}</div>
-      <div class="me-proud">${t("meProud")}</div>
-      <button class="me-link" data-goto-progress>${t("secGrowthLink")} →</button>
-    </div>
-
-    <div class="me-sec">
-      <div class="ms-head">🌤 ${t("secMood")}</div>
-      ${moodSectionHTML()}
-    </div>
-
-    <div class="me-sec">
-      <div class="ms-head">🌳 ${t("secHollow")}</div>
-      <div class="ms-sub">${t("secHollowSub")}</div>
-      <div class="me-tools">
-        <button class="me-tool primary" data-journal>✍️ ${t("moodWrite")}</button>
-        <button class="me-tool" data-journal-list>📖 ${t("jOpen")}${state.journal.length?` (${state.journal.length})`:""}</button>
+  card.innerHTML = navHeader("secBuddy", "me") + `
+    <div class="ms-sub">${t("buddyPick")}</div>
+    <div class="bud-picker">${picker}</div>
+    <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", buddyName())}</button>
+    <div class="me-set">
+      <div class="s-row">
+        <span class="s-ic">🤝</span>
+        <span class="s-title">${t("supTitle")}
+          <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
+        </span>
+        <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
       </div>
-    </div>
-
-    <div class="me-sec">
-      <div class="ms-head">💛 ${t("secBuddy")}</div>
-      <div class="ms-sub">${t("buddyPick")}</div>
-      <div class="bud-picker">${picker}</div>
-      <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", buddyName())}</button>
-      <div class="me-set">
-        <div class="s-row">
-          <span class="s-ic">🤝</span>
-          <span class="s-title">${t("supTitle")}
-            <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
-          </span>
-          <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
-        </div>
-        <div class="s-note">${t("supNote")}</div>
-      </div>
-    </div>
-
-    <div class="me-sec">
-      <div class="ms-head">⚙️ ${t("secSettings")}</div>
-      <div class="me-set">
-        <div class="s-row">
-          <span class="s-ic">🔔</span>
-          <span class="s-title">${t("remindTitle")}
-            <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
-          </span>
-          <input type="time" data-remind value="${state.reminder || ""}">
-          ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
-        </div>
-        <div class="s-note">${t("remindSub")}</div>
-      </div>
-      <div class="me-tools">
-        <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
-        <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
-      </div>
-      <div class="me-warn">${t("meBackupWarn")}</div>
+      <div class="s-note">${t("supNote")}</div>
     </div>`;
-
-  bindMoodSection(card);
   card.querySelectorAll("[data-buddy]").forEach(x=>{
-    x.addEventListener("click", ()=>{ state.buddy = x.dataset.buddy; save(state); refreshNav(); });
+    x.addEventListener("click", ()=>{ state.buddy = x.dataset.buddy; save(state); renderNavContent(); });
   });
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
-  card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
-  card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
   card.querySelector("[data-support]").addEventListener("click", ()=>{ closeNav(); setTimeout(openSupportSheet, 240); });
-  card.querySelector("[data-goto-progress]").addEventListener("click", ()=>{ currentNav = "leaderboard"; renderNavContent(); });
+}
+
+/* ---- 设置 ---- */
+function buildMeSettings(card){
+  card.innerHTML = navHeader("secSettings", "me") + `
+    <div class="me-set">
+      <div class="s-row">
+        <span class="s-ic">🔔</span>
+        <span class="s-title">${t("remindTitle")}
+          <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
+        </span>
+        <input type="time" data-remind value="${state.reminder || ""}">
+        ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+      </div>
+      <div class="s-note">${t("remindSub")}</div>
+    </div>
+    <div class="me-tools">
+      <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
+      <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
+    </div>
+    <div class="me-warn">${t("meBackupWarn")}</div>`;
   card.querySelector("[data-backup]").addEventListener("click", exportBackup);
   card.querySelector("[data-restore]").addEventListener("click", importBackup);
   card.querySelector("[data-remind]").addEventListener("change", e=>{
@@ -2782,12 +2927,10 @@ function buildMe(card){
     state.remindedDate = null;
     save(state);
     if(state.reminder) askNotifyPermission();
-    refreshNav();
+    renderNavContent();
   });
   const off = card.querySelector("[data-remind-off]");
-  if(off) off.addEventListener("click", ()=>{
-    state.reminder = null; save(state); refreshNav();
-  });
+  if(off) off.addEventListener("click", ()=>{ state.reminder = null; save(state); renderNavContent(); });
 }
 
 /* ----- 备份：数据只在本机 localStorage，导出一份是唯一的安全网 ----- */
