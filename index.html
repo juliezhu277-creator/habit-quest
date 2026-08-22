@@ -1112,7 +1112,56 @@
   }
   .j-del:active{color:#e84545;}
   .j-text{font-size:13px;color:var(--ink);line-height:1.75;white-space:pre-wrap;word-break:break-word;}
-  .j-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:26px 10px;line-height:1.8;}
+  .j-empty{font-size:12.5px;color:var(--muted);text-align:center;padding:26px 10px;line-height:1.8;white-space:pre-line;}
+
+  /* ===================== 求助名单 ===================== */
+  .care-empty{font-size:12.5px;line-height:1.75;margin-bottom:9px;}
+  .care-set{
+    width:100%;border:none;border-radius:12px;padding:10px;cursor:pointer;
+    background:#1c6ea4;color:#fff;font-family:inherit;font-size:12.5px;font-weight:800;
+  }
+  .care-set.ghost{background:none;color:#1c6ea4;text-decoration:underline;font-weight:700;padding:8px 0 0;}
+  .care-set:active{opacity:.85;}
+  .care-list{display:flex;flex-direction:column;gap:6px;margin-bottom:6px;}
+  .cl-row{
+    display:flex;align-items:center;gap:9px;text-decoration:none;
+    background:#fff;border-radius:12px;padding:9px 11px;border:1px solid #d7e8f6;
+  }
+  .cl-ic{font-size:19px;flex-shrink:0;}
+  .cl-txt{flex:1;min-width:0;}
+  .cl-txt b{display:block;font-size:13px;font-weight:800;color:var(--ink);}
+  .cl-txt small{display:block;font-size:10.5px;color:var(--muted);margin-top:1px;}
+  .cl-call{
+    flex-shrink:0;font-size:11.5px;font-weight:800;color:#fff;
+    background:#2aa76a;border-radius:10px;padding:6px 11px;
+  }
+  .care-generic{
+    font-size:11.5px;line-height:1.75;color:#41627a;
+    border-top:1px dashed #bcd9ee;margin-top:10px;padding-top:9px;
+  }
+  /* 编辑名单 */
+  .sup-wrap{padding:14px 16px 0;overflow-y:auto;display:flex;flex-direction:column;}
+  .sup-list{display:flex;flex-direction:column;gap:7px;margin:11px 0;}
+  .sup-row{
+    display:flex;align-items:center;gap:9px;
+    background:#fbf8f4;border-radius:13px;padding:10px 12px;
+  }
+  .sup-add{
+    border-top:1px solid #f0f0f0;padding-top:12px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .rel-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .rel-chip{
+    border:2px solid #eee;background:#fff;border-radius:12px;padding:7px 11px;
+    font-family:inherit;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;
+    transition:all .15s;
+  }
+  .rel-chip.on{border-color:var(--primary);background:#fff3e8;color:var(--primary-dark);}
+  .sup-in{
+    width:100%;box-sizing:border-box;border:2px solid #eee;border-radius:12px;
+    padding:11px 13px;font-family:inherit;font-size:13.5px;color:var(--ink);
+  }
+  .sup-in:focus{outline:none;border-color:var(--primary);}
 </style>
 </head>
 <body>
@@ -1443,7 +1492,24 @@ const I18N = {
     careSay: "谢谢你告诉我这个。我很认真地听着，但我只是个小程序里的角色，帮不到真正需要的地方。",
     careSay2: "去说一次，不丢人，也不麻烦别人。你值得被认真对待。",
     careTitle: "找一个真的人聊聊 💛",
-    careBody: "• 先想想身边有谁是你信得过的：爸妈、某位老师、学校的心理老师、或者一个大你几岁的朋友<br>• 学校一般都有心理老师，找他们聊是保密的，也不用担心被当成「有问题」<br>• 全国 24 小时心理援助热线：<b>12356</b>（免费，随时可打）<br>• 如果你有伤害自己的念头，请立刻告诉身边的大人，或者马上拨打 12356",
+    careNoList: "你还没写过求助名单。现在花一分钟，写下一两个你信得过的人 —— 真难受的时候就不用现找了。",
+    careSetup: "现在就写一个",
+    careEditList: "修改名单",
+    careCall: "拨打",
+    careGeneric: "如果名单上的人一时联系不上：告诉此刻就在你身边的任何一个大人；学校一般都有心理老师，找他们聊是保密的，也不用担心被当成「有问题」；也可以搜索你所在国家/地区的心理援助热线。如果你有伤害自己的念头，请立刻找到身边的人，不要一个人待着。",
+    // 求助名单
+    supTitle: "我的求助名单",
+    supSub: "只存在这台设备，谁也看不到",
+    supWhy: "写下你难受时愿意找的人。可以是家人、老师、朋友，也可以是你查到的本地心理援助热线。填了电话就能一键拨出去。",
+    supName: "名字或称呼（比如：妈妈、王老师）",
+    supTel: "电话（可以不填）",
+    supAdd: "加到名单里",
+    supEmpty: "名单还是空的。\n趁现在心情还好，写一两个人进来吧。",
+    supHint: "建议至少写两个：一个是家里的，一个是家以外的。留一个电话号码，需要的时候点一下就能打。",
+    supOpen: "设置",
+    supCount: n => `已写下 ${n} 位`,
+    supNotSet: "还没设置",
+    supNote: "趁心情还好的时候写下来。真难受的那一刻，人是没力气现找的。",
     // 目标
     goalsLeft: n => `今天还有 ${n} 件事没做完：`,
     goalsNudge: "不用全做完。挑一件最小的，先做 5 分钟就很好了。",
@@ -1775,7 +1841,23 @@ const I18N = {
     careSay: "Thank you for telling me. I'm listening carefully — but I'm only a character in an app, and I can't reach where this actually needs reaching.",
     careSay2: "Saying it out loud once isn't shameful, and it isn't a burden on anyone. You deserve to be taken seriously.",
     careTitle: "Please talk to a real person 💛",
-    careBody: "• Think of someone you trust: a parent, a teacher you like, the school counsellor, or a friend a few years older<br>• School counsellors keep things confidential — talking to them doesn't mean something is 'wrong' with you<br>• If you're outside China, search for your local crisis line — most countries have a free 24-hour number<br>• If you're having thoughts of hurting yourself, tell an adult near you right now, or call your local emergency number",
+    careNoList: "You haven't set up your support list yet. Take a minute now to write down one or two people you trust — so you don't have to go looking when things get hard.",
+    careSetup: "Set one up now",
+    careEditList: "Edit list",
+    careCall: "Call",
+    careGeneric: "If you can't reach anyone on your list: tell any adult who is near you right now; most schools have a counsellor and those conversations are confidential — it doesn't mean something is 'wrong' with you; you can also look up the crisis helpline for your own country or region. If you're having thoughts of hurting yourself, find someone now — don't stay on your own.",
+    supTitle: "My support list",
+    supSub: "Stored on this device only — nobody can see it",
+    supWhy: "Write down who you'd reach out to on a bad day. Family, a teacher, a friend — or a local helpline number you've looked up. Add a phone number and you can call with one tap.",
+    supName: "Name (e.g. Mum, Ms. Lee)",
+    supTel: "Phone (optional)",
+    supAdd: "Add to list",
+    supEmpty: "Your list is empty.\nWhile you're feeling okay, add one or two people.",
+    supHint: "Try to add at least two: one at home, one outside it. Include a phone number so it's one tap when you need it.",
+    supOpen: "Set up",
+    supCount: n => `${n} saved`,
+    supNotSet: "Not set up yet",
+    supNote: "Write it down while you're feeling okay. In the moment it's hard, nobody has the energy to go looking.",
     goalsLeft: n => `${n} thing${n===1?"":"s"} left today:`,
     goalsNudge: "You don't have to finish them all. Pick the smallest one and do 5 minutes.",
     goalsAllDone: "All of today's goals are done — amazing. The rest of the day is yours.",
@@ -1943,6 +2025,11 @@ function dateKey(d){
 function todayStr(){
   return dateKey(new Date());
 }
+
+// 唯一 id：只用 Date.now() 的话，同一毫秒内连加两条会撞号，删除时会一起删掉
+function uid(prefix){
+  return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+}
 function yesterdayStr(){
   const d = new Date();
   d.setDate(d.getDate() - 1);
@@ -1986,6 +2073,7 @@ function defaultState(){
     history: {},          // { "YYYY-MM-DD": {p:番茄钟数, s:专注秒数} }，用于周对比
     moods: {},            // { "YYYY-MM-DD": {m:心情id, at:时间戳} }
     journal: [],          // 树洞：[{id, d:日期, m:心情id, t:正文, at:时间戳}]
+    support: [],          // 求助名单：[{id, name, rel, tel}]，由用户自己填，全球通用
     careShown: null,      // 上次给出"找人聊聊"提示的日期，避免反复打扰
     reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
     remindedDate: null,   // 今天是否已提醒过
@@ -2018,6 +2106,7 @@ function load(){
   if(!state.history || typeof state.history !== "object") state.history = {};
   if(!state.moods || typeof state.moods !== "object") state.moods = {};
   if(!Array.isArray(state.journal)) state.journal = [];
+  if(!Array.isArray(state.support)) state.support = [];
   if(typeof state.careShown === "undefined") state.careShown = null;
   if(typeof state.reminder === "undefined") state.reminder = null;
   if(typeof state.remindedDate === "undefined") state.remindedDate = null;
@@ -2429,6 +2518,16 @@ function buildMe(card){
      </div>
      <div class="me-set">
        <div class="s-row">
+         <span class="s-ic">💛</span>
+         <span class="s-title">${t("supTitle")}
+           <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
+         </span>
+         <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
+       </div>
+       <div class="s-note">${t("supNote")}</div>
+     </div>
+     <div class="me-set">
+       <div class="s-row">
          <span class="s-ic">🔔</span>
          <span class="s-title">${t("remindTitle")}
            <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
@@ -2444,6 +2543,10 @@ function buildMe(card){
   card.querySelector("[data-journal-list]").addEventListener("click", ()=>{
     closeNav();
     setTimeout(openJournalList, 240);
+  });
+  card.querySelector("[data-support]").addEventListener("click", ()=>{
+    closeNav();
+    setTimeout(openSupportSheet, 240);
   });
   card.querySelector("[data-remind]").addEventListener("change", e=>{
     state.reminder = e.target.value || null;
@@ -2639,7 +2742,7 @@ function popTomato(catId){
 /* ----- 目标增删改查 ----- */
 function addGoal(catId){
   if(!state.goals[catId]) state.goals[catId] = [];
-  state.goals[catId].push({id:"g"+Date.now().toString(36), text:"", done:false, sec:0});
+  state.goals[catId].push({id:uid("g"), text:"", done:false, sec:0, pomos:0});
   save(state); renderTasks();
   // 自动聚焦到新增的目标输入框
   const inputs = document.querySelectorAll(`.cat-block[data-cat="${catId}"] .goal-input`);
@@ -3180,7 +3283,7 @@ function buildRewards(el){
     const name = nameEl.value.trim();
     const cost = parseInt(costEl.value, 10);
     if(!name || !(cost > 0)) return;
-    state.wishList.push({id:"w"+Date.now().toString(36), emoji:"🎁", name, cost});
+    state.wishList.push({id:uid("w"), emoji:"🎁", name, cost});
     save(state); refreshNav();
   });
 }
@@ -3963,7 +4066,7 @@ function finishJournal(text, keep){
 
   if(keep){
     state.journal.unshift({
-      id: "j"+Date.now().toString(36),
+      id: uid("j"),
       d: todayStr(), m: m ? m.id : null, t: body, at: Date.now()
     });
     while(state.journal.length > JOURNAL_MAX) state.journal.pop();
@@ -4163,6 +4266,7 @@ async function playLines(lines, opts){
   }
   chatBusy = false;
   chatOptions(opts);
+  bindCareCard();
 }
 
 async function goChat(nodeId){
@@ -4173,8 +4277,118 @@ async function goChat(nodeId){
   await playLines(node.lines, node.opts);
 }
 
+/* ---------- 求助名单：由用户自己填，所以放之四海皆准 ---------- */
+// 与其硬编码某个国家的热线号码（会过时、会错、也只对一国有效），
+// 不如让用户在状态好的时候先写下自己信得过的人 —— 真难受的时候更打得出去。
+const SUPPORT_RELS = [
+  {id:"family",  icon:"🏠", name:{zh:"家人",   en:"Family"}},
+  {id:"teacher", icon:"🎓", name:{zh:"老师",   en:"Teacher"}},
+  {id:"friend",  icon:"🤝", name:{zh:"朋友",   en:"Friend"}},
+  {id:"line",    icon:"☎️", name:{zh:"热线",   en:"Helpline"}},
+  {id:"other",   icon:"💬", name:{zh:"其他",   en:"Other"}},
+];
+const relById = id => SUPPORT_RELS.find(r=>r.id===id) || SUPPORT_RELS[4];
+
+// tel: 链接只保留数字、+ 和几个拨号字符
+function telHref(tel){
+  const clean = (tel||"").replace(/[^\d+#*,;]/g, "");
+  return clean ? `tel:${clean}` : null;
+}
+
 function careCard(){
-  return `<b>${t("careTitle")}</b>${t("careBody")}`;
+  const list = state.support || [];
+  let rows;
+  if(list.length === 0){
+    rows = `<div class="care-empty">${t("careNoList")}</div>
+            <button class="care-set" data-care-setup>${t("careSetup")}</button>`;
+  } else {
+    rows = `<div class="care-list">` + list.map(p=>{
+      const rel = relById(p.rel);
+      const href = telHref(p.tel);
+      const inner = `<span class="cl-ic">${rel.icon}</span>
+        <span class="cl-txt"><b>${escapeHtml(p.name)}</b><small>${L(rel.name)}${p.tel?" · "+escapeHtml(p.tel):""}</small></span>
+        ${href?`<span class="cl-call">${t("careCall")}</span>`:""}`;
+      return href
+        ? `<a class="cl-row" href="${href}">${inner}</a>`
+        : `<div class="cl-row">${inner}</div>`;
+    }).join("") + `</div>
+    <button class="care-set ghost" data-care-setup>${t("careEditList")}</button>`;
+  }
+  return `<b>${t("careTitle")}</b>${rows}<div class="care-generic">${t("careGeneric")}</div>`;
+}
+
+// care 卡片是插在聊天气泡里的，绑定要在它渲染之后做
+function bindCareCard(){
+  document.querySelectorAll("[data-care-setup]").forEach(b=>{
+    if(b.dataset.bound) return;
+    b.dataset.bound = "1";
+    b.addEventListener("click", ()=>{ closeChat(); setTimeout(openSupportSheet, 240); });
+  });
+}
+
+/* ---------- 编辑求助名单 ---------- */
+function openSupportSheet(){
+  const modal = document.getElementById("chatModal");
+  const card  = document.getElementById("chatCard");
+  let rel = "family";
+
+  const paint = ()=>{
+    const list = state.support || [];
+    const rows = list.length === 0
+      ? `<div class="j-empty">${t("supEmpty")}</div>`
+      : list.map(p=>{
+          const r = relById(p.rel);
+          return `<div class="sup-row">
+            <span class="cl-ic">${r.icon}</span>
+            <span class="cl-txt"><b>${escapeHtml(p.name)}</b><small>${L(r.name)}${p.tel?" · "+escapeHtml(p.tel):""}</small></span>
+            <button class="j-del" data-sup-del="${p.id}" aria-label="delete">✕</button>
+          </div>`;
+        }).join("");
+    const chips = SUPPORT_RELS.map(r=>
+      `<button class="rel-chip${rel===r.id?" on":""}" data-rel="${r.id}">${r.icon} ${L(r.name)}</button>`).join("");
+
+    card.innerHTML = `
+      <div class="chat-top">
+        <div class="buddy-avatar">${buddySvg()}</div>
+        <span class="ct-name">${t("supTitle")}<small>${t("supSub")}</small></span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="sup-wrap">
+        <div class="j-prompt">${t("supWhy")}</div>
+        <div class="sup-list">${rows}</div>
+        <div class="sup-add">
+          <div class="rel-chips">${chips}</div>
+          <input class="sup-in" data-sup-name maxlength="20" placeholder="${t("supName")}">
+          <input class="sup-in" data-sup-tel  maxlength="30" inputmode="tel" placeholder="${t("supTel")}">
+          <button class="start-go" data-sup-add>${t("supAdd")}</button>
+        </div>
+        <div class="j-hint">${t("supHint")}</div>
+      </div>`;
+    card.querySelector(".nav-close").addEventListener("click", closeChat);
+    card.querySelectorAll("[data-rel]").forEach(b=>{
+      b.addEventListener("click", ()=>{ rel = b.dataset.rel; paint(); });
+    });
+    card.querySelectorAll("[data-sup-del]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.support = state.support.filter(x=>x.id !== b.dataset.supDel);
+        save(state); paint();
+      });
+    });
+    card.querySelector("[data-sup-add]").addEventListener("click", ()=>{
+      const nameEl = card.querySelector("[data-sup-name]");
+      const telEl  = card.querySelector("[data-sup-tel]");
+      const name = nameEl.value.trim();
+      if(!name) { nameEl.focus(); return; }
+      state.support.push({id:uid("s"), name, rel, tel: telEl.value.trim()});
+      save(state); paint();
+    });
+  };
+
+  paint();
+  if(!modal.classList.contains("open")){
+    modal.classList.add("open");
+    requestAnimationFrame(()=>card.classList.add("show"));
+  }
 }
 
 function chatNode(id){
