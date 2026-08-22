@@ -730,8 +730,16 @@
     border-radius:16px;padding:11px 13px;margin-bottom:10px;
   }
   .kick.install{
-    background:linear-gradient(135deg,#eef8ff,#dcefff);
-    border-color:rgba(76,201,240,0.35);
+    background:linear-gradient(135deg,#f6f1ff,#ffe9f2);
+    border-color:rgba(167,139,250,0.32);
+  }
+  /* 装 App 的图标偶尔抖一下，余光里能注意到 */
+  .kick.install .k-ic{display:inline-block;animation:kickWiggle 3.4s ease-in-out infinite;}
+  @keyframes kickWiggle{
+    0%,86%,100%{transform:rotate(0) scale(1);}
+    89%{transform:rotate(-13deg) scale(1.12);}
+    93%{transform:rotate(11deg) scale(1.12);}
+    96%{transform:rotate(-5deg) scale(1.05);}
   }
   .kick .k-ic{font-size:22px;flex-shrink:0;}
   .kick .k-txt{flex:1;font-size:12.5px;font-weight:800;color:var(--ink);line-height:1.5;min-width:0;}
@@ -741,11 +749,55 @@
     font-family:inherit;font-size:12px;font-weight:800;padding:9px 13px;
     cursor:pointer;flex-shrink:0;box-shadow:0 3px 9px rgba(255,140,66,0.35);
   }
-  .kick.install .k-go{background:#2196c4;box-shadow:0 3px 9px rgba(33,150,196,0.3);}
+  /* 装 App 的按钮：用 logo 的橙粉渐变做胶囊，配一道缓慢扫过的高光。
+     在淡紫色卡片上足够跳，但不会盖过上面「先做 5 分钟」那条主行动。 */
+  .kick.install .k-go{
+    position:relative;overflow:hidden;isolation:isolate;
+    border-radius:999px;padding:10px 17px;
+    font-size:12.5px;font-weight:800;letter-spacing:.02em;
+    background:linear-gradient(135deg,#FF9A4D 0%,#FF7A3D 46%,#FF5E73 100%);
+    box-shadow:0 5px 15px rgba(255,110,90,.42), inset 0 1px 0 rgba(255,255,255,.4);
+    animation:kickFloat 2.8s ease-in-out infinite;
+  }
+  .kick.install .k-go::after{
+    content:"";position:absolute;top:-2px;bottom:-2px;left:-60%;width:42%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);
+    transform:skewX(-18deg);
+    animation:kickShine 3.6s ease-in-out infinite;
+  }
+  @keyframes kickFloat{
+    0%,100%{transform:translateY(0) scale(1);}
+    50%    {transform:translateY(-2px) scale(1.035);}
+  }
+  @keyframes kickShine{
+    0%,64%  {left:-60%;}
+    88%,100%{left:130%;}
+  }
+  .kick.install .k-go:active{
+    transform:scale(.94);
+    box-shadow:0 2px 8px rgba(255,110,90,.38), inset 0 1px 0 rgba(255,255,255,.4);
+  }
+  .kick .k-more{color:#8b5cf6;}
+  @media (prefers-reduced-motion:reduce){
+    .kick.install .k-ic,.kick.install .k-go,.kick.install .k-go::after{animation:none;}
+  }
   .kick .k-x{
     border:none;background:none;color:var(--muted);font-size:14px;
     cursor:pointer;padding:2px 4px;flex-shrink:0;
   }
+  .kick .k-more{
+    display:block;margin-top:5px;padding:0;border:none;background:none;
+    font-family:inherit;font-size:11px;font-weight:700;color:#2196c4;
+    text-decoration:underline;cursor:pointer;text-align:left;
+  }
+  .how-more{margin-top:12px;}
+  .how-more > summary{
+    cursor:pointer;font-size:12px;font-weight:700;color:var(--muted);
+    padding:6px 2px;list-style:none;
+  }
+  .how-more > summary::-webkit-details-marker{display:none;}
+  .how-more > summary::before{content:"▸ ";}
+  .how-more[open] > summary::before{content:"▾ ";}
 
   /* ===================== 今日小结（四象限） ===================== */
   .today-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
@@ -834,6 +886,53 @@
     word-break:break-all;line-height:1.55;
     -webkit-user-select:all;user-select:all;   /* 长按可一次性全选 */
   }
+  .how-tip{
+    font-size:11.5px;font-weight:700;color:var(--accent-dark);line-height:1.65;
+    background:#eafff0;border-radius:12px;padding:10px 12px;margin-top:12px;
+  }
+  .how-secondary{
+    display:block;width:100%;margin-top:8px;padding:11px;
+    border-radius:14px;border:2px solid #eee;background:#fff;
+    font-family:inherit;font-size:13px;font-weight:700;color:var(--ink);cursor:pointer;
+  }
+  .how-secondary:active{background:#f6f6f6;}
+
+  /* 指路遮罩：把分享按钮的位置直接标出来 */
+  #pointer{position:fixed;inset:0;z-index:1500;display:none;background:rgba(35,25,18,0.74);}
+  #pointer.open{display:block;}
+  #pointer .pt-bubble{
+    position:absolute;left:50%;bottom:170px;transform:translateX(-50%);
+    width:min(300px,86vw);background:#fff;border-radius:18px;padding:16px 18px;
+    text-align:center;box-shadow:0 14px 40px rgba(0,0,0,0.3);
+  }
+  #pointer .pt-bubble p{margin:0 0 12px;font-size:13px;font-weight:700;color:var(--ink);line-height:1.7;}
+  #pointer .pt-got{
+    border:none;border-radius:12px;background:var(--primary);color:#fff;
+    font-family:inherit;font-size:13px;font-weight:800;padding:9px 22px;cursor:pointer;
+  }
+  #pointer .pt-arrow{
+    position:absolute;left:50%;bottom:96px;transform:translateX(-50%);
+    font-size:40px;color:#fff;line-height:1;
+    animation:ptBounce 1.15s ease-in-out infinite;
+  }
+  @keyframes ptBounce{
+    0%,100%{transform:translate(-50%,0);opacity:.85;}
+    50%    {transform:translate(-50%,13px);opacity:1;}
+  }
+  #pointer .pt-target{
+    position:absolute;left:50%;bottom:18px;transform:translateX(-50%);
+    width:56px;height:56px;border-radius:50%;
+    border:3px solid #fff;display:flex;align-items:center;justify-content:center;
+    animation:ptPulse 1.7s ease-out infinite;
+  }
+  @keyframes ptPulse{
+    0%  {box-shadow:0 0 0 0 rgba(255,255,255,.55);}
+    70% {box-shadow:0 0 0 18px rgba(255,255,255,0);}
+    100%{box-shadow:0 0 0 0 rgba(255,255,255,0);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #pointer .pt-arrow,#pointer .pt-target{animation:none;}
+  }
 </style>
 </head>
 <body>
@@ -876,6 +975,8 @@
 <div id="startModal">
   <div class="start-card" id="startCard"></div>
 </div>
+
+<div id="pointer"></div>
 
 <div id="focusScreen">
   <div class="fs-cat" id="fsCat"></div>
@@ -1038,9 +1139,9 @@ const I18N = {
     kickGo: "先做 5 分钟",
     // 安装引导
     installTitle: "装到手机主屏",
-    installSub: "像 App 一样全屏打开，没网也能用，专注结束还能收到提醒。",
-    installGo: "安装",
-    installHow: "怎么装",
+    installSub: "像 App 一样全屏打开，没网也能用，还能收到提醒。",
+    installGo: "立即装上",
+    installHow: "装上它",
     installedMsg: "已装到主屏 🎉",
     installedSub: "以后从桌面图标打开就好",
     // 内置浏览器（微信/QQ/小红书等）：根本没有"添加到主屏幕"，必须先跳出去
@@ -1084,6 +1185,18 @@ const I18N = {
     copyFail: "这个浏览器不让自动复制",
     copyFailSub: "长按下面那行网址，手动选中复制",
     linkLabel: "本页网址",
+    // iOS 一键唤起系统分享菜单（苹果不允许网页直接添加到主屏幕，这是能做到的最短路径）
+    shareGo: "打开分享菜单",
+    shareNote: "点一下直接弹出系统菜单，在里面往下滑，选「添加到主屏幕」即可，不用自己去底部找。",
+    installAddGo: "一键添加",
+    installShareSub: "点右边按钮，在弹出的菜单里选「添加到主屏幕」。",
+    installManual: "菜单没弹出来？看手动步骤",
+    installNotFound: "菜单里没看到「添加到主屏幕」？",
+    shareFail: "这个浏览器没能弹出菜单",
+    shareFailSub: "用下面的「指给我看」找分享按钮",
+    pointMe: "指给我看分享按钮在哪",
+    pointBubble: "分享按钮就在这下面 —— 一个方框加向上箭头。看不到工具栏的话，往下滑一点或点一下屏幕最底部。",
+    pointGot: "知道了",
     // 每日提醒
     remindTitle: "每日提醒",
     remindOff: "未开启",
@@ -1275,8 +1388,8 @@ const I18N = {
     kickGo: "Do 5 minutes",
     installTitle: "Add to your home screen",
     installSub: "Opens full screen like an app, works offline, and can notify you when a block ends.",
-    installGo: "Install",
-    installHow: "How",
+    installGo: "Install now",
+    installHow: "Add it",
     installedMsg: "Added to home screen 🎉",
     installedSub: "Open it from the icon next time",
     installInAppSub: app => `${app}'s built-in browser can't add to the home screen — open this in a real browser first.`,
@@ -1318,6 +1431,17 @@ const I18N = {
     copyFail: "This browser blocks auto-copy",
     copyFailSub: "Long-press the address below and copy it by hand",
     linkLabel: "This page's address",
+    shareGo: "Open the share menu",
+    shareNote: "One tap opens the system menu — scroll down in it and pick 'Add to Home Screen'. No hunting for the button.",
+    installAddGo: "Add it",
+    installShareSub: "Tap the button, then pick 'Add to Home Screen' in the menu.",
+    installManual: "Menu didn't open? See the manual steps",
+    installNotFound: "No 'Add to Home Screen' in the menu?",
+    shareFail: "This browser couldn't open the menu",
+    shareFailSub: "Use 'Show me where' below to find the share button",
+    pointMe: "Show me where the share button is",
+    pointBubble: "The share button is right down here — a square with an up arrow. If the toolbar is hidden, scroll down a little or tap the very bottom of the screen.",
+    pointGot: "Got it",
     remindTitle: "Daily reminder",
     remindOff: "Off",
     remindSub: "If you haven't started by then, you get one nudge. Needs the app open in the background; otherwise you'll see the prompt next time you open it.",
@@ -3297,6 +3421,54 @@ function canOneTapInstall(){
   return !!deferredInstall;
 }
 
+// iOS 上苹果不开放"添加到主屏幕"的接口，任何网页都无法自己触发。
+// 能做到的最短路径是用 Web Share API 一键唤起系统分享菜单，
+// 让用户直接在菜单里点「添加到主屏幕」，省掉去底部找按钮那一步。
+function canShareSheet(){
+  return isIOS() && !inAppBrowser() && typeof navigator.share === "function";
+}
+
+// 唤起过一次之后，提示条里补一条兜底入口：有些 iOS 版本的分享菜单里
+// 不一定有「添加到主屏幕」，别让用户走到这一步没退路
+let sharedOnce = false;
+
+async function openShareSheet(){
+  try{
+    await navigator.share({ title: t("appName"), url: pageLink() });
+    sharedOnce = true;
+    renderTasks();
+  }catch(e){
+    // AbortError = 用户自己取消了，不算失败，但同样给出兜底入口
+    if(e && e.name === "AbortError"){ sharedOnce = true; renderTasks(); return; }
+    showToast({emoji:"👇", msg:t("shareFail"), sub:t("shareFailSub")});
+    showPointer();
+  }
+}
+
+/* ---------- 指路：把分享按钮的位置直接标出来 ---------- */
+function showPointer(){
+  closeStartSheet();
+  const el = document.getElementById("pointer");
+  el.innerHTML = `
+    <div class="pt-bubble">
+      <p>${t("pointBubble")}</p>
+      <button class="pt-got">${t("pointGot")}</button>
+    </div>
+    <div class="pt-arrow">⬇</div>
+    <div class="pt-target">
+      <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
+        <path d="M12 3l4 4h-3v9h-2V7H8l4-4z" fill="#fff"/>
+        <path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7h-2v7H7v-7H5z" fill="#fff"/>
+      </svg>
+    </div>`;
+  el.classList.add("open");
+  el.querySelector(".pt-got").addEventListener("click", hidePointer);
+  el.addEventListener("click", e=>{ if(e.target === el) hidePointer(); });
+}
+function hidePointer(){
+  document.getElementById("pointer").classList.remove("open");
+}
+
 window.addEventListener("beforeinstallprompt", e=>{
   e.preventDefault();
   deferredInstall = e;
@@ -3343,12 +3515,19 @@ function buildBanners(){
   }
   if(canInstall() && !state.installDismissed){
     const app = inAppBrowser();
+    // 按钮直接给出这台设备上最短的那条路：
+    // 安卓/电脑 = 真一键安装；iPhone = 一键唤起系统分享菜单；其余 = 打开图文步骤
+    let act, label, sub;
+    if(canOneTapInstall()){      act = "install"; label = t("installGo");     sub = t("installSub"); }
+    else if(canShareSheet()){    act = "share";   label = t("installAddGo");  sub = t("installShareSub"); }
+    else {                       act = "how";     label = t("installHow");
+                                 sub = app ? t("installInAppSub", app) : t("installSub"); }
+    const fallback = (act === "share" && sharedOnce)
+      ? `<button class="k-more" data-install-how>${t("installNotFound")}</button>` : "";
     html += `<div class="kick install">
       <span class="k-ic">📲</span>
-      <span class="k-txt">${t("installTitle")}<small>${
-        app ? t("installInAppSub", app) : t("installSub")
-      }</small></span>
-      <button class="k-go" data-install>${canOneTapInstall() ? t("installGo") : t("installHow")}</button>
+      <span class="k-txt">${t("installTitle")}<small>${sub}</small>${fallback}</span>
+      <button class="k-go" data-install="${act}">${label}</button>
       <button class="k-x" data-install-x aria-label="close">✕</button>
     </div>`;
   }
@@ -3385,20 +3564,34 @@ function openInstallSheet(){
       <ol class="how-steps">${b.steps.map(s=>`<li>${escapeHtml(s)}</li>`).join("")}</ol>
     </div>`).join("");
 
+  // 有捷径就把捷径放最上面，手动步骤退成"找不到时再看"
+  const shortcut = canShareSheet() ? `
+    <div class="how-tip">${t("shareNote")}</div>
+    <button class="start-go" data-share>${t("shareGo")}</button>` : "";
+  const manual = canShareSheet()
+    ? `<details class="how-more"><summary>${t("installManual")}</summary>${html}</details>`
+    : html;
+
   card.innerHTML = `
     <div class="nav-top">
       <span class="nav-title">${t("installTitle")}</span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="start-sub">${t("installSub")}</div>
-    ${html}
+    ${shortcut}
+    ${manual}
+    ${isIOS() && !app ? `<button class="how-secondary" data-point>${t("pointMe")}</button>` : ""}
     <div class="how-link">
       <span class="hl-label">${t("linkLabel")}</span>
       <span class="hl-url" data-url>${escapeHtml(pageLink())}</span>
     </div>
-    <button class="start-go" data-copy>${t("copyLink")}</button>`;
+    <button class="${canShareSheet() ? "how-secondary" : "start-go"}" data-copy>${t("copyLink")}</button>`;
   card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
   card.querySelector("[data-copy]").addEventListener("click", copyPageLink);
+  const shareBtn = card.querySelector("[data-share]");
+  if(shareBtn) shareBtn.addEventListener("click", openShareSheet);
+  const pointBtn = card.querySelector("[data-point]");
+  if(pointBtn) pointBtn.addEventListener("click", showPointer);
 
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -3450,8 +3643,13 @@ function bindBanners(el){
   });
   const inst = el.querySelector("[data-install]");
   if(inst) inst.addEventListener("click", ()=>{
-    if(canOneTapInstall()) doInstall(); else openInstallSheet();
+    const act = inst.dataset.install;
+    if(act === "install")    doInstall();
+    else if(act === "share") openShareSheet();   // 直接弹系统菜单，不再进弹层
+    else                     openInstallSheet();
   });
+  const instHow = el.querySelector("[data-install-how]");
+  if(instHow) instHow.addEventListener("click", openInstallSheet);
   const instX = el.querySelector("[data-install-x]");
   if(instX) instX.addEventListener("click", ()=>{
     state.installDismissed = true; save(state); renderTasks();
