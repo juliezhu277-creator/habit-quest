@@ -281,7 +281,7 @@
   #toast{
     position:fixed;top:0;left:0;right:0;bottom:0;
     display:flex;align-items:center;justify-content:center;
-    pointer-events:none;z-index:999;
+    pointer-events:none;z-index:1300;
   }
   .toast-card{
     background:#fff;
@@ -298,7 +298,7 @@
   .toast-msg{font-size:17px;font-weight:700;margin-top:8px;color:var(--primary-dark);}
   .toast-sub{font-size:13px;color:var(--muted);margin-top:4px;}
   .confetti{
-    position:absolute;width:8px;height:8px;border-radius:2px;
+    position:absolute;width:8px;height:8px;border-radius:2px;z-index:1400;
     animation:fall 1.1s ease-out forwards;
   }
   @keyframes fall{
@@ -603,6 +603,113 @@
   .redeem-row .r-name{flex:1;color:var(--ink);font-weight:600;}
   .redeem-row .r-meta{color:var(--muted);font-size:11px;text-align:right;}
   .redeem-row .r-cost{color:var(--primary-dark);font-weight:700;}
+
+  /* ===================== 专注计时（番茄钟全屏） ===================== */
+  #focusScreen{
+    position:fixed;inset:0;z-index:1200;display:none;
+    flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;
+    background:linear-gradient(165deg,#fff7ee,#ffe8d6);
+  }
+  #focusScreen.open{display:flex;}
+  #focusScreen.brk{background:linear-gradient(165deg,#f0fbf3,#d8f2e3);}
+  .fs-cat{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em;}
+  .fs-goal{
+    font-size:19px;font-weight:800;color:var(--ink);
+    margin:5px 0 20px;max-width:320px;line-height:1.5;
+  }
+  .fs-ring{position:relative;width:238px;height:238px;flex-shrink:0;}
+  .fs-ring svg{transform:rotate(-90deg);display:block;width:100%;height:100%;}
+  .fs-ring circle{fill:none;stroke-linecap:round;}
+  .fs-track{stroke:rgba(58,58,74,0.08);}
+  .fs-prog{stroke:var(--primary);transition:stroke-dashoffset .9s linear;}
+  #focusScreen.brk .fs-prog{stroke:var(--accent-dark);}
+  .fs-center{
+    position:absolute;inset:0;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:3px;
+  }
+  .fs-time{
+    font-size:46px;font-weight:800;color:var(--ink);line-height:1;
+    font-variant-numeric:tabular-nums;letter-spacing:-1.5px;
+  }
+  .fs-phase{font-size:13px;font-weight:700;color:var(--primary-dark);max-width:150px;line-height:1.4;}
+  #focusScreen.brk .fs-phase{color:var(--accent-dark);}
+  .fs-of{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
+  .fs-hint{font-size:12px;color:var(--muted);margin-top:20px;max-width:290px;line-height:1.75;}
+  .fs-btns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center;}
+  .fs-btn{
+    border:none;border-radius:14px;padding:11px 22px;font-size:14px;
+    font-weight:700;font-family:inherit;cursor:pointer;transition:transform .12s;
+  }
+  .fs-btn:active{transform:scale(0.96);}
+  .fs-btn.primary{background:var(--primary);color:#fff;box-shadow:0 5px 14px rgba(255,140,66,.4);}
+  .fs-btn.go{background:var(--accent-dark);color:#fff;box-shadow:0 5px 14px rgba(76,175,110,.35);}
+  .fs-btn.ghost{background:rgba(58,58,74,0.07);color:var(--muted);}
+
+  /* 开始专注：时长选择 */
+  #startModal{
+    position:fixed;inset:0;background:rgba(40,30,20,0.45);
+    display:none;align-items:flex-end;justify-content:center;z-index:1100;
+  }
+  #startModal.open{display:flex;}
+  .start-card{
+    background:var(--card);width:100%;max-width:480px;border-radius:22px 22px 0 0;
+    padding:18px 18px 26px;
+    transform:translateY(100%);transition:transform .28s cubic-bezier(.34,1.2,.64,1);
+  }
+  .start-card.show{transform:translateY(0);}
+  .start-goal{font-size:16px;font-weight:800;color:var(--ink);line-height:1.5;}
+  .start-sub{font-size:11px;color:var(--muted);margin-top:3px;}
+  .dur-chips{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 6px;}
+  .dur-chip{
+    flex:1 1 62px;padding:9px 4px;border-radius:13px;border:2px solid #eee;background:#fff;
+    font-family:inherit;font-size:14px;font-weight:800;color:var(--ink);
+    cursor:pointer;transition:all .15s;line-height:1.2;
+  }
+  .dur-chip small{display:block;font-size:9px;font-weight:600;color:var(--muted);margin-top:3px;}
+  .dur-chip.on{border-color:var(--primary);background:#fff3e8;color:var(--primary-dark);}
+  .dur-chip.on small{color:var(--primary-dark);}
+  .dur-chip.tiny{border-style:dashed;flex-basis:100%;font-size:13px;}
+  .dur-chip.tiny.on{border-color:var(--accent-dark);background:#eafff0;color:var(--accent-dark);}
+  .dur-chip.tiny.on small{color:var(--accent-dark);}
+  .start-note{font-size:11px;color:var(--muted);line-height:1.65;margin:8px 0 14px;}
+  .start-go{
+    width:100%;padding:13px;border-radius:15px;border:none;background:var(--primary);
+    color:#fff;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;
+    box-shadow:0 5px 14px rgba(255,140,66,.4);
+  }
+
+  /* ===================== 我的进步（周对比） ===================== */
+  .wk-kpis{display:flex;gap:8px;margin-bottom:10px;}
+  .wk-kpi{flex:1;background:var(--bg2);border-radius:14px;padding:11px 6px;text-align:center;}
+  .wk-kpi b{display:block;font-size:21px;font-weight:800;color:var(--primary-dark);font-variant-numeric:tabular-nums;}
+  .wk-kpi span{font-size:10px;color:var(--muted);}
+  .wk-delta{
+    font-size:12.5px;font-weight:700;text-align:center;
+    padding:9px;border-radius:12px;margin-bottom:14px;line-height:1.5;
+  }
+  .wk-delta.up{background:#eafff0;color:var(--accent-dark);}
+  .wk-delta.flat{background:#fff8ef;color:var(--primary-dark);}
+  .wk-chart{display:flex;align-items:flex-end;gap:5px;height:104px;margin-bottom:4px;}
+  .wk-day{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:3px;height:100%;}
+  .wk-val{font-size:10px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;min-height:13px;}
+  .wk-stem{width:100%;border-radius:6px 6px 3px 3px;background:var(--primary);min-height:4px;transition:height .45s;}
+  .wk-day.empty .wk-stem{background:#ededed;}
+  .wk-day.today .wk-stem{background:var(--primary-dark);box-shadow:0 0 0 2px #ffd9c0;}
+  .wk-lbl{font-size:10px;color:var(--muted);}
+  .wk-day.today .wk-lbl{color:var(--primary-dark);font-weight:800;}
+
+  /* ===================== 我的：备份工具 ===================== */
+  .me-tools{display:flex;gap:8px;margin-top:14px;}
+  .me-tool{
+    flex:1;padding:10px 6px;border-radius:13px;border:2px solid #eee;background:#fff;
+    font-family:inherit;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;
+  }
+  .me-tool:active{background:#f6f6f6;}
+  .me-warn{
+    font-size:11px;color:var(--muted);line-height:1.7;margin-top:10px;
+    background:#fff8ef;border-radius:12px;padding:9px 11px;
+  }
 </style>
 </head>
 <body>
@@ -642,6 +749,29 @@
   <div class="nav-card" id="navCard"></div>
 </div>
 
+<div id="startModal">
+  <div class="start-card" id="startCard"></div>
+</div>
+
+<div id="focusScreen">
+  <div class="fs-cat" id="fsCat"></div>
+  <div class="fs-goal" id="fsGoal"></div>
+  <div class="fs-ring">
+    <svg viewBox="0 0 240 240" aria-hidden="true">
+      <circle class="fs-track" cx="120" cy="120" r="104" stroke-width="14"></circle>
+      <circle class="fs-prog" id="fsProg" cx="120" cy="120" r="104" stroke-width="14"
+              stroke-dasharray="653.45" stroke-dashoffset="0"></circle>
+    </svg>
+    <div class="fs-center">
+      <div class="fs-time" id="fsTime">60:00</div>
+      <div class="fs-phase" id="fsPhase"></div>
+      <div class="fs-of" id="fsOf"></div>
+    </div>
+  </div>
+  <div class="fs-hint" id="fsHint"></div>
+  <div class="fs-btns" id="fsBtns"></div>
+</div>
+
 <script>
 const STORAGE_KEY = "habitQuestState";
 const LANG_KEY = "habitQuestLang";
@@ -662,7 +792,7 @@ const CATEGORIES = [
 
 // 默认目标：每个类别预留 4 个目标槽（用户可自定义、增减）
 const GOALS_VERSION = 3;
-const GOAL_MAX_LEN = 10;  // 每个目标名最多字数（超出显示省略号，聚焦查看全文）
+const GOAL_MAX_LEN = 20;  // 每个目标名最多字数（超出显示省略号，聚焦查看全文）
 function defaultGoals(){
   const mk = txt => ({id:"g"+Math.random().toString(36).slice(2,8), text:txt, done:false, sec:0});
   return {
@@ -673,12 +803,21 @@ function defaultGoals(){
   };
 }
 
-// 四个等级徽章：累计番茄钟 100 / 500 / 1000 / 1500 → 黄金 / 钻石 / 王者 / 圣人
+// ===== 番茄钟设置：面向初高中生与成人，1 小时专注 + 10 分钟休息 =====
+// 一个完整专注段 = 1 个 🍅（不论时长），至少 25 分钟才计入
+const FOCUS_OPTIONS = [30, 45, 60, 90];  // 可选专注时长（分钟）
+const FOCUS_DEFAULT = 60;                // 默认 1 小时
+const BREAK_MIN     = 10;                // 休息 10 分钟
+const STARTER_MIN   = 5;                 // 「先做 5 分钟」起步档，不计 🍅
+const POMO_MIN_LEN  = 25;                // 满这么久的完整专注段才算 1 个 🍅
+
+// 四个等级徽章：累计完成的专注段 10 / 50 / 150 / 365 → 黄金 / 钻石 / 王者 / 大圣
+// （首枚徽章第一天就能拿到，最后一枚对应"一年 365 个专注段"）
 const BADGES = [
-  {id:"tier1", tone:"gold",    goal:100,  name:{zh:"黄金", en:"Gold"},    need: ()=>lifetimePomos()>=100},
-  {id:"tier2", tone:"diamond", goal:500,  name:{zh:"钻石", en:"Diamond"}, need: ()=>lifetimePomos()>=500},
-  {id:"tier3", tone:"king",    goal:1000, name:{zh:"王者", en:"King"},    need: ()=>lifetimePomos()>=1000},
-  {id:"tier4", tone:"sage",    goal:1500, name:{zh:"大圣", en:"Great Sage"}, need: ()=>lifetimePomos()>=1500},
+  {id:"tier1", tone:"gold",    goal:10,  icon:"🥇", name:{zh:"黄金", en:"Gold"},        need: ()=>lifetimePomos()>=10},
+  {id:"tier2", tone:"diamond", goal:50,  icon:"💎", name:{zh:"钻石", en:"Diamond"},     need: ()=>lifetimePomos()>=50},
+  {id:"tier3", tone:"king",    goal:150, icon:"👑", name:{zh:"王者", en:"King"},        need: ()=>lifetimePomos()>=150},
+  {id:"tier4", tone:"sage",    goal:365, icon:"🐉", name:{zh:"大圣", en:"Great Sage"},  need: ()=>lifetimePomos()>=365},
 ];
 
 const STAGES = [
@@ -705,12 +844,50 @@ const I18N = {
     todayPomos: n => `您今天已经完成 [${n}] 个番茄钟`,
     tierDone: "已达成 ✓",
     tomatoMsg: "收获一个 🍅！",
-    tomatoSub: cat => `${cat} 满 1 小时，了不起！`,
-    lbTitle: "🏆 排行榜",
-    lbNote: "本地演示 · 联网好友榜后续开放",
-    lbYou: "我",
-    lbScore: n => `${n} 经验`,
-    navLeaderboard: "排行榜",
+    tomatoSub: cat => `${cat} 完成一个完整专注段，了不起！`,
+    // 开始专注
+    startTitle: "开始一个专注段",
+    startSub: min => `专注 ${min} 分钟，结束后休息 ${BREAK_MIN} 分钟`,
+    startGo: "开始专注",
+    durUnit: "分钟",
+    durRecommend: "推荐",
+    durStarter: "先做 5 分钟就好",
+    durStarterSub: "实在不想开始的时候，点这个。5 分钟照样记录时间",
+    startNote: `满 ${POMO_MIN_LEN} 分钟的完整专注段 = 1 个 🍅。中途结束也会记录已完成的时间，只是不算 🍅。`,
+    // 专注中
+    fsFocus: "专注中",
+    fsBreak: "休息中",
+    fsBreakTitle: "休息一下 ☕",
+    fsOf: min => `本段 ${min} 分钟`,
+    fsHintFocus: "把手机反扣、放远一点。这段时间只做这一件事。",
+    fsHintStarter: "只要 5 分钟。开始了，往往就停不下来。",
+    fsHintBreak: "站起来走走、看看远处、喝口水，别刷手机。",
+    fsGiveUp: "结束并记录",
+    fsSkipBreak: "跳过休息",
+    fsStartBreak: `开始休息 ${BREAK_MIN} 分钟`,
+    fsBreakDone: "休息结束",
+    fsClose: "回到首页",
+    // 结算
+    pomoDone: "完成一个番茄钟 🍅",
+    pomoDoneSub: min => `专注了 ${min} 分钟，很稳。休息一下吧`,
+    starterDone: "起步成功 👍",
+    starterDoneSub: "最难的第一步已经迈出去了",
+    partialDone: min => `已记录 ${min} 分钟`,
+    partialSub: "没到一个完整专注段，不过时间照样算数",
+    breakOver: "休息结束 ☕",
+    breakOverSub: "准备好就开始下一段吧",
+    // 进步
+    progTitle: "📈 我的进步",
+    progNote: "和过去的自己比，比和别人比更有用",
+    progThisWeek: "本周 🍅",
+    progLastWeek: "上周 🍅",
+    progHours: "本周专注小时",
+    progUp: (n) => `比上周多了 ${n} 个专注段，稳步向上 📈`,
+    progDown: (n) => `比上周少 ${n} 个。没关系，今天开始追回来`,
+    progSame: "和上周持平，保持住这个节奏",
+    progFirst: "这是你的第一周记录，把今天的格子填起来吧",
+    weekDays: ["一","二","三","四","五","六","日"],
+    navLeaderboard: "我的进步",
     navRewards: "积分兑换",
     navInfo: "信息板",
     navMe: "我的",
@@ -721,6 +898,16 @@ const I18N = {
     meEffHours: "有效投入",
     meRedeem: "兑换次数",
     meProud: "回首往昔，你已经很了不起 ✨ 继续加油！",
+    meBackup: "导出备份",
+    meRestore: "导入备份",
+    meBackupWarn: "⚠️ 你的记录只保存在这台设备的浏览器里。清理缓存、换手机、用无痕模式都会让记录归零。建议每周导出一次备份文件收好。",
+    backupDone: "备份已导出 💾",
+    backupDoneSub: "文件已下载，找个稳妥的地方存着",
+    restoreOk: "记录已恢复 ✨",
+    restoreOkSub: "欢迎回来，继续加油",
+    restoreFail: "文件读不出来 😥",
+    restoreFailSub: "请选择之前用「导出备份」下载的 json 文件",
+    restoreConfirm: "导入会覆盖这台设备上现有的全部记录，确定继续吗？",
     sectionTitle: "🎯 今日任务",
     footerNote: "完成任务即可获得经验值，攒够经验角色就会升级进化！",
     resetBtn: "重置今日任务（测试用）",
@@ -816,12 +1003,46 @@ const I18N = {
     todayPomos: n => `${n} pomodoros done today`,
     tierDone: "Unlocked ✓",
     tomatoMsg: "Earned a 🍅!",
-    tomatoSub: cat => `1 hour of ${cat} — awesome!`,
-    lbTitle: "🏆 Leaderboard",
-    lbNote: "Local demo · friends ranking coming online later",
-    lbYou: "Me",
-    lbScore: n => `${n} XP`,
-    navLeaderboard: "Ranking",
+    tomatoSub: cat => `A full ${cat} focus block — awesome!`,
+    startTitle: "Start a focus block",
+    startSub: min => `${min} min focus, then a ${BREAK_MIN} min break`,
+    startGo: "Start focusing",
+    durUnit: "min",
+    durRecommend: "recommended",
+    durStarter: "Just 5 minutes is fine",
+    durStarterSub: "For when you really can't get started. It still counts.",
+    startNote: `A full block of ${POMO_MIN_LEN}+ minutes = 1 🍅. Stopping early still logs your time — it just doesn't earn a 🍅.`,
+    fsFocus: "Focusing",
+    fsBreak: "On a break",
+    fsBreakTitle: "Take a break ☕",
+    fsOf: min => `${min} min block`,
+    fsHintFocus: "Phone face down, out of reach. This block is for one thing only.",
+    fsHintStarter: "Just five minutes. Starting is usually the hard part.",
+    fsHintBreak: "Stand up, look far away, get some water — don't scroll.",
+    fsGiveUp: "End & log time",
+    fsSkipBreak: "Skip break",
+    fsStartBreak: `Start ${BREAK_MIN} min break`,
+    fsBreakDone: "Break over",
+    fsClose: "Back to home",
+    pomoDone: "Focus block done 🍅",
+    pomoDoneSub: min => `${min} minutes of real focus. Take a break.`,
+    starterDone: "You started 👍",
+    starterDoneSub: "The hardest part is already behind you",
+    partialDone: min => `${min} minutes logged`,
+    partialSub: "Not a full block, but the time still counts",
+    breakOver: "Break's over ☕",
+    breakOverSub: "Start the next block whenever you're ready",
+    progTitle: "📈 My progress",
+    progNote: "Comparing yourself to last week beats comparing to other people",
+    progThisWeek: "This week 🍅",
+    progLastWeek: "Last week 🍅",
+    progHours: "Focus hours",
+    progUp: (n) => `${n} more block${n>1?"s":""} than last week — trending up 📈`,
+    progDown: (n) => `${n} fewer than last week. Start catching up today.`,
+    progSame: "Same as last week — hold this rhythm",
+    progFirst: "This is your first week. Fill in today's bar!",
+    weekDays: ["Mo","Tu","We","Th","Fr","Sa","Su"],
+    navLeaderboard: "Progress",
     navRewards: "Rewards",
     navInfo: "Tips",
     navMe: "Me",
@@ -832,6 +1053,16 @@ const I18N = {
     meEffHours: "Focus time",
     meRedeem: "Redeemed",
     meProud: "Look how far you've come ✨ Keep it up!",
+    meBackup: "Export backup",
+    meRestore: "Import backup",
+    meBackupWarn: "⚠️ Your records live only in this browser on this device. Clearing your cache, switching phones, or private mode wipes them. Export a backup once a week and keep it safe.",
+    backupDone: "Backup exported 💾",
+    backupDoneSub: "File downloaded — store it somewhere safe",
+    restoreOk: "Records restored ✨",
+    restoreOkSub: "Welcome back — keep going",
+    restoreFail: "Couldn't read that file 😥",
+    restoreFailSub: "Pick the .json file you saved with Export backup",
+    restoreConfirm: "Importing will overwrite every record on this device. Continue?",
     sectionTitle: "🎯 Today's Quests",
     footerNote: "Complete quests to earn XP — gather enough and your character evolves!",
     resetBtn: "Reset today's quests (test)",
@@ -919,8 +1150,18 @@ function t(key, ...args){
   return typeof entry === "function" ? entry(...args) : entry;
 }
 
+// 一律使用本地日期：toISOString() 是 UTC，会让 UTC-8 的用户在下午四五点就"过了一天"，
+// 导致当日目标被提前清空、连续天数错乱。
+function dateKey(d){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+}
 function todayStr(){
-  return new Date().toISOString().slice(0,10);
+  return dateKey(new Date());
+}
+function yesterdayStr(){
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return dateKey(d);
 }
 
 // 兑换基准：100 积分 = 10 分钟游戏时间 或 1 个心愿礼物
@@ -946,10 +1187,14 @@ function defaultState(){
     // 积分：按类别累计（每完成一个目标 +10 分）；总积分 = 四项之和
     catPoints: {study:0, exercise:0, fun:0, social:0},
     spent: 0,             // 已兑换消耗的积分
-    timer: null,          // 正在计时的目标 { catId, goalId, start:时间戳 }
+    // 正在进行的专注段 { catId, goalId, start:时间戳, durSec, phase:"focus"|"break" }
+    timer: null,
+    focusMin: FOCUS_DEFAULT,  // 上次选择的专注时长，下次默认沿用
     effSecTotal: 0,       // 累计有效利用秒数（学习+运动+社交，跨天，用于经验）
-    pomoSecEver: 0,       // 累计计时秒数（所有类别，跨天，用于番茄钟段位）
+    pomoSecEver: 0,       // 累计专注秒数（所有类别，跨天，用于统计）
+    pomoEver: 0,          // 累计完成的专注段数（跨天，用于段位徽章）
     timeXpAwarded: 0,     // 已根据有效时间发放的经验值（累计，用于等级）
+    history: {},          // { "YYYY-MM-DD": {p:番茄钟数, s:专注秒数} }，用于周对比
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
   };
@@ -958,7 +1203,7 @@ function defaultState(){
 // 重置当天目标的完成状态与计时（保留目标文本）
 function resetDailyGoals(state){
   for(const cat in state.goals){
-    state.goals[cat].forEach(g=>{ g.done = false; g.sec = 0; });
+    state.goals[cat].forEach(g=>{ g.done = false; g.sec = 0; g.pomos = 0; });
   }
   state.timer = null;
 }
@@ -971,9 +1216,16 @@ function load(){
   if(typeof state.spent !== "number") state.spent = 0;
   if(typeof state.effSecTotal !== "number") state.effSecTotal = 0;
   if(typeof state.pomoSecEver !== "number") state.pomoSecEver = 0;
+  // 旧版本按"累计满 1 小时 = 1 个🍅"计数，迁移为专注段数
+  if(typeof state.pomoEver !== "number") state.pomoEver = Math.floor(state.pomoSecEver / 3600);
+  if(typeof state.focusMin !== "number" || !FOCUS_OPTIONS.includes(state.focusMin)) state.focusMin = FOCUS_DEFAULT;
+  if(!state.history || typeof state.history !== "object") state.history = {};
   if(typeof state.timeXpAwarded !== "number") state.timeXpAwarded = state.timePointsAwarded || 0;
-  // 计时器结构升级为按目标计时；旧结构(.activity)或缺失则清空
-  if(!state.timer || typeof state.timer.goalId === "undefined") state.timer = null;
+  // 计时器结构升级为「有固定时长的专注段」；旧结构（无 durSec）一律作废，
+  // 避免旧版本忘记停止的秒表把一整夜都算成学习时间
+  if(!state.timer || typeof state.timer.durSec !== "number" || typeof state.timer.goalId === "undefined"){
+    state.timer = null;
+  }
   delete state.points;
   delete state.timePointsAwarded;
   delete state.timeLog;
@@ -990,12 +1242,15 @@ function load(){
     delete state.completed;
     delete state.customGoals;
   }
-  // 确保每个目标都有 sec 字段（按目标计时）
+  // 确保每个目标都有 sec / pomos 字段
   for(const cat in state.goals){
-    state.goals[cat].forEach(g=>{ if(typeof g.sec !== "number") g.sec = 0; });
+    state.goals[cat].forEach(g=>{
+      if(typeof g.sec !== "number") g.sec = 0;
+      if(typeof g.pomos !== "number") g.pomos = 0;
+    });
   }
   if(state.date !== todayStr()){
-    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const yesterday = yesterdayStr();
     if(state.lastCompleteDate !== yesterday && state.lastCompleteDate !== todayStr()){
       state.streak = 0;
     }
@@ -1015,6 +1270,7 @@ function xpNeeded(level){
 
 // 积分系统配置
 const POINTS_PER_GOAL = 10;        // 每完成一个目标 +10 分
+const XP_PER_POMO = 5;             // 每完成一个完整专注段 +5 经验（奖励"坚持到底"）
 const XP_PER_HOUR = 10;            // 每有效利用 1 小时 +10 经验值（用于角色升级）
 const SECONDS_PER_XP = 3600 / XP_PER_HOUR; // 360 秒/经验
 // 有效利用 = 学习 + 运动 + 社交；娱乐(fun) 不计入有效时间
@@ -1051,12 +1307,21 @@ function fmtClock(sec){
   const pad = n => (n<10?"0":"")+n;
   return h>0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
 }
-// 单个目标的实时时长（含正在运行的计时）
+// 本段专注已进行的秒数（休息阶段不计入目标时长）
+function focusElapsed(){
+  if(!state.timer || state.timer.phase !== "focus") return 0;
+  // 上限为本段设定时长：即使忘记回到页面，也绝不会多算一秒
+  return Math.min((Date.now() - state.timer.start)/1000, state.timer.durSec);
+}
+// 本段剩余秒数（专注或休息都适用）
+function phaseRemain(){
+  if(!state.timer) return 0;
+  return Math.max(0, state.timer.durSec - (Date.now() - state.timer.start)/1000);
+}
+// 单个目标的实时时长（含正在进行的专注段）
 function goalLiveSec(goal){
   let s = goal.sec || 0;
-  if(state.timer && state.timer.goalId === goal.id){
-    s += (Date.now() - state.timer.start)/1000;
-  }
+  if(state.timer && state.timer.goalId === goal.id) s += focusElapsed();
   return s;
 }
 // 某类别今日时长 = 该类所有目标时长之和
@@ -1067,9 +1332,9 @@ function catSeconds(catId){
 function effectiveSecondsToday(){
   return EFFECTIVE_ACTS.reduce((sum,a)=>sum + catSeconds(a), 0);
 }
-// 完成的番茄钟数量：累计满 1 小时 = 1 个🍅
+// 完成的番茄钟数量：一个完整专注段 = 1 个🍅
 function tomatoCount(catId){
-  return Math.floor(catSeconds(catId) / 3600);
+  return (state.goals[catId]||[]).reduce((sum,g)=>sum + (g.pomos||0), 0);
 }
 function tomatoHTML(catId, animateLast){
   const n = tomatoCount(catId);
@@ -1088,17 +1353,16 @@ function tomatoHTML(catId, animateLast){
 function todayPomos(){
   return CATEGORIES.reduce((sum,c)=>sum + tomatoCount(c.id), 0);
 }
-// 累计番茄钟（跨天，用于段位徽章）：累计计时秒数 / 3600
+// 累计专注秒数（含进行中的一段），用于统计展示
 function pomoSecEverLive(){
-  let s = state.pomoSecEver || 0;
-  if(state.timer) s += (Date.now() - state.timer.start)/1000;
-  return s;
+  return (state.pomoSecEver || 0) + focusElapsed();
 }
+// 累计完成的专注段（跨天，用于段位徽章）
 function lifetimePomos(){
-  return Math.floor(pomoSecEverLive() / 3600);
+  return state.pomoEver || 0;
 }
-// 头部：12 个小番茄进度（完成几个亮红，其余灰）+ 今日完成番茄钟数
-const POMO_SLOTS = 12;
+// 头部：8 个小番茄进度（完成几个亮红，其余灰）+ 今日完成番茄钟数
+const POMO_SLOTS = 8;
 function updatePomoHeader(animate){
   const done = todayPomos();
   const track = document.getElementById("pomoTrack");
@@ -1145,17 +1409,18 @@ function render(){
     const unlocked = pomos >= b.goal;
     const div = document.createElement("div");
     div.className = "badge t-" + b.tone + (unlocked ? " unlocked" : "");
-    // 分段信号格：未达成时一格格点亮循环演示，达成时全部实心点亮
+    // 分段信号格：按真实进度点亮（已完成的专注段 / 该段位门槛），下一格轻微呼吸提示
+    const lit = unlocked ? SEG_COUNT : Math.floor(pomos / b.goal * SEG_COUNT);
     let segs = "";
     for(let i=0;i<SEG_COUNT;i++){
-      segs += unlocked
-        ? `<span class="seg on"></span>`
-        : `<span class="seg demo" style="animation-delay:${(i*0.13).toFixed(2)}s"></span>`;
+      if(i < lit) segs += `<span class="seg on"></span>`;
+      else if(i === lit && !unlocked) segs += `<span class="seg demo"></span>`;
+      else segs += `<span class="seg"></span>`;
     }
     div.innerHTML =
       `<span class="badge-name">${L(b.name)}</span>` +
       `<div class="badge-bar">${segs}</div>` +
-      `<span class="badge-sub">${unlocked ? t("tierDone") : b.goal+" 🍅"}</span>`;
+      `<span class="badge-sub">${unlocked ? t("tierDone") : `${Math.min(pomos,b.goal)} / ${b.goal} 🍅`}</span>`;
     badgesEl.appendChild(div);
   });
 
@@ -1163,32 +1428,66 @@ function render(){
   refreshNav();   // 若底部弹层开着，同步刷新内容
 }
 
-/* ===================== 排行榜（本地演示，联网好友榜后续支持） ===================== */
+/* ===================== 我的进步（和过去的自己比） ===================== */
 
-// 演示用好友数据；"我"的分数取累计经验值，实时插入排名
-const LB_DEMO = [
-  {name:"Alex", score:340},
-  {name:"小雨", score:225},
-  {name:"Leo",  score:150},
-  {name:"晨晨", score:80},
-];
+// 本周一的日期字符串（周一为一周之始）
+function mondayOf(offsetWeeks){
+  const d = new Date();
+  const dow = (d.getDay() + 6) % 7;          // 周一=0 … 周日=6
+  d.setDate(d.getDate() - dow - offsetWeeks*7);
+  d.setHours(12,0,0,0);                       // 正午取值，避开夏令时边界
+  return d;
+}
+// 取某周 7 天的记录（含今天正在进行的一段）
+function weekDays(offsetWeeks){
+  const start = mondayOf(offsetWeeks);
+  const today = todayStr();
+  const out = [];
+  for(let i=0;i<7;i++){
+    const d = new Date(start); d.setDate(start.getDate()+i);
+    const k = dateKey(d);
+    const rec = state.history[k] || {p:0, s:0};
+    out.push({key:k, p:rec.p, s:rec.s, isToday:k===today, future:k>today});
+  }
+  return out;
+}
 
-function buildLeaderboard(card){
-  const list = LB_DEMO.map(f=>({name:f.name, score:f.score, me:false}));
-  list.push({name:t("lbYou"), score:state.totalXp, me:true});
-  list.sort((a,b)=>b.score - a.score);
-  const medals = ["🥇","🥈","🥉"];
-  let rows = "";
-  list.slice(0,8).forEach((p,i)=>{
-    rows += `
-      <div class="lb-row${p.me?" me":""}">
-        <span class="lb-rank">${medals[i] || (i+1)}</span>
-        <span class="lb-name">${escapeHtml(p.name)}${p.me?" ⭐":""}</span>
-        <span class="lb-score">${t("lbScore", p.score)}</span>
+function buildProgress(card){
+  const cur  = weekDays(0);
+  const prev = weekDays(1);
+  const curP  = cur.reduce((s,d)=>s+d.p, 0);
+  const prevP = prev.reduce((s,d)=>s+d.p, 0);
+  const curH  = (cur.reduce((s,d)=>s+d.s, 0)/3600).toFixed(1);
+  const maxP  = Math.max(1, ...cur.map(d=>d.p));
+
+  let delta, tone;
+  if(prevP === 0 && curP === 0){ delta = t("progFirst"); tone = "flat"; }
+  else if(curP > prevP){ delta = t("progUp", curP-prevP); tone = "up"; }
+  else if(curP < prevP){ delta = t("progDown", prevP-curP); tone = "flat"; }
+  else { delta = t("progSame"); tone = "up"; }
+
+  const names = t("weekDays");
+  let bars = "";
+  cur.forEach((d,i)=>{
+    const h = d.p > 0 ? Math.round(d.p/maxP*72) + 8 : 4;
+    const cls = (d.p>0 ? "" : " empty") + (d.isToday ? " today" : "");
+    bars += `
+      <div class="wk-day${cls}">
+        <span class="wk-val">${d.p>0?d.p:""}</span>
+        <span class="wk-stem" style="height:${h}px"></span>
+        <span class="wk-lbl">${names[i]}</span>
       </div>`;
   });
-  card.innerHTML = navHeader("lbTitle") +
-    `<div class="lb-note" style="margin-bottom:8px">${t("lbNote")}</div>` + rows;
+
+  card.innerHTML = navHeader("progTitle") + `
+    <div class="wk-kpis">
+      <div class="wk-kpi"><b>${curP}</b><span>${t("progThisWeek")}</span></div>
+      <div class="wk-kpi"><b>${prevP}</b><span>${t("progLastWeek")}</span></div>
+      <div class="wk-kpi"><b>${curH}</b><span>${t("progHours")}</span></div>
+    </div>
+    <div class="wk-delta ${tone}">${delta}</div>
+    <div class="wk-chart">${bars}</div>
+    <div class="lb-note" style="text-align:center">${t("progNote")}</div>`;
 }
 
 /* ===================== 底部导航弹层（排行榜 / 积分兑换 / 信息板 / 我的） ===================== */
@@ -1201,7 +1500,7 @@ function navHeader(titleKey){
 
 function renderNavContent(){
   const card = document.getElementById("navCard");
-  if(currentNav === "leaderboard") buildLeaderboard(card);
+  if(currentNav === "leaderboard") buildProgress(card);
   else if(currentNav === "rewards") buildRewards(card);
   else if(currentNav === "info") buildInfo(card);
   else if(currentNav === "me") buildMe(card);
@@ -1231,16 +1530,16 @@ function closeNav(){
 const INFO_ARTICLES = [
   {icon:"🎯",
    title:{zh:"如何做到专注", en:"How to focus"},
-   body:{zh:"① 用番茄钟：专注 25 分钟 + 休息 5 分钟。\n② 开始前把手机静音、放到看不见的地方。\n③ 一次只做一件事，先写下「现在就做」的那一件。\n④ 收拾好桌面，减少干扰物。",
-         en:"1. Use the pomodoro: 25 min focus + 5 min break.\n2. Silence your phone and keep it out of sight.\n3. Do one thing at a time — pick the single 'do it now' task.\n4. Clear your desk to cut distractions."}},
+   body:{zh:"① 用番茄钟：专注 60 分钟 + 休息 10 分钟。对初高中生和成人来说，1 小时刚好是一节课的长度，比 25 分钟更容易进入深度状态，也不会被频繁的休息打断。\n② 开始前把手机静音、反扣、放到看不见的地方。\n③ 一次只做一件事，先写下「现在就做」的那一件。\n④ 收拾好桌面，减少干扰物。\n⑤ 实在不想开始的时候，用「先做 5 分钟」——开始了往往就停不下来。",
+         en:"1. Use the pomodoro: 60 min focus + 10 min break. For high-schoolers and adults, an hour matches a class period — long enough to reach deep focus, without breaks chopping it up every 25 minutes.\n2. Silence your phone, turn it face down, keep it out of sight.\n3. Do one thing at a time — pick the single 'do it now' task.\n4. Clear your desk to cut distractions.\n5. When you really can't start, use 'just 5 minutes' — starting is usually the hard part."}},
   {icon:"⏳",
    title:{zh:"怎样做好时间管理", en:"Manage your time"},
    body:{zh:"① 每天先写下最重要的 3 件事。\n② 用四象限分清「重要 / 紧急」，先做重要的事。\n③ 给任务设一个明确的开始时间。\n④ 固定作息，让大脑形成节奏。",
          en:"1. Write your top 3 tasks each morning.\n2. Sort by important vs. urgent — do important first.\n3. Give each task a clear start time.\n4. Keep a steady routine so your brain finds a rhythm."}},
   {icon:"💪",
    title:{zh:"如何坚持好习惯", en:"Build lasting habits"},
-   body:{zh:"① 从「小到不可能失败」开始（比如每天读 1 页）。\n② 把新习惯接在已有习惯后面。\n③ 记录连续天数，尽量别中断。\n④ 完成后立刻给自己一点小奖励。",
-         en:"1. Start absurdly small (e.g. read 1 page a day).\n2. Attach the new habit to an existing one.\n3. Track your streak and try not to break it.\n4. Give yourself a small reward right after."}},
+   body:{zh:"① 从「小到不可能失败」开始（比如每天读 1 页）。\n② 把新习惯接在已有习惯后面。\n③ 断了一天没关系——真正毁掉习惯的从来不是漏掉一次，而是漏掉之后就放弃。看「我的进步」和上周比，别盯着连续天数焦虑。\n④ 完成后立刻给自己一点小奖励。",
+         en:"1. Start absurdly small (e.g. read 1 page a day).\n2. Attach the new habit to an existing one.\n3. Missing one day is fine — habits die from quitting after a miss, not from the miss itself. Check 'My progress' against last week instead of agonising over streaks.\n4. Give yourself a small reward right after."}},
   {icon:"📵",
    title:{zh:"少刷手机的小技巧", en:"Less screen time"},
    body:{zh:"① 设定专门的娱乐时段，其余时间手机放远。\n② 关掉非必要的推送通知。\n③ 用本 App 记录娱乐与有效时间，看见自己的进步。",
@@ -1277,7 +1576,55 @@ function buildMe(card){
   stats.forEach(s=>{ grid += `<div class="me-stat"><b>${s.v}</b><span>${s.k}</span></div>`; });
   card.innerHTML = navHeader("navMe") +
     `<div class="me-grid">${grid}</div>` +
-    `<div class="me-proud">${t("meProud")}</div>`;
+    `<div class="me-proud">${t("meProud")}</div>` +
+    `<div class="me-tools">
+       <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
+       <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
+     </div>
+     <div class="me-warn">${t("meBackupWarn")}</div>`;
+  card.querySelector("[data-backup]").addEventListener("click", exportBackup);
+  card.querySelector("[data-restore]").addEventListener("click", importBackup);
+}
+
+/* ----- 备份：数据只在本机 localStorage，导出一份是唯一的安全网 ----- */
+function exportBackup(){
+  const blob = new Blob([JSON.stringify({app:"ProudMe", v:1, savedAt:new Date().toISOString(), state}, null, 2)],
+                        {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `ProudMe-备份-${todayStr()}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast({emoji:"💾", msg:t("backupDone"), sub:t("backupDoneSub")});
+}
+
+function importBackup(){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "application/json,.json";
+  input.addEventListener("change", ()=>{
+    const file = input.files && input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        const incoming = data && data.state ? data.state : data;
+        if(!incoming || typeof incoming.level !== "number" || !incoming.goals) throw new Error("bad file");
+        if(!confirm(t("restoreConfirm"))) return;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(incoming));
+        state = load();
+        closeNav();
+        render();
+        showToast({emoji:"✨", msg:t("restoreOk"), sub:t("restoreOkSub")});
+      }catch(e){
+        showToast({emoji:"😥", msg:t("restoreFail"), sub:t("restoreFailSub")});
+      }
+    };
+    reader.readAsText(file);
+  });
+  input.click();
 }
 
 /* ===================== 今日目标 & 时间（2×2 宫格，目标直接显示，长名自动换行） ===================== */
@@ -1342,7 +1689,7 @@ function renderTasks(){
     <div class="card-title">${t("tasksTitle")}</div>
     <div class="cat-grid">${blocks}</div>
     <div class="nav-bar">
-      <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">🏆</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
+      <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">📈</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
       <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
       <button class="nav-item" data-nav="info"><span class="nav-ic">📖</span><span class="nav-lbl">${t("navInfo")}</span></button>
       <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
@@ -1364,7 +1711,7 @@ function renderTasks(){
       const gid = row.dataset.gid;
       row.querySelector("[data-check]").addEventListener("click", ()=>toggleGoal(catId, gid));
       const timerBtn = row.querySelector("[data-timer]");
-      if(timerBtn) timerBtn.addEventListener("click", ()=>toggleGoalTimer(catId, gid));
+      if(timerBtn) timerBtn.addEventListener("click", ()=>openStartSheet(catId, gid));
       const delBtn = row.querySelector("[data-del]");
       if(delBtn) delBtn.addEventListener("click", ()=>deleteGoal(catId, gid));
       row.querySelector("[data-text]").addEventListener("change", (e)=>editGoalText(catId, gid, e.target.value));
@@ -1372,32 +1719,45 @@ function renderTasks(){
   });
 
   // 计时实时刷新（只更新时间数字，避免打断正在编辑的目标文字）
-  if(running && !timerInterval){
-    timerInterval = setInterval(tickTimer, 1000);
-  } else if(!running && timerInterval){
-    clearInterval(timerInterval); timerInterval = null;
+  if(running) startTicking(); else stopTicking();
+}
+
+function startTicking(){
+  if(!timerInterval) timerInterval = setInterval(tickTimer, 1000);
+}
+function stopTicking(){
+  if(timerInterval){ clearInterval(timerInterval); timerInterval = null; }
+}
+
+// 每秒：刷新全屏倒计时 + 首页那一行的时长；到点自动结算
+function tickTimer(){
+  const tm = state.timer;
+  if(!tm){ stopTicking(); return; }
+
+  if(phaseRemain() <= 0){
+    stopTicking();
+    if(tm.phase === "focus") finishFocus(); else finishBreak();
+    return;
+  }
+
+  paintFocusScreen(null);
+
+  if(tm.phase === "focus"){
+    const set = (id, v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
+    const g = (state.goals[tm.catId]||[]).find(x=>x.id===tm.goalId);
+    if(g) set("gt-"+g.id, fmtClock(goalLiveSec(g)));
+    set("ct-"+tm.catId, fmtClock(catSeconds(tm.catId)));
   }
 }
 
-// 计时进行中：每秒仅更新相关时长数字，不重建整张卡片
-function tickTimer(){
-  const running = state.timer;
-  if(!running){ clearInterval(timerInterval); timerInterval = null; return; }
-  const set = (id, v)=>{ const e=document.getElementById(id); if(e) e.textContent=v; };
-  const g = (state.goals[running.catId]||[]).find(x=>x.id===running.goalId);
-  if(g) set("gt-"+g.id, fmtClock(goalLiveSec(g)));
-  set("ct-"+running.catId, fmtClock(catSeconds(running.catId)));
-  // 满整点小时 → 新增一个会弹跳的🍅
-  const tomEl = document.getElementById("tom-"+running.catId);
+// 一个专注段落地时，让首页的 🍅 弹一下
+function popTomato(catId){
+  const tomEl = document.getElementById("tom-"+catId);
   if(tomEl){
-    const n = tomatoCount(running.catId);
-    if(n > parseInt(tomEl.dataset.n || "0", 10)){
-      tomEl.dataset.n = n;
-      tomEl.innerHTML = tomatoHTML(running.catId, true);
-      updatePomoHeader(true);   // 头部 12 番茄进度 + 今日计数同步点亮
-      showToast({emoji:"🍅", msg:t("tomatoMsg"), sub:t("tomatoSub", L(CATEGORIES.find(c=>c.id===running.catId).title))});
-    }
+    tomEl.dataset.n = tomatoCount(catId);
+    tomEl.innerHTML = tomatoHTML(catId, true);
   }
+  updatePomoHeader(true);
 }
 
 /* ----- 目标增删改查 ----- */
@@ -1439,35 +1799,299 @@ function toggleGoal(catId, gid){
 
 let timerInterval = null;
 
-// 按目标计时：同一目标再次点击 = 停止；点别的目标 = 先停当前再开始
-function toggleGoalTimer(catId, gid){
-  if(state.timer && state.timer.goalId === gid){
-    stopTimer();
-  } else {
-    if(state.timer) stopTimer();
-    state.timer = {catId, goalId:gid, start:Date.now()};
-    save(state);
-    renderTasks();
-  }
+/* ---------- 提示音 & 系统通知（专注 1 小时，人多半不在屏幕前） ---------- */
+let audioCtx = null;
+function chime(times){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    for(let i=0;i<times;i++){
+      const at = audioCtx.currentTime + i*0.42;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(784, at);        // G5，柔和不刺耳
+      gain.gain.setValueAtTime(0.0001, at);
+      gain.gain.exponentialRampToValueAtTime(0.22, at+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at+0.38);
+      osc.connect(gain); gain.connect(audioCtx.destination);
+      osc.start(at); osc.stop(at+0.4);
+    }
+  }catch(e){ /* 浏览器不支持音频时静默跳过 */ }
+}
+function notify(title, body){
+  try{
+    if(!("Notification" in window) || Notification.permission !== "granted") return;
+    if(!document.hidden) return;   // 人就在页面上，弹层已经够了
+    new Notification(title, {body, icon:"logo.svg", tag:"proudme-focus"});
+  }catch(e){}
+}
+function askNotifyPermission(){
+  try{
+    if("Notification" in window && Notification.permission === "default") Notification.requestPermission();
+  }catch(e){}
 }
 
-function stopTimer(){
-  if(!state.timer) return;
-  const {catId, goalId, start} = state.timer;
-  const elapsed = (Date.now() - start)/1000;
+/* ---------- 每日历史（用于「我的进步」周对比） ---------- */
+function bumpHistory(pomos, sec){
+  const d = todayStr();
+  if(!state.history[d]) state.history[d] = {p:0, s:0};
+  state.history[d].p += pomos;
+  state.history[d].s += sec;
+  // 只保留最近 70 天，避免 localStorage 无限增长
+  const keys = Object.keys(state.history).sort();
+  while(keys.length > 70) delete state.history[keys.shift()];
+}
+
+/* ---------- 开始专注：先选时长，再进入全屏 ---------- */
+function openStartSheet(catId, gid){
+  // 已有专注段在跑：直接回到专注界面，不允许同时开两个
+  if(state.timer){ openFocusScreen(); return; }
+  const g = (state.goals[catId]||[]).find(x=>x.id===gid);
+  if(!g) return;
+  const cat = CATEGORIES.find(c=>c.id===catId);
+  let picked = state.focusMin;
+
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+
+  const paint = ()=>{
+    let chips = FOCUS_OPTIONS.map(m=>
+      `<button class="dur-chip${picked===m?" on":""}" data-min="${m}">${m}<small>${
+        m===FOCUS_DEFAULT ? t("durRecommend") : t("durUnit")
+      }</small></button>`).join("");
+    chips += `<button class="dur-chip tiny${picked===STARTER_MIN?" on":""}" data-min="${STARTER_MIN}">${
+      t("durStarter")}<small>${t("durStarterSub")}</small></button>`;
+    card.innerHTML = `
+      <div class="nav-top">
+        <span class="nav-title">${t("startTitle")}</span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="start-goal">${cat.icon} ${escapeHtml(g.text || t("goalPlaceholder"))}</div>
+      <div class="start-sub">${t("startSub", picked)}</div>
+      <div class="dur-chips">${chips}</div>
+      <div class="start-note">${t("startNote")}</div>
+      <button class="start-go">${t("startGo")}</button>`;
+    card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+    card.querySelectorAll(".dur-chip").forEach(b=>{
+      b.addEventListener("click", ()=>{ picked = parseInt(b.dataset.min,10); paint(); });
+    });
+    card.querySelector(".start-go").addEventListener("click", ()=>{
+      closeStartSheet();
+      startFocus(catId, gid, picked);
+    });
+  };
+
+  paint();
+  modal.classList.add("open");
+  requestAnimationFrame(()=>card.classList.add("show"));
+}
+
+function closeStartSheet(){
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+  card.classList.remove("show");
+  setTimeout(()=>{ modal.classList.remove("open"); card.innerHTML=""; }, 200);
+}
+
+function startFocus(catId, gid, minutes){
+  // 记住常规时长（起步档是临时选择，不改变默认值）
+  if(FOCUS_OPTIONS.includes(minutes)) state.focusMin = minutes;
+  state.timer = {catId, goalId:gid, start:Date.now(), durSec:minutes*60, phase:"focus"};
+  save(state);
+  askNotifyPermission();
+  chime(1);                       // 顺带在用户手势里激活音频，结束时才能出声
+  openFocusScreen();
+  renderTasks();
+  startTicking();
+}
+
+function startBreak(){
+  state.timer = {catId:null, goalId:null, start:Date.now(), durSec:BREAK_MIN*60, phase:"break"};
+  save(state);
+  openFocusScreen();
+  startTicking();
+}
+
+/* ---------- 结算一个专注段 ---------- */
+// finished=true 表示走完了全程；false 表示用户中途结束
+function settleFocus(finished){
+  if(!state.timer || state.timer.phase !== "focus") return null;
+  const {catId, goalId, durSec} = state.timer;
+  const elapsed = finished ? durSec : Math.min((Date.now()-state.timer.start)/1000, durSec);
+  const mins = Math.round(elapsed/60);
+  // 走完全程且不短于 25 分钟，才算一个真正的番茄钟
+  const earnedPomo = finished && durSec >= POMO_MIN_LEN*60;
+
   const g = (state.goals[catId]||[]).find(x=>x.id===goalId);
-  if(g) g.sec = (g.sec||0) + elapsed;
+  if(g){
+    g.sec = (g.sec||0) + elapsed;
+    if(earnedPomo) g.pomos = (g.pomos||0) + 1;
+  }
   const cat = CATEGORIES.find(c=>c.id===catId);
   state.timer = null;
-  // 累计番茄钟（所有类别计时）
   state.pomoSecEver = (state.pomoSecEver||0) + elapsed;
+  if(earnedPomo) state.pomoEver = (state.pomoEver||0) + 1;
+  bumpHistory(earnedPomo?1:0, elapsed);
+
   // 有效利用时间（学习/运动/社交）累积并换算经验值
   if(cat && cat.kind !== "fun"){
     state.effSecTotal = (state.effSecTotal||0) + elapsed;
-    awardTimeXp();
+  }
+  if(earnedPomo){
+    state.xp += XP_PER_POMO;
+    state.totalXp += XP_PER_POMO;
+    while(state.xp >= xpNeeded(state.level)){
+      state.xp -= xpNeeded(state.level);
+      state.level += 1;
+    }
   }
   save(state);
+  if(cat && cat.kind !== "fun") awardTimeXp();
+  checkBadges();
+  return {mins, earnedPomo, catId, finished, durSec};
+}
+
+// 中途结束：记录已完成的时间，回到首页
+function abandonFocus(){
+  const r = settleFocus(false);
+  closeFocusScreen();
+  render();
+  if(r && r.mins >= 1){
+    showToast({emoji:"⏱", msg:t("partialDone", r.mins), sub:t("partialSub")});
+  }
+}
+// 兼容旧调用点（删除目标时需要先停止计时）
+function stopTimer(){ if(state.timer && state.timer.phase === "focus") abandonFocus(); else { state.timer=null; save(state); closeFocusScreen(); } }
+
+// 专注时间到：结算并给出休息提示
+function finishFocus(){
+  const r = settleFocus(true);
+  if(!r) return;
+  chime(2);
+  render();
+  if(r.earnedPomo){
+    popTomato(r.catId);
+    notify(t("pomoDone"), t("pomoDoneSub", r.mins));
+    paintFocusScreen({done:"focus", mins:r.mins, pomo:true});
+    spawnConfetti();
+  } else {
+    notify(t("starterDone"), t("starterDoneSub"));
+    paintFocusScreen({done:"focus", mins:r.mins, pomo:false});
+  }
+}
+
+function finishBreak(){
+  state.timer = null;
+  save(state);
+  chime(1);
+  notify(t("breakOver"), t("breakOverSub"));
+  paintFocusScreen({done:"break"});
   renderTasks();
+}
+
+/* ---------- 全屏专注界面 ---------- */
+const RING_LEN = 2 * Math.PI * 104;   // 与 svg 里 r=104 对应
+
+function openFocusScreen(){
+  document.getElementById("focusScreen").classList.add("open");
+  paintFocusScreen(null);
+}
+function closeFocusScreen(){
+  document.getElementById("focusScreen").classList.remove("open");
+}
+
+// mode=null 正常进行中；{done:"focus"|"break"} 结算态
+function paintFocusScreen(mode){
+  const scr   = document.getElementById("focusScreen");
+  if(!scr.classList.contains("open")) return;
+  const elCat = document.getElementById("fsCat");
+  const elGoal= document.getElementById("fsGoal");
+  const elTime= document.getElementById("fsTime");
+  const elPh  = document.getElementById("fsPhase");
+  const elOf  = document.getElementById("fsOf");
+  const elHint= document.getElementById("fsHint");
+  const elBtns= document.getElementById("fsBtns");
+  const elProg= document.getElementById("fsProg");
+  elProg.setAttribute("stroke-dasharray", RING_LEN.toFixed(2));
+
+  // ---- 结算态：专注段刚结束 ----
+  // 长句一律放在环外的 fs-hint 里，环内只留大图标和一行极短的数字
+  if(mode && mode.done === "focus"){
+    scr.classList.remove("brk");
+    elCat.textContent = "";
+    elGoal.textContent = mode.pomo ? t("pomoDone") : t("starterDone");
+    elTime.textContent = mode.pomo ? "🍅" : "👍";
+    elPh.textContent   = t("fsOf", mode.mins);
+    elOf.textContent   = "";
+    elProg.setAttribute("stroke-dashoffset", "0");
+    if(mode.pomo){
+      elHint.innerHTML = `${escapeHtml(t("pomoDoneSub", mode.mins))}<br>${escapeHtml(t("fsHintBreak"))}`;
+      elBtns.innerHTML = `<button class="fs-btn go" data-act="brk">${t("fsStartBreak")}</button>
+                          <button class="fs-btn ghost" data-act="close">${t("fsSkipBreak")}</button>`;
+    } else {
+      // 5 分钟起步段太短，不需要休息，直接鼓励回去继续
+      elHint.textContent = t("starterDoneSub");
+      elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
+    }
+    bindFsBtns();
+    return;
+  }
+  // ---- 结算态：休息刚结束 ----
+  if(mode && mode.done === "break"){
+    scr.classList.add("brk");
+    elCat.textContent = "";
+    elGoal.textContent = t("breakOver");
+    elTime.textContent = "☕";
+    elPh.textContent   = "";
+    elOf.textContent   = "";
+    elProg.setAttribute("stroke-dashoffset", "0");
+    elHint.textContent = t("breakOverSub");
+    elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
+    bindFsBtns();
+    return;
+  }
+
+  // ---- 进行中 ----
+  const tm = state.timer;
+  if(!tm){ closeFocusScreen(); return; }
+  const isBreak = tm.phase === "break";
+  scr.classList.toggle("brk", isBreak);
+
+  const remain = phaseRemain();
+  const mm = Math.floor(remain/60), ss = Math.floor(remain%60);
+  elTime.textContent = `${mm}:${ss<10?"0":""}${ss}`;
+  elProg.setAttribute("stroke-dashoffset", (RING_LEN * (1 - remain/tm.durSec)).toFixed(2));
+
+  if(isBreak){
+    elCat.textContent  = "";
+    elGoal.textContent = t("fsBreakTitle");
+    elPh.textContent   = t("fsBreak");
+    elOf.textContent   = t("fsOf", Math.round(tm.durSec/60));
+    elHint.textContent = t("fsHintBreak");
+    elBtns.innerHTML = `<button class="fs-btn ghost" data-act="close">${t("fsSkipBreak")}</button>`;
+  } else {
+    const cat = CATEGORIES.find(c=>c.id===tm.catId);
+    const g = (state.goals[tm.catId]||[]).find(x=>x.id===tm.goalId);
+    elCat.textContent  = cat ? `${cat.icon} ${L(cat.title)}` : "";
+    elGoal.textContent = g ? (g.text || t("goalPlaceholder")) : "";
+    elPh.textContent   = t("fsFocus");
+    elOf.textContent   = t("fsOf", Math.round(tm.durSec/60));
+    elHint.textContent = tm.durSec <= STARTER_MIN*60 ? t("fsHintStarter") : t("fsHintFocus");
+    elBtns.innerHTML = `<button class="fs-btn ghost" data-act="give">${t("fsGiveUp")}</button>`;
+  }
+  bindFsBtns();
+}
+
+function bindFsBtns(){
+  document.querySelectorAll("#fsBtns .fs-btn").forEach(b=>{
+    b.onclick = ()=>{
+      const a = b.dataset.act;
+      if(a === "give")       abandonFocus();
+      else if(a === "brk")   startBreak();
+      else if(a === "close"){ state.timer = null; save(state); closeFocusScreen(); render(); }
+    };
+  });
 }
 
 // 根据累计有效利用时间发放经验值（每小时 +10 XP），让角色等级与有效投入时间挂钩
@@ -1564,7 +2188,7 @@ function completeGoal(catId, goal){
 
   const today = todayStr();
   if(state.lastCompleteDate !== today){
-    const yesterday = new Date(Date.now()-86400000).toISOString().slice(0,10);
+    const yesterday = yesterdayStr();
     state.streak = (state.lastCompleteDate === yesterday) ? state.streak + 1 : 1;
     state.lastCompleteDate = today;
   }
@@ -2084,7 +2708,49 @@ function shuffle(arr){
   return a;
 }
 
+/* ===================== 启动：恢复中断的专注段 ===================== */
+
+// 关掉标签页 / 手机锁屏后重新打开时，把当时那一段补结算掉。
+// 因为每段都有固定时长上限，绝不会出现"忘记停止 = 记了一整夜"的情况。
+function resumeSession(){
+  const tm = state.timer;
+  if(!tm) return;
+  const past = (Date.now() - tm.start)/1000;
+
+  if(past >= tm.durSec){
+    // 离开期间这一段已经跑完了
+    if(tm.phase === "focus"){
+      const r = settleFocus(true);
+      render();
+      if(r && r.earnedPomo){
+        popTomato(r.catId);
+        showToast({emoji:"🍅", msg:t("pomoDone"), sub:t("pomoDoneSub", r.mins)});
+      }
+    } else {
+      state.timer = null;
+      save(state);
+      render();
+    }
+    return;
+  }
+  // 还没跑完 → 回到全屏，继续倒计时
+  openFocusScreen();
+  startTicking();
+}
+
+// 从后台切回前台时立刻校准一次，避免手机休眠导致 setInterval 被节流
+document.addEventListener("visibilitychange", ()=>{
+  if(document.hidden || !state.timer) return;
+  if(phaseRemain() <= 0){
+    stopTicking();
+    if(state.timer.phase === "focus") finishFocus(); else finishBreak();
+  } else {
+    paintFocusScreen(null);
+  }
+});
+
 render();
+resumeSession();
 </script>
 </body>
 </html>
