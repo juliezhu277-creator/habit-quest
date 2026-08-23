@@ -1271,6 +1271,21 @@
   }
   .nav-back:active{color:var(--ink);}
 
+  /* 第五格：挚友占整行 */
+  .me-blk.wide{grid-column:1 / -1;}
+  .me-blk.wide .mb-head{padding:10px 12px;}
+  .me-blk.wide .mb-tail{margin-left:auto;font-size:11px;font-weight:700;color:var(--muted);}
+  .me-blk.wide .mb-body.row{padding:9px 12px 11px;}
+  /* 提醒胶囊 */
+  .qk-remind{background:linear-gradient(135deg,#eefaf7,#dcf3ec);border:1px solid rgba(42,159,120,.28);}
+  .qk-remind .q-txt{color:#1f8a68;}
+  .rem-row{display:flex;align-items:center;gap:10px;margin:12px 0 4px;}
+  .rem-row input[type="time"]{
+    flex:1;border:2px solid #eee;border-radius:12px;padding:11px 13px;background:#fff;
+    font-family:inherit;font-size:15px;font-weight:800;color:var(--ink);
+  }
+  .rem-row input[type="time"]:focus{outline:none;border-color:var(--primary);}
+
   .mb-pet{border-color:#ffd0c4;}
   .mb-pet .mb-head{background:linear-gradient(135deg,#fff0ea,#ffe0d6);}
 
@@ -1878,8 +1893,8 @@ const I18N = {
     goalsNone: "今天还没设目标呢。回去写一件小事，小到你觉得「这也太容易了」，就从那个开始。",
     goalsLaterSay: "好，不催你。等你想开始的时候我还在。",
     // ===== 树洞 =====
-    jTitle: "树洞",
-    jSub: "说什么都行，没有人会看见",
+    jTitle: "悄悄话",
+    jSub: "说给它听，它不会说出去",
     jPromptNone: "想到什么写什么，不用通顺，不用有道理。写下来这件事本身就有用。",
     jPromptGood: "今天有什么值得记下来的？开心的事写下来，以后翻到会替你把那天的劲头还回来。",
     jPromptLow: "不用组织语言，也不用讲道理。骂人、抱怨、写一半就停，都可以。这里只有你自己。",
@@ -1887,15 +1902,21 @@ const I18N = {
     jBury: "埋起来",
     jKeep: "留下来",
     jHint: "「埋起来」= 说完就消失，不保存任何内容。「留下来」= 存在这台设备上，以后可以翻看，也可以随时删掉。",
-    jSavedSay: "收到了，好好留着了。",
-    jBuriedSay: "说完了就让它过去吧，我这就把它埋了，不留痕迹。",
+    jSavedSay: "我记住啦，好好收着。",
+    jBuriedSay: "说完就让它过去吧，我听完就忘掉，不留痕迹。",
     jSavedSay2: "我不知道你具体写了什么，也不需要知道。能把心里的东西挪出来一点，就已经轻一点了。",
     jCrisisSay: "有句话我一定要说 —— 不管刚才那句是不是随口写的，我都想把下面这个放在这儿。",
     jReadBack: "看看以前写的",
-    jListTitle: "树洞里的话",
+    jListTitle: "它记得的话",
     jListSub: n => `留下来的 ${n} 条 · 只存在这台设备`,
-    jEmpty: "树洞还是空的。\n心里有事的时候，回来说给它听。",
-    optJournal: "我想自己写点东西",
+    jEmpty: "还没有悄悄话。\n心里有事的时候，回来说给它听。",
+    optJournal: "我想说点悄悄话",
+    jTell: n => `说给${n}听`,
+    jRemembers: n => `它记得的 ${n} 条`,
+    secBuddyLine: "难受的时候，去找这些真的人",
+    remindChipOn: (hm,n) => `${n}每天 ${hm} 提醒你`,
+    remindChipOff: n => `让${n}每天提醒你`,
+    remindWho: n => `到点了${n}会来叫你`,
     jOpen: "翻看",
     moodWrite: "写点什么",
     shareFail: "这个浏览器没能弹出菜单",
@@ -2287,8 +2308,8 @@ const I18N = {
     goalsAllDone: "All of today's goals are done — amazing. The rest of the day is yours.",
     goalsNone: "No goals set yet today. Go write one small thing — so small it feels almost silly. Start there.",
     goalsLaterSay: "Okay, no rush. I'll be here when you want to start.",
-    jTitle: "Tree hollow",
-    jSub: "Say anything — nobody sees this",
+    jTitle: "Little secrets",
+    jSub: "Tell it anything — it never tells",
     jPromptNone: "Write whatever comes. It doesn't have to be tidy or make sense. Writing it down is the part that helps.",
     jPromptGood: "Anything worth keeping from today? Write the good bits down — reading them later hands the feeling back to you.",
     jPromptLow: "No need to form sentences or justify anything. Rant, complain, stop halfway. It's only you here.",
@@ -2301,10 +2322,16 @@ const I18N = {
     jSavedSay2: "I don't know what you wrote, and I don't need to. Moving something out of your head is already lighter.",
     jCrisisSay: "One thing I have to say — whether or not you meant that literally, I want to leave this here.",
     jReadBack: "Read what I wrote before",
-    jListTitle: "What's in the hollow",
+    jListTitle: "What it remembers",
     jListSub: n => `${n} kept · this device only`,
-    jEmpty: "The hollow is still empty.\nCome tell it something when your head is full.",
-    optJournal: "I'd rather write it myself",
+    jEmpty: "No secrets yet.\nCome tell it something when your head is full.",
+    optJournal: "I want to tell you something",
+    jTell: n => `Tell ${n}`,
+    jRemembers: n => `${n} remembered`,
+    secBuddyLine: "When things get hard, these are the real people",
+    remindChipOn: (hm,n) => `${n} nudges you at ${hm}`,
+    remindChipOff: n => `Let ${n} remind you daily`,
+    remindWho: n => `${n} will come get you`,
     jOpen: "Open",
     moodWrite: "Write something",
     shareFail: "This browser couldn't open the menu",
@@ -3073,30 +3100,13 @@ function buildMe(card){
         </div>
       </div>
 
-    </div>
-
-    <button class="me-row" data-go="hollow">
-      <span class="mr-ic">🌳</span><span class="mr-txt">${t("secHollow")}</span>
-      <span class="mr-sub">${t("jListSub", state.journal.length)}</span>
-      <span class="mr-arrow">›</span>
-    </button>
-
-    <button class="me-row" data-go="me-buddy">
-      <span class="mr-ic">💛</span><span class="mr-txt">${t("secBuddy")}</span>
-      <span class="mr-sub">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</span>
-      <span class="mr-arrow">›</span>
-    </button>
-
-    <div class="me-set">
-      <div class="s-row">
-        <span class="s-ic">🔔</span>
-        <span class="s-title">${t("remindTitle")}
-          <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
-        </span>
-        <input type="time" data-remind value="${state.reminder || ""}">
-        ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+      <div class="me-blk mb-buddy wide" data-go="me-buddy">
+        <div class="mb-head"><span class="mb-ic">💛</span><span class="mb-name">${t("secBuddy")}</span>
+          <span class="mb-tail">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")} ›</span>
+        </div>
+        <div class="mb-body row"><div class="mb-line">${t("secBuddyLine")}</div></div>
       </div>
-      <div class="s-note">${t("remindSub")}</div>
+
     </div>
 
     <div class="me-tools">
@@ -3110,15 +3120,7 @@ function buildMe(card){
   });
   card.querySelector("[data-backup]").addEventListener("click", exportBackup);
   card.querySelector("[data-restore]").addEventListener("click", importBackup);
-  card.querySelector("[data-remind]").addEventListener("change", e=>{
-    state.reminder = e.target.value || null;
-    state.remindedDate = null;
-    save(state);
-    if(state.reminder) askNotifyPermission();
-    renderNavContent();
-  });
-  const rOff = card.querySelector("[data-remind-off]");
-  if(rOff) rOff.addEventListener("click", ()=>{ state.reminder = null; save(state); renderNavContent(); });
+
   card.querySelectorAll("[data-go]").forEach(x=>{
     x.addEventListener("click", ()=>{
       const to = x.dataset.go;
@@ -3370,6 +3372,10 @@ function buildMePet(card){
       </button>`).join("")}</div>
 
     <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", petName())}</button>
+    <div class="me-tools">
+      <button class="me-tool" data-journal>✍️ ${t("jTell", petName())}</button>
+      <button class="me-tool" data-journal-list>📖 ${t("jRemembers", state.journal.length)}</button>
+    </div>
     ${bag}
     <div class="cal-sub">${t("petShop")} · ${t("funBalance")} ${avail}</div>
     ${shop}
@@ -3383,6 +3389,8 @@ function buildMePet(card){
     b.addEventListener("click", ()=>{ state.pet.species = b.dataset.species; save(state); renderNavContent(); });
   });
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
+  card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
+  card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
   card.querySelectorAll("[data-buy]").forEach(b=>{
     b.addEventListener("click", ()=>{
       if(petBuy(b.dataset.buy)){ renderNavContent(); spawnConfetti(); }
@@ -5823,6 +5831,13 @@ function buildBanners(){
     </div>`);
   }
 
+  chips.push(`<div class="qk qk-remind">
+    <button class="q-main" data-remind-open>
+      <span class="q-ic">🔔</span><span class="q-txt">${
+        state.reminder ? t("remindChipOn", state.reminder, petName()) : t("remindChipOff", petName())}</span>
+    </button>
+  </div>`);
+
   if(chips.length === 0) return "";
   return `<div class="quick-row">${chips.join("")}</div>`;
 }
@@ -5948,12 +5963,45 @@ function bindBanners(el){
     else if(act === "share") openShareSheet();   // 直接弹系统菜单，不再进弹层
     else                     openInstallSheet();
   });
+  const rem = el.querySelector("[data-remind-open]");
+  if(rem) rem.addEventListener("click", openRemindSheet);
   const instHow = el.querySelector("[data-install-how]");
   if(instHow) instHow.addEventListener("click", openInstallSheet);
   const instX = el.querySelector("[data-install-x]");
   if(instX) instX.addEventListener("click", ()=>{
     state.installDismissed = true; save(state); renderTasks();
   });
+}
+
+/* ---------- 每日提醒的设置弹层（入口在首页那排胶囊上） ---------- */
+function openRemindSheet(){
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+  card.innerHTML = `
+    <div class="nav-top">
+      <span class="nav-title">${t("remindTitle")}</span>
+      <button class="nav-close" aria-label="close">✕</button>
+    </div>
+    <div class="start-goal">${t("remindWho", petName())}</div>
+    <div class="rem-row">
+      <input type="time" data-remind value="${state.reminder || ""}">
+      ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+    </div>
+    <div class="start-note">${t("remindSub")}</div>`;
+  card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+  card.querySelector("[data-remind]").addEventListener("change", e=>{
+    state.reminder = e.target.value || null;
+    state.remindedDate = null;
+    save(state);
+    if(state.reminder) askNotifyPermission();
+    render(); openRemindSheet();
+  });
+  const off = card.querySelector("[data-remind-off]");
+  if(off) off.addEventListener("click", ()=>{
+    state.reminder = null; save(state); render(); openRemindSheet();
+  });
+  modal.classList.add("open");
+  requestAnimationFrame(()=>card.classList.add("show"));
 }
 
 /* ===================== 每日提醒 ===================== */
