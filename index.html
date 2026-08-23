@@ -1312,6 +1312,34 @@
   }
   .pet-stats{display:flex;justify-content:center;gap:12px;margin-top:10px;}
   .pet-stats span{font-size:10.5px;color:var(--muted);font-weight:700;}
+  .pet-photo{
+    display:block;width:100%;height:100%;border-radius:50%;
+    object-fit:cover;box-shadow:0 4px 14px rgba(0,0,0,.16);
+  }
+  .ph-preview{
+    width:190px;height:190px;margin:14px auto 4px;border-radius:50%;
+    overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.18);background:#f4f4f6;
+  }
+  .ph-preview img{display:block;width:100%;height:100%;object-fit:cover;}
+  .pet-pick-hint{
+    font-size:12px;color:var(--muted);line-height:1.65;
+    text-align:center;margin-bottom:10px;font-weight:600;
+  }
+  /* 宠物对主人说话的两个大按钮 */
+  .pet-cta{
+    display:block;width:100%;margin-bottom:9px;padding:15px 12px;
+    border:none;border-radius:16px;cursor:pointer;font-family:inherit;
+    font-size:16px;font-weight:800;letter-spacing:.01em;
+  }
+  .pet-cta.chat{
+    color:#fff;background:linear-gradient(135deg,#FF9A4D,#FF7A8E);
+    box-shadow:0 5px 15px rgba(255,120,110,.36);
+  }
+  .pet-cta.letter{
+    color:var(--primary-dark);background:#fff;
+    box-shadow:inset 0 0 0 2px rgba(255,140,66,.45);
+  }
+  .pet-cta:active{transform:scale(.97);}
   .pet-picker{display:flex;gap:8px;margin-bottom:12px;}
   .pet-picker .bud-pick{padding:9px 4px;}
   .pet-picker .bp-face{width:44px;height:44px;}
@@ -1775,6 +1803,18 @@ const I18N = {
     petProud: n => `你今天完成了 ${n} 个番茄钟，我都看见啦！`,
     petFull: "吃饱啦，谢谢你～我在这儿陪着你。",
     petHello: n => `我是${n}，以后就一起啦！`,
+    petPickHint: "先挑一只陪你的小家伙，也可以用自己家宠物的照片。",
+    petUsePhoto: "用我自己宠物的照片",
+    petPhotoTitle: "你的小宠物",
+    petPhotoCartoon: "卡通版",
+    petPhotoPlain: "原照片",
+    petPhotoNote: "卡通版会自动描边、简化配色，和 App 的手绘风格更搭，文件也更小。不喜欢就切回原照片。",
+    petConfirm: "就它了！",
+    petChange: "换一只陪我的",
+    petPhotoTooBig: "照片太大了",
+    petPhotoTooBigSub: "已经换回画的宠物，其他记录都还在",
+    petPhotoFail: "这张图读不出来",
+    petPhotoFailSub: "换一张普通的照片试试",
     petHint: "积分从专注和完成目标里来。吃的用一次少一个，玩具买一次就一直在。它不会生病也不会走，几天没来它就自己睡一会儿，等你回来。",
     buddyDisclaimer: n => `${n}是这个小程序里的角色，不是真人，也不能代替专业帮助。心里难受的时候，记得也告诉身边真实的大人。`,
     chatOpen: "聊聊",
@@ -1878,7 +1918,7 @@ const I18N = {
     secHollowSub: "想说什么就说什么，只有你自己看得到。",
     secBuddy: "我的挚友",
     secSettings: "设置",
-    chatWith: n => `和${n}聊聊`,
+    chatWith: n => `主人，和${n}聊聊天吧`,
     supNudgeTitle: "顺手存两个人吧",
     supNudgeSub: "谁都有不好受的时候。趁现在心情还行，写下一两个你愿意找的人，以后就不用现找了。",
     supNudgeGo: "去写",
@@ -1911,7 +1951,7 @@ const I18N = {
     jListSub: n => `留下来的 ${n} 条 · 只存在这台设备`,
     jEmpty: "还没有悄悄话。\n心里有事的时候，回来说给它听。",
     optJournal: "我想说点悄悄话",
-    jTell: n => `说给${n}听`,
+    jTell: n => `主人，可以给${n}写信哦`,
     jRemembers: n => `它记得的 ${n} 条`,
     secBuddyLine: "难受的时候，去找这些真的人",
     remindChipOn: (hm,n) => `${n}每天 ${hm} 提醒你`,
@@ -2198,6 +2238,18 @@ const I18N = {
     petProud: n => `${n} pomodoros today — I saw all of it!`,
     petFull: "All full, thank you! I'll stay right here.",
     petHello: n => `I'm ${n}. We're together from now on!`,
+    petPickHint: "Pick a little friend — or use a photo of your own pet.",
+    petUsePhoto: "Use my own pet's photo",
+    petPhotoTitle: "Your pet",
+    petPhotoCartoon: "Cartoon",
+    petPhotoPlain: "Original",
+    petPhotoNote: "The cartoon version adds outlines and flattens the colours so it matches the app's drawn style — and it's a much smaller file. Switch back if you prefer the original.",
+    petConfirm: "This one!",
+    petChange: "Choose a different one",
+    petPhotoTooBig: "That photo is too large",
+    petPhotoTooBigSub: "Switched back to a drawn pet — everything else is safe",
+    petPhotoFail: "Couldn't read that image",
+    petPhotoFailSub: "Try a normal photo instead",
     petHint: "Points come from focusing and finishing goals. Food is used up; toys stay forever. It never gets sick and never leaves — if you're away a few days it just naps until you're back.",
     buddyDisclaimer: n => `${n} is a character inside this app, not a real person, and can't replace real help. When things feel heavy, please also tell a real adult you trust.`,
     chatOpen: "Talk",
@@ -2326,7 +2378,7 @@ const I18N = {
     jListSub: n => `${n} kept · this device only`,
     jEmpty: "No secrets yet.\nCome tell it something when your head is full.",
     optJournal: "I want to tell you something",
-    jTell: n => `Tell ${n}`,
+    jTell: n => `Write ${n} a letter`,
     jRemembers: n => `${n} remembered`,
     secBuddyLine: "When things get hard, these are the real people",
     remindChipOn: (hm,n) => `${n} nudges you at ${hm}`,
@@ -2530,8 +2582,8 @@ function defaultState(){
     supPromptShown: 0,    // 提示过几次（最多 3 次，之后不再提）
     supPromptDate: null,  // 上次提示的日期，同一天不重复
     supPromptOff: false,  // 用户点了"不用了"，永久不再提
-    pet: {species:"cat", name:"", born:null, fed:0, played:0,
-          lastFed:null, lastPlay:null, items:{}},
+    pet: {species:"cat", name:"", photo:null, chosen:false, born:null,
+          fed:0, played:0, lastFed:null, lastPlay:null, items:{}},
     careShown: null,      // 上次给出"找人聊聊"提示的日期，避免反复打扰
     reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
     remindedDate: null,   // 今天是否已提醒过
@@ -2619,7 +2671,11 @@ function load(){
   // 这里只能写字面量：宠物表声明在本函数之后，load() 初始化时引用会落进暂时性死区
   if(!state.pet || typeof state.pet !== "object") state.pet = {};
   const pt = state.pet;
-  if(!["cat","dog","rabbit"].includes(pt.species)) pt.species = "cat";
+  if(!["cat","dog","rabbit","custom"].includes(pt.species)) pt.species = "cat";
+  if(typeof pt.photo !== "string") pt.photo = null;
+  if(pt.species === "custom" && !pt.photo) pt.species = "cat";
+  // 已经养过一阵子的，不再打扰他重新挑
+  if(typeof pt.chosen !== "boolean") pt.chosen = (pt.fed > 0 || pt.played > 0 || !!pt.name);
   if(typeof pt.name !== "string") pt.name = "";
   if(typeof pt.fed !== "number") pt.fed = 0;
   if(typeof pt.played !== "number") pt.played = 0;
@@ -2687,7 +2743,17 @@ function load(){
 }
 
 function save(state){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(err){
+    // 基本只可能是宠物照片把空间撑满了：丢掉照片保住其余记录
+    if(state.pet && state.pet.photo){
+      state.pet.photo = null;
+      state.pet.species = "cat";
+      try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e2){}
+      showToast({emoji:"⚠️", msg:t("petPhotoTooBig"), sub:t("petPhotoTooBigSub")});
+    }
+  }
 }
 
 function xpNeeded(level){
@@ -3094,7 +3160,7 @@ function buildMe(card){
       <div class="me-blk mb-pet" data-go="me-pet">
         <div class="mb-head"><span class="mb-ic">🐾</span><span class="mb-name">${t("secPet")}</span></div>
         <div class="mb-body">
-          <div class="mb-avatar">${petSvg()}</div>
+          <div class="mb-avatar">${petAvatar()}</div>
           <div class="mb-line strong">${petName()}</div>
           <div class="mb-line">${petFedToday() ? t("petFedTag") : t("petFeedTag")}</div>
         </div>
@@ -3351,7 +3417,7 @@ function buildMePet(card){
 
   card.innerHTML = navHeader("secPet", "me") + `
     <div class="pet-stage">
-      <div class="pet-big">${petSvg(null,{tag:"big"})}</div>
+      <div class="pet-big">${petAvatar({tag:"big"})}</div>
       <div class="pet-say">${escapeHtml(petLine())}</div>
       <div class="pet-meta">
         <input class="pet-name" data-pet-name maxlength="8" value="${escapeHtml(state.pet.name)}"
@@ -3365,28 +3431,45 @@ function buildMePet(card){
       </div>
     </div>
 
-    <div class="pet-picker">${Object.values(PETS).map(x=>`
-      <button class="bud-pick${x.id===state.pet.species?" on":""}" data-species="${x.id}">
-        <span class="bp-face">${petSvg(x.id,{tag:"pick"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
-        <span class="bp-name">${L(x.name)}</span>
-      </button>`).join("")}</div>
+    ${state.pet.chosen ? "" : `
+      <div class="pet-pick-hint">${t("petPickHint")}</div>
+      <div class="pet-picker">${Object.values(PETS).map(x=>`
+        <button class="bud-pick${x.id===state.pet.species?" on":""}" data-species="${x.id}">
+          <span class="bp-face">${petSvg(x.id,{tag:"pick"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
+          <span class="bp-name">${L(x.name)}</span>
+        </button>`).join("")}</div>
+      <button class="me-tool wide" data-photo>📷 ${t("petUsePhoto")}</button>
+      <button class="start-go" data-confirm-pet>${t("petConfirm")}</button>`}
 
-    <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", petName())}</button>
-    <div class="me-tools">
-      <button class="me-tool" data-journal>✍️ ${t("jTell", petName())}</button>
-      <button class="me-tool" data-journal-list>📖 ${t("jRemembers", state.journal.length)}</button>
-    </div>
+    <button class="pet-cta chat" data-chat>💬 ${t("chatWith", petName())}</button>
+    <button class="pet-cta letter" data-journal>✉️ ${t("jTell", petName())}</button>
+    <button class="me-tool wide" data-journal-list>📖 ${t("jRemembers", state.journal.length)}</button>
     ${bag}
     <div class="cal-sub">${t("petShop")} · ${t("funBalance")} ${avail}</div>
     ${shop}
-    <div class="j-hint">${t("petHint")}</div>`;
+    <div class="j-hint">${t("petHint")}</div>
+    ${state.pet.chosen ? `<button class="me-link" data-repick>${t("petChange")}</button>` : ""}`;
 
   card.querySelector("[data-pet-name]").addEventListener("change", e=>{
     state.pet.name = e.target.value.trim().slice(0,8);
     save(state); renderNavContent();
   });
   card.querySelectorAll("[data-species]").forEach(b=>{
-    b.addEventListener("click", ()=>{ state.pet.species = b.dataset.species; save(state); renderNavContent(); });
+    b.addEventListener("click", ()=>{
+      state.pet.species = b.dataset.species;
+      state.pet.photo = null;
+      save(state); renderNavContent();
+    });
+  });
+  const photoBtn = card.querySelector("[data-photo]");
+  if(photoBtn) photoBtn.addEventListener("click", ()=>pickPetPhoto(()=>renderNavContent()));
+  const confirmBtn = card.querySelector("[data-confirm-pet]");
+  if(confirmBtn) confirmBtn.addEventListener("click", ()=>{
+    state.pet.chosen = true; save(state); renderNavContent(); spawnConfetti();
+  });
+  const repick = card.querySelector("[data-repick]");
+  if(repick) repick.addEventListener("click", ()=>{
+    state.pet.chosen = false; save(state); renderNavContent();
   });
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
   card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
@@ -4983,6 +5066,167 @@ function petSvg(species, opt){
   </svg>`;
 }
 
+// 当前宠物的头像：用了自己照片就显示照片，否则画内置的那只
+function petAvatar(opt){
+  const o = opt || {};
+  if(state.pet.species === "custom" && state.pet.photo){
+    return `<img class="pet-photo" src="${state.pet.photo}" alt="">`;
+  }
+  return petSvg(null, o);
+}
+
+// 上传自己宠物的照片。两件事必须做：
+// 1) 压到很小 —— localStorage 只有 5MB 左右，一张原图就能把整个存档撑爆
+// 2) 卡通化 —— 照片直接贴上去和 App 的手绘风格打架；而且色块变平之后
+//    JPEG 压得更狠，一举两得
+const PET_PHOTO_SIZE = 256;
+
+// 纯 canvas 的卡通滤镜：柔化 → 色阶量化 → 提饱和 → Sobel 描边
+function cartoonify(src){
+  const S = src.width;
+  const ctx = src.getContext("2d");
+  const img = ctx.getImageData(0, 0, S, S);
+  const d = img.data;
+  const n = S * S;
+
+  // 1) 先做一次小半径均值模糊，抹掉毛发噪点，色块才干净
+  const blur = new Uint8ClampedArray(d.length);
+  const R = 2;
+  for(let y=0; y<S; y++){
+    for(let x=0; x<S; x++){
+      let r=0,g=0,b=0,c=0;
+      for(let dy=-R; dy<=R; dy++){
+        const yy = y+dy; if(yy<0||yy>=S) continue;
+        for(let dx=-R; dx<=R; dx++){
+          const xx = x+dx; if(xx<0||xx>=S) continue;
+          const i = (yy*S+xx)*4;
+          r+=d[i]; g+=d[i+1]; b+=d[i+2]; c++;
+        }
+      }
+      const i = (y*S+x)*4;
+      blur[i]=r/c; blur[i+1]=g/c; blur[i+2]=b/c; blur[i+3]=255;
+    }
+  }
+
+  // 2) 灰度图 + Sobel，找出轮廓
+  const gray = new Float32Array(n);
+  for(let i=0;i<n;i++){
+    const j=i*4;
+    gray[i] = 0.299*blur[j] + 0.587*blur[j+1] + 0.114*blur[j+2];
+  }
+  const edge = new Float32Array(n);
+  for(let y=1;y<S-1;y++){
+    for(let x=1;x<S-1;x++){
+      const i=y*S+x;
+      const gx = -gray[i-S-1] - 2*gray[i-1] - gray[i+S-1]
+                 +gray[i-S+1] + 2*gray[i+1] + gray[i+S+1];
+      const gy = -gray[i-S-1] - 2*gray[i-S] - gray[i-S+1]
+                 +gray[i+S-1] + 2*gray[i+S] + gray[i+S+1];
+      edge[i] = Math.hypot(gx, gy);
+    }
+  }
+
+  // 3) 色阶量化 + 提饱和，最后把轮廓压暗
+  const LEVELS = 6;
+  const step = 255 / (LEVELS - 1);
+  const SAT = 1.35, EDGE_T = 46;
+  for(let i=0;i<n;i++){
+    const j=i*4;
+    let r=blur[j], g=blur[j+1], b=blur[j+2];
+    const lum = 0.299*r + 0.587*g + 0.114*b;
+    r = lum + (r-lum)*SAT;
+    g = lum + (g-lum)*SAT;
+    b = lum + (b-lum)*SAT;
+    r = Math.round(Math.min(255,Math.max(0,r))/step)*step;
+    g = Math.round(Math.min(255,Math.max(0,g))/step)*step;
+    b = Math.round(Math.min(255,Math.max(0,b))/step)*step;
+    if(edge[i] > EDGE_T){
+      const k = edge[i] > EDGE_T*2 ? 0.18 : 0.45;
+      r*=k; g*=k; b*=k;
+    }
+    d[j]=r; d[j+1]=g; d[j+2]=b; d[j+3]=255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return src;
+}
+
+// 把 File 画到正方形 canvas 上（居中裁切，不变形）
+function photoToCanvas(img){
+  const S = PET_PHOTO_SIZE;
+  const c = document.createElement("canvas");
+  c.width = c.height = S;
+  const ctx = c.getContext("2d");
+  const side = Math.min(img.width, img.height);
+  const sx = (img.width - side)/2, sy = (img.height - side)/2;
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, S, S);
+  return c;
+}
+function canvasToData(c){
+  let data = c.toDataURL("image/jpeg", 0.82);
+  if(data.length > 90000) data = c.toDataURL("image/jpeg", 0.6);
+  return data;
+}
+
+function pickPetPhoto(onDone){
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", ()=>{
+    const file = input.files && input.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onload = ()=>{
+        const plain   = canvasToData(photoToCanvas(img));
+        const cartoon = canvasToData(cartoonify(photoToCanvas(img)));
+        openPhotoPreview(cartoon, plain, onDone);
+      };
+      img.onerror = ()=>showToast({emoji:"😥", msg:t("petPhotoFail"), sub:t("petPhotoFailSub")});
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.click();
+}
+
+// 让用户自己看一眼卡通版和原图，挑一个
+function openPhotoPreview(cartoon, plain, onDone){
+  let useCartoon = true;
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+  const paint = ()=>{
+    card.innerHTML = `
+      <div class="nav-top">
+        <span class="nav-title">${t("petPhotoTitle")}</span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="ph-preview"><img src="${useCartoon ? cartoon : plain}" alt=""></div>
+      <div class="dur-chips">
+        <button class="dur-chip${useCartoon?" on":""}" data-style="c">${t("petPhotoCartoon")}</button>
+        <button class="dur-chip${useCartoon?"":" on"}" data-style="p">${t("petPhotoPlain")}</button>
+      </div>
+      <div class="start-note">${t("petPhotoNote")}</div>
+      <button class="start-go" data-ph-ok>${t("petConfirm")}</button>`;
+    card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+    card.querySelectorAll("[data-style]").forEach(b=>{
+      b.addEventListener("click", ()=>{ useCartoon = b.dataset.style === "c"; paint(); });
+    });
+    card.querySelector("[data-ph-ok]").addEventListener("click", ()=>{
+      state.pet.photo   = useCartoon ? cartoon : plain;
+      state.pet.species = "custom";
+      state.pet.chosen  = true;
+      save(state);
+      closeStartSheet();
+      spawnConfetti();
+      if(onDone) onDone();
+    });
+  };
+  paint();
+  modal.classList.add("open");
+  requestAnimationFrame(()=>card.classList.add("show"));
+}
+
 // 商店：积分的另一个出口
 const PET_SHOP = [
   {id:"apple",  kind:"food", emoji:"🍎", cost:20,  name:{zh:"苹果",     en:"Apple"}},
@@ -5128,7 +5372,7 @@ function openJournal(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="pet-avatar">${petSvg()}</div>
+      <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${t("jTitle")}<small>${t("jSub")}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -5179,7 +5423,7 @@ function finishJournal(text, keep){
   const card = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="pet-avatar">${petSvg()}</div>
+      <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${petName()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -5227,7 +5471,7 @@ function openJournalList(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="pet-avatar">${petSvg()}</div>
+      <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${t("jListTitle")}<small>${t("jListSub", state.journal.length)}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -5287,7 +5531,7 @@ function openChat(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="pet-avatar">${petSvg()}</div>
+      <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${petName()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -5450,7 +5694,7 @@ function openSupportSheet(){
 
     card.innerHTML = `
       <div class="chat-top">
-        <div class="pet-avatar">${petSvg()}</div>
+        <div class="pet-avatar">${petAvatar()}</div>
         <span class="ct-name">${t("supTitle")}<small>${t("supSub")}</small></span>
         <button class="nav-close" aria-label="close">✕</button>
       </div>
