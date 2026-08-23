@@ -1477,8 +1477,8 @@
   .si-txt b{display:block;font-size:13px;font-weight:800;color:var(--ink);}
   .si-txt small{display:block;font-size:10px;color:var(--muted);margin-top:1px;}
 
-  .mb-cal{border-color:#ffe0a8;}
-  .mb-cal .mb-head{background:linear-gradient(135deg,#fff6e4,#ffedc9);}
+  .mb-rank{border-color:#ffe0a8;}
+  .mb-rank .mb-head{background:linear-gradient(135deg,#fff6e4,#ffedc9);}
 
   /* ===================== 排行榜 ===================== */
   .rk-me{
@@ -1511,59 +1511,6 @@
   .rks-title{font-size:13px;font-weight:800;color:#4a5a6a;margin-bottom:6px;}
   .rks-body{font-size:11.5px;color:#78889a;line-height:1.75;}
 
-  /* ===================== 我的日历 ===================== */
-  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .cal-title{font-size:14px;font-weight:800;color:var(--ink);}
-  .cal-arrow{
-    border:none;background:#f4f4f6;border-radius:10px;width:32px;height:32px;
-    font-size:19px;line-height:1;color:var(--ink);cursor:pointer;font-family:inherit;
-  }
-  .cal-arrow:active{background:#e8e8ec;}
-  .cal-dows,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-  .cal-dow{font-size:10px;color:var(--muted);text-align:center;font-weight:700;padding-bottom:4px;}
-  .cal-cell{
-    position:relative;border:none;background:#fafafb;border-radius:10px;
-    aspect-ratio:1/1;cursor:pointer;font-family:inherit;
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;
-  }
-  .cal-cell.blank{background:none;cursor:default;}
-  .cal-cell:not(.blank):active{background:#f0eff2;}
-  .cal-cell.today{background:#fff3e8;box-shadow:inset 0 0 0 2px var(--primary);}
-  .cal-num{font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
-  .cal-cell.today .cal-num{color:var(--primary-dark);font-weight:800;}
-  .cal-star{position:absolute;top:2px;right:4px;font-size:9px;color:#F5A623;font-style:normal;}
-  .cal-dots{display:flex;gap:2px;height:5px;}
-  .cal-dot{width:5px;height:5px;border-radius:50%;}
-  .cal-legend{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;justify-content:center;}
-  .cl-item{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--muted);font-weight:700;}
-  .cl-item i{width:9px;height:9px;border-radius:50%;display:block;}
-  .cal-sub{font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px;}
-  .cal-opt{
-    display:flex;align-items:center;gap:7px;font-size:12.5px;
-    font-weight:700;color:var(--ink);cursor:pointer;padding:2px 0;
-  }
-  .cal-opt input{width:17px;height:17px;accent-color:var(--primary);}
-  /* 某一天的事件行 */
-  .day-row{
-    display:flex;align-items:center;gap:9px;
-    background:#fbf8f4;border-radius:13px;padding:10px 12px;overflow:hidden;
-  }
-  .dr-bar{width:4px;align-self:stretch;border-radius:3px;flex-shrink:0;}
-  .dr-txt{flex:1;min-width:0;}
-  .dr-txt b{display:block;font-size:13px;font-weight:800;color:var(--ink);}
-  .dr-txt small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;}
-  .dr-star{
-    border:none;background:none;font-size:15px;color:#d8d4cd;cursor:pointer;
-    padding:2px 4px;flex-shrink:0;
-  }
-  .dr-star.on{color:#F5A623;}
-
-  /* 首页：日历里标了★的目标 */
-  .goal-row.vip{
-    box-shadow:inset 3px 0 0 #F5A623;
-    padding-left:7px;border-radius:4px;
-  }
-  .goal-row.vip .goal-input{font-weight:800;}
   /* 沿用昨天 */
   .carry-btn{
     display:block;width:100%;margin:0 0 9px;padding:9px;
@@ -2062,19 +2009,6 @@ const I18N = {
     shareFooter: "了不起的我 · ProudMe",
     shareSaved: "已保存 🖼",
     shareSavedSub: "去相册里找，发到群里比一比",
-    secCalendar: "我的日历",
-    calMonth: (y,m) => `${y} 年 ${m} 月`,
-    calTodayCount: "今天的安排",
-    calPlanCount: n => `${n} 个长期计划`,
-    calPlans: "进行中的长期计划",
-    calAdd: "＋ 添加安排",
-    calAddThis: "加到这一天",
-    calDaySub: "这一天的安排",
-    calDayEmpty: "这天还没有安排。\n写下来，当天它会自动出现在首页。",
-    calWhat: "要做什么？",
-    calImportant: "标记为重要 ★",
-    calRange: "这是长期计划（跨多天）",
-    calHint: "写在日历里的事，到了那天会自动出现在首页对应的板块里，标了★的会highlight。长期计划在起止日期之间每天都会出现。",
     carryYesterday: "沿用昨天的目标",
     meDays: n => `打卡 ${n} 天`,
     meStreakLine: n => `连续 ${n} 天`,
@@ -2493,19 +2427,6 @@ const I18N = {
     shareFooter: "ProudMe",
     shareSaved: "Saved 🖼",
     shareSavedSub: "Find it in your photos and share it",
-    secCalendar: "My calendar",
-    calMonth: (y,m) => `${y}-${String(m).padStart(2,"0")}`,
-    calTodayCount: "on today",
-    calPlanCount: n => `${n} ongoing plan${n===1?"":"s"}`,
-    calPlans: "Ongoing plans",
-    calAdd: "＋ Add something",
-    calAddThis: "Add to this day",
-    calDaySub: "What's on this day",
-    calDayEmpty: "Nothing planned yet.\nWrite it down and it shows up on your home page that day.",
-    calWhat: "What needs doing?",
-    calImportant: "Mark as important ★",
-    calRange: "This is a longer plan (spans days)",
-    calHint: "Anything in the calendar appears in the matching block on your home page that day; starred ones are highlighted. Longer plans show up every day between their start and end dates.",
     carryYesterday: "Reuse yesterday's goals",
     meDays: n => `${n} days in`,
     meStreakLine: n => `${n}-day streak`,
@@ -2743,8 +2664,6 @@ function defaultState(){
     moods: {},            // { "YYYY-MM-DD": {m:心情id, at:时间戳} }
     journal: [],          // 树洞：[{id, d:日期, m:心情id, t:正文, at:时间戳}]
     support: [],          // 求助名单：[{id, name, rel, tel}]，由用户自己填，全球通用
-    calendar: [],         // 日历：[{id, cat, text, from, to, important, done}]，to 为 null 表示只有一天
-    lastFillDate: null,   // 上次按日历生成过目标的日期
     supPromptShown: 0,    // 提示过几次（最多 3 次，之后不再提）
     supPromptDate: null,  // 上次提示的日期，同一天不重复
     supPromptOff: false,  // 用户点了"不用了"，永久不再提
@@ -2774,46 +2693,6 @@ function resetDailyGoals(state){
   state.lastFillDate = null;   // 让日历重新填一次
 }
 
-/* ---------- 日历 → 当天目标 ---------- */
-// 某天该出现哪些事：单日事件命中当天，长期计划在起止区间内每天都出现
-function eventsOn(dayStr){
-  return state.calendar.filter(e=>{
-    const to = e.to || e.from;
-    return e.from <= dayStr && dayStr <= to;
-  });
-}
-// 把日历里当天的事写进对应板块的空格子（已有文字的格子不动）
-function fillGoalsFromCalendar(){
-  const today = todayStr();
-  if(state.lastFillDate === today) return false;
-  let changed = false;
-  const evs = eventsOn(today);
-  CATEGORIES.forEach(c=>{
-    const mine = evs.filter(e=>e.cat === c.id);
-    if(!mine.length) return;
-    const list = state.goals[c.id] || (state.goals[c.id] = []);
-    const already = new Set(list.map(g=>(g.text||"").trim()).filter(Boolean));
-    mine.forEach(e=>{
-      const txt = (e.text||"").trim();
-      if(!txt || already.has(txt)) return;
-      let slot = list.find(g=>!(g.text||"").trim());
-      if(!slot){ slot = blankGoal(); list.push(slot); }
-      slot.text = txt;
-      slot.fromCal = e.id;          // 记住来源，首页好标出重点
-      already.add(txt);
-      changed = true;
-    });
-  });
-  state.lastFillDate = today;
-  return changed;
-}
-// 这个目标对应的日历事件是不是"重要"
-function goalIsImportant(g){
-  if(!g.fromCal) return false;
-  const e = state.calendar.find(x=>x.id === g.fromCal);
-  return !!(e && e.important);
-}
-
 function load(){
   const raw = localStorage.getItem(STORAGE_KEY);
   let state = raw ? JSON.parse(raw) : defaultState();
@@ -2829,8 +2708,6 @@ function load(){
   if(!state.moods || typeof state.moods !== "object") state.moods = {};
   if(!Array.isArray(state.journal)) state.journal = [];
   if(!Array.isArray(state.support)) state.support = [];
-  if(!Array.isArray(state.calendar)) state.calendar = [];
-  if(typeof state.lastFillDate === "undefined") state.lastFillDate = null;
   if(typeof state.supPromptShown !== "number") state.supPromptShown = 0;
   if(typeof state.supPromptDate === "undefined") state.supPromptDate = null;
   if(typeof state.supPromptOff !== "boolean") state.supPromptOff = false;
@@ -3212,7 +3089,6 @@ function renderNavContent(){
   else if(currentNav === "me-mood") buildMeMood(card);
   else if(currentNav === "me-pet") buildMePet(card);
   else if(currentNav === "me-set") buildMeSettings(card);
-  else if(currentNav === "me-cal") buildCalendar(card);
   else if(currentNav === "rank") buildRank(card);
   const c = card.querySelector(".nav-close");
   if(c) c.addEventListener("click", closeNav);
@@ -3313,12 +3189,12 @@ function buildMe(card){
         </div>
       </div>
 
-      <div class="me-blk mb-cal" data-go="me-cal">
-        <div class="mb-head"><span class="mb-ic">📅</span><span class="mb-name">${t("secCalendar")}</span></div>
+      <div class="me-blk mb-rank" data-go="rank">
+        <div class="mb-head"><span class="mb-ic">🏆</span><span class="mb-name">${t("navRank")}</span></div>
         <div class="mb-body">
-          <div class="mb-big">${eventsOn(todayStr()).length}</div>
-          <div class="mb-line">${t("calTodayCount")}</div>
-          <div class="mb-line">${t("calPlanCount", state.calendar.filter(e=>e.to && e.to !== e.from && e.to >= todayStr()).length)}</div>
+          <div class="mb-big">${state.streak}</div>
+          <div class="mb-line">${t("rankStreakUnit")}</div>
+          <div class="mb-line">${t("meDays", checkinDays())}</div>
         </div>
       </div>
 
@@ -3498,169 +3374,6 @@ function buildRank(card){
     </div>`;
 
   card.querySelector("[data-share-card]").addEventListener("click", shareStatsCard);
-}
-
-/* ---------- 我的日历 ---------- */
-// 短期（单日）和长期（区间）计划都放这里，按四个板块用颜色区分，重要的事打星。
-// 设好之后，当天的事会自动出现在首页对应的板块里。
-let calMonth = null;
-
-function calKey(y, m, d){
-  return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
-}
-function monthMeta(y, m){
-  const first = new Date(y, m, 1);
-  return {lead:(first.getDay()+6)%7, days:new Date(y, m+1, 0).getDate()};
-}
-
-function buildCalendar(card){
-  const now = new Date();
-  if(!calMonth) calMonth = {y:now.getFullYear(), m:now.getMonth()};
-  const {y, m} = calMonth;
-  const {lead, days} = monthMeta(y, m);
-  const today = todayStr();
-  const names = t("weekDays");
-
-  let cells = "";
-  for(let i=0;i<lead;i++) cells += `<span class="cal-cell blank"></span>`;
-  for(let d=1; d<=days; d++){
-    const key = calKey(y, m, d);
-    const evs = eventsOn(key);
-    const cats = [...new Set(evs.map(e=>e.cat))];
-    const star = evs.some(e=>e.important);
-    const dots = cats.slice(0,4).map(c=>`<span class="cal-dot" style="background:${CAT_TINT[c]}"></span>`).join("");
-    cells += `<button class="cal-cell${key===today?" today":""}" data-day="${key}">
-      <span class="cal-num">${d}</span>${star?`<i class="cal-star">★</i>`:""}
-      <span class="cal-dots">${dots}</span></button>`;
-  }
-
-  const plans = state.calendar
-    .filter(e=>e.to && e.to !== e.from && e.to >= today)
-    .sort((a,b)=>a.from.localeCompare(b.from)).slice(0,6);
-  const planList = plans.length ? `
-    <div class="cal-sub">${t("calPlans")}</div>
-    ${plans.map(e=>{
-      const c = CATEGORIES.find(x=>x.id===e.cat) || CATEGORIES[0];
-      return `<div class="day-row">
-        <span class="dr-bar" style="background:${CAT_TINT[e.cat]}"></span>
-        <span class="dr-txt"><b>${c.icon} ${escapeHtml(e.text)}</b><small>${e.from} → ${e.to}</small></span>
-        <button class="j-del" data-cal-del="${e.id}" aria-label="delete">✕</button>
-      </div>`;
-    }).join("")}` : "";
-
-  card.innerHTML = navHeader("secCalendar", "me") + `
-    <div class="cal-nav">
-      <button class="cal-arrow" data-mon="-1">‹</button>
-      <span class="cal-title">${t("calMonth", y, m+1)}</span>
-      <button class="cal-arrow" data-mon="1">›</button>
-    </div>
-    <div class="cal-dows">${names.map(n=>`<span class="cal-dow">${n}</span>`).join("")}</div>
-    <div class="cal-grid">${cells}</div>
-    <div class="cal-legend">${CATEGORIES.map(c=>
-      `<span class="cl-item"><i style="background:${CAT_TINT[c.id]}"></i>${L(c.title)}</span>`).join("")}</div>
-    <button class="start-go" data-cal-add>${t("calAdd")}</button>
-    ${planList}`;
-
-  card.querySelectorAll("[data-mon]").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      let mm = calMonth.m + parseInt(b.dataset.mon,10), yy = calMonth.y;
-      if(mm < 0){ mm = 11; yy -= 1; }
-      if(mm > 11){ mm = 0; yy += 1; }
-      calMonth = {y:yy, m:mm}; renderNavContent();
-    });
-  });
-  card.querySelectorAll("[data-day]").forEach(b=>{
-    b.addEventListener("click", ()=>openDaySheet(b.dataset.day));
-  });
-  card.querySelector("[data-cal-add]").addEventListener("click", ()=>openDaySheet(today));
-  card.querySelectorAll("[data-cal-del]").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      state.calendar = state.calendar.filter(x=>x.id !== b.dataset.calDel);
-      state.lastFillDate = null; save(state); renderNavContent();
-    });
-  });
-}
-
-/* ---------- 某一天：看事件 / 加事件 ---------- */
-function openDaySheet(dayStr){
-  const modal = document.getElementById("chatModal");
-  const card  = document.getElementById("chatCard");
-  let cat = "study", important = false, isRange = false;
-
-  const paint = ()=>{
-    const evs = eventsOn(dayStr);
-    const rows = evs.length ? evs.map(e=>{
-      const c = CATEGORIES.find(x=>x.id===e.cat) || CATEGORIES[0];
-      const span = (e.to && e.to !== e.from) ? `<small>${e.from} → ${e.to}</small>` : "";
-      return `<div class="day-row">
-        <span class="dr-bar" style="background:${CAT_TINT[e.cat]}"></span>
-        <span class="dr-txt"><b>${c.icon} ${escapeHtml(e.text)}</b>${span}</span>
-        <button class="dr-star${e.important?" on":""}" data-star="${e.id}" aria-label="star">★</button>
-        <button class="j-del" data-del-ev="${e.id}" aria-label="delete">✕</button>
-      </div>`;
-    }).join("") : `<div class="j-empty">${t("calDayEmpty")}</div>`;
-
-    card.innerHTML = `
-      <div class="chat-top">
-        <span class="ct-name">${dayStr}<small>${t("calDaySub")}</small></span>
-        <button class="nav-close" aria-label="close">✕</button>
-      </div>
-      <div class="sup-wrap">
-        <div class="sup-list">${rows}</div>
-        <div class="sup-add">
-          <div class="rel-chips">${CATEGORIES.map(c=>
-            `<button class="rel-chip${cat===c.id?" on":""}" data-cat="${c.id}">${c.icon} ${L(c.title)}</button>`).join("")}</div>
-          <input class="sup-in" data-ev-text maxlength="${GOAL_MAX_LEN}" placeholder="${t("calWhat")}">
-          <label class="cal-opt"><input type="checkbox" data-ev-imp${important?" checked":""}> ${t("calImportant")}</label>
-          <label class="cal-opt"><input type="checkbox" data-ev-range${isRange?" checked":""}> ${t("calRange")}</label>
-          <input class="sup-in" data-ev-to type="date" value="${dayStr}" style="${isRange?"":"display:none"}">
-          <button class="start-go" data-ev-add>${t("calAddThis")}</button>
-        </div>
-        <div class="j-hint">${t("calHint")}</div>
-      </div>`;
-
-    card.querySelector(".nav-close").addEventListener("click", closeChat);
-    card.querySelectorAll("[data-cat]").forEach(b=>{
-      b.addEventListener("click", ()=>{ cat = b.dataset.cat; paint(); });
-    });
-    card.querySelector("[data-ev-imp]").addEventListener("change", e=>{ important = e.target.checked; });
-    card.querySelector("[data-ev-range]").addEventListener("change", e=>{
-      isRange = e.target.checked;
-      card.querySelector("[data-ev-to]").style.display = isRange ? "" : "none";
-    });
-    card.querySelectorAll("[data-star]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        const e = state.calendar.find(x=>x.id === b.dataset.star);
-        if(e){ e.important = !e.important; save(state); paint(); render(); }
-      });
-    });
-    card.querySelectorAll("[data-del-ev]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        state.calendar = state.calendar.filter(x=>x.id !== b.dataset.delEv);
-        state.lastFillDate = null; save(state); paint();
-      });
-    });
-    card.querySelector("[data-ev-add]").addEventListener("click", ()=>{
-      const txtEl = card.querySelector("[data-ev-text]");
-      const txt = txtEl.value.trim();
-      if(!txt){ txtEl.focus(); return; }
-      const toVal = isRange ? (card.querySelector("[data-ev-to]").value || dayStr) : null;
-      state.calendar.push({
-        id: uid("e"), cat, text: txt, from: dayStr,
-        to: (toVal && toVal > dayStr) ? toVal : null,
-        important, done:false
-      });
-      state.lastFillDate = null;
-      fillGoalsFromCalendar();
-      save(state); render(); paint();
-    });
-  };
-
-  paint();
-  if(!modal.classList.contains("open")){
-    modal.classList.add("open");
-    requestAnimationFrame(()=>card.classList.add("show"));
-  }
 }
 
 /* ---- 我的成长 ---- */
@@ -3930,7 +3643,7 @@ function renderTasks(){
     goals.forEach(g=>{
       const isRunning = running && running.goalId === g.id;
       rows += `
-        <div class="goal-row${g.done?" done":""}${goalIsImportant(g)?" vip":""}" data-gid="${g.id}">
+        <div class="goal-row${g.done?" done":""}" data-gid="${g.id}">
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
           <input class="goal-input" data-text maxlength="${GOAL_MAX_LEN}" value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
           <div class="goal-ctrls">
@@ -6588,7 +6301,6 @@ document.addEventListener("visibilitychange", ()=>{
   }
 });
 
-if(fillGoalsFromCalendar()) save(state);
 render();
 resumeSession();
 checkReminder();
