@@ -989,14 +989,14 @@
   .mood-head .mh-txt{flex:1;min-width:0;}
   .mood-head .mh-title{font-size:14px;font-weight:800;color:var(--ink);line-height:1.4;}
   .mood-head .mh-sub{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.5;}
-  .buddy-avatar{
+  .pet-avatar{
     width:42px;height:42px;border-radius:50%;flex-shrink:0;
     box-shadow:0 4px 12px rgba(255,120,90,0.32);
     background:#fff;overflow:hidden;
   }
-  .buddy-avatar svg{display:block;width:100%;height:100%;}
-  .buddy-avatar.tap{cursor:pointer;transition:transform .15s;}
-  .buddy-avatar.tap:active{transform:scale(0.92);}
+  .pet-avatar svg{display:block;width:100%;height:100%;}
+  .pet-avatar.tap{cursor:pointer;transition:transform .15s;}
+  .pet-avatar.tap:active{transform:scale(0.92);}
 
   /* 六张心情脸 */
   .mood-row{display:flex;gap:5px;}
@@ -1270,6 +1270,57 @@
     cursor:pointer;padding:0 8px 3px 0;flex-shrink:0;font-family:inherit;
   }
   .nav-back:active{color:var(--ink);}
+
+  .mb-pet{border-color:#ffd0c4;}
+  .mb-pet .mb-head{background:linear-gradient(135deg,#fff0ea,#ffe0d6);}
+
+  /* ===================== 宠物页 ===================== */
+  .pet-stage{
+    background:linear-gradient(165deg,#fff8f2,#ffeee6);
+    border-radius:20px;padding:16px 14px 14px;text-align:center;margin-bottom:12px;
+  }
+  .pet-big{width:132px;height:132px;margin:0 auto 6px;}
+  .pet-big svg{display:block;width:100%;height:100%;}
+  .pet-say{
+    font-size:12.5px;font-weight:700;color:var(--primary-dark);line-height:1.65;
+    background:#fff;border-radius:14px;padding:9px 12px;margin:0 auto 11px;max-width:280px;
+  }
+  .pet-meta{display:flex;align-items:center;justify-content:center;gap:8px;}
+  .pet-name{
+    width:120px;text-align:center;border:2px solid #ffd9c6;border-radius:11px;
+    padding:7px 8px;font-family:inherit;font-size:14px;font-weight:800;color:var(--ink);background:#fff;
+  }
+  .pet-name:focus{outline:none;border-color:var(--primary);}
+  .pet-badge{
+    font-size:11px;font-weight:800;color:#fff;background:var(--primary);
+    border-radius:10px;padding:5px 10px;
+  }
+  .pet-stats{display:flex;justify-content:center;gap:12px;margin-top:10px;}
+  .pet-stats span{font-size:10.5px;color:var(--muted);font-weight:700;}
+  .pet-picker{display:flex;gap:8px;margin-bottom:12px;}
+  .pet-picker .bud-pick{padding:9px 4px;}
+  .pet-picker .bp-face{width:44px;height:44px;}
+  /* 背包 */
+  .pet-bag{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .bag-item{
+    display:flex;align-items:center;gap:7px;border:2px solid #ffe2d2;background:#fff;
+    border-radius:13px;padding:9px 10px;cursor:pointer;font-family:inherit;text-align:left;
+  }
+  .bag-item.toy{border-color:#d9d2f7;}
+  .bag-item:active{background:#fff6f0;}
+  .bag-item .bi-ic{font-size:19px;flex-shrink:0;}
+  .bag-item .bi-n{flex:1;min-width:0;font-size:12px;font-weight:800;color:var(--ink);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .bag-item .bi-c{font-size:10px;font-weight:700;color:var(--muted);flex-shrink:0;}
+  /* 商店 */
+  .shop-item{
+    display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #f0f0f0;
+  }
+  .shop-item:first-of-type{border-top:none;}
+  .si-ic{font-size:21px;flex-shrink:0;width:28px;text-align:center;}
+  .si-txt{flex:1;min-width:0;}
+  .si-txt b{display:block;font-size:13px;font-weight:800;color:var(--ink);}
+  .si-txt small{display:block;font-size:10px;color:var(--muted);margin-top:1px;}
 
   .mb-cal{border-color:#ffe0a8;}
   .mb-cal .mb-head{background:linear-gradient(135deg,#fff6e4,#ffedc9);}
@@ -1690,9 +1741,27 @@ const I18N = {
     moodPicked: n => `今天：${n}`,
     moodChange: "心情变了可以随时改",
     // ===== 小暖 =====
-    buddyTag: "陪你一天天变好",
+    petTag: "陪你一天天变好",
+    secPet: "我的宠物",
+    petBag: "背包",
+    petShop: "小商店",
+    petFoodTag: "吃的 · 用一次少一个",
+    petToyTag: "玩具 · 买一次一直在",
+    petToyForever: "一直在",
+    petFedTag: "今天喂过啦",
+    petFeedTag: "还没喂它",
+    petFedN: n => `喂过 ${n} 次`,
+    petPlayedN: n => `玩过 ${n} 次`,
+    petDays: n => `陪你 ${n} 天`,
+    petAte: n => `${n}吃得好开心！`,
+    petPlayed: n => `${n}玩得好开心！`,
+    petThanks: "它蹭了蹭你",
+    petHungry: "咕…有点饿了，能给我点吃的吗？",
+    petProud: n => `你今天完成了 ${n} 个番茄钟，我都看见啦！`,
+    petFull: "吃饱啦，谢谢你～我在这儿陪着你。",
+    petHello: n => `我是${n}，以后就一起啦！`,
+    petHint: "积分从专注和完成目标里来。吃的用一次少一个，玩具买一次就一直在。它不会生病也不会走，几天没来它就自己睡一会儿，等你回来。",
     buddyDisclaimer: n => `${n}是这个小程序里的角色，不是真人，也不能代替专业帮助。心里难受的时候，记得也告诉身边真实的大人。`,
-    buddyPick: "换一个陪你的人",
     chatOpen: "聊聊",
     greetMorning: "早上好呀",
     greetNoon: "中午好",
@@ -2089,9 +2158,27 @@ const I18N = {
     moodSub: "Pick one — only you can see it",
     moodPicked: n => `Today: ${n}`,
     moodChange: "You can change it any time",
-    buddyTag: "here every day",
+    petTag: "here every day",
+    secPet: "My pet",
+    petBag: "Bag",
+    petShop: "Shop",
+    petFoodTag: "Food · used up when eaten",
+    petToyTag: "Toy · yours forever",
+    petToyForever: "forever",
+    petFedTag: "Fed today",
+    petFeedTag: "Not fed yet",
+    petFedN: n => `Fed ${n}×`,
+    petPlayedN: n => `Played ${n}×`,
+    petDays: n => `${n} days together`,
+    petAte: n => `${n} loved that!`,
+    petPlayed: n => `${n} had so much fun!`,
+    petThanks: "It nuzzles you",
+    petHungry: "Rumble… I'm a little hungry. Got anything?",
+    petProud: n => `${n} pomodoros today — I saw all of it!`,
+    petFull: "All full, thank you! I'll stay right here.",
+    petHello: n => `I'm ${n}. We're together from now on!`,
+    petHint: "Points come from focusing and finishing goals. Food is used up; toys stay forever. It never gets sick and never leaves — if you're away a few days it just naps until you're back.",
     buddyDisclaimer: n => `${n} is a character inside this app, not a real person, and can't replace real help. When things feel heavy, please also tell a real adult you trust.`,
-    buddyPick: "Choose who keeps you company",
     chatOpen: "Talk",
     greetMorning: "Good morning",
     greetNoon: "Hi there",
@@ -2416,7 +2503,8 @@ function defaultState(){
     supPromptShown: 0,    // 提示过几次（最多 3 次，之后不再提）
     supPromptDate: null,  // 上次提示的日期，同一天不重复
     supPromptOff: false,  // 用户点了"不用了"，永久不再提
-    buddy: "sis",         // 知心姐姐 sis / 知心哥哥 bro，由用户自己选
+    pet: {species:"cat", name:"", born:null, fed:0, played:0,
+          lastFed:null, lastPlay:null, items:{}},
     careShown: null,      // 上次给出"找人聊聊"提示的日期，避免反复打扰
     reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
     remindedDate: null,   // 今天是否已提醒过
@@ -2501,8 +2589,18 @@ function load(){
   if(typeof state.supPromptShown !== "number") state.supPromptShown = 0;
   if(typeof state.supPromptDate === "undefined") state.supPromptDate = null;
   if(typeof state.supPromptOff !== "boolean") state.supPromptOff = false;
-  // 这里只能写字面量：角色表声明在本函数之后，load() 初始化时引用会落进暂时性死区
-  if(state.buddy !== "sis" && state.buddy !== "bro") state.buddy = "sis";
+  // 这里只能写字面量：宠物表声明在本函数之后，load() 初始化时引用会落进暂时性死区
+  if(!state.pet || typeof state.pet !== "object") state.pet = {};
+  const pt = state.pet;
+  if(!["cat","dog","rabbit"].includes(pt.species)) pt.species = "cat";
+  if(typeof pt.name !== "string") pt.name = "";
+  if(typeof pt.fed !== "number") pt.fed = 0;
+  if(typeof pt.played !== "number") pt.played = 0;
+  if(typeof pt.lastFed === "undefined") pt.lastFed = null;
+  if(typeof pt.lastPlay === "undefined") pt.lastPlay = null;
+  if(!pt.items || typeof pt.items !== "object") pt.items = {};
+  if(!pt.born) pt.born = todayStr();
+  delete state.buddy;
   if(typeof state.careShown === "undefined") state.careShown = null;
   if(typeof state.reminder === "undefined") state.reminder = null;
   if(typeof state.remindedDate === "undefined") state.remindedDate = null;
@@ -2855,6 +2953,7 @@ function renderNavContent(){
   else if(currentNav === "me-growth") buildMeGrowth(card);
   else if(currentNav === "me-mood") buildMeMood(card);
   else if(currentNav === "me-buddy") buildMeBuddy(card);
+  else if(currentNav === "me-pet") buildMePet(card);
   else if(currentNav === "me-set") buildMeSettings(card);
   else if(currentNav === "me-cal") buildCalendar(card);
   const c = card.querySelector(".nav-close");
@@ -2921,7 +3020,6 @@ function buildInfo(card){
 // 但重新分配，内容从"要做的事"换成"关于我自己"。
 function buildMe(card){
   const cur = todayMood();
-  const b = buddy();
 
   // 心情：六张脸直接放在格子里，一点就打卡，不用再进一层
   const faces = MOODS.map(m=>
@@ -2966,12 +3064,12 @@ function buildMe(card){
         </div>
       </div>
 
-      <div class="me-blk mb-buddy" data-go="me-buddy">
-        <div class="mb-head"><span class="mb-ic">💛</span><span class="mb-name">${t("secBuddy")}</span></div>
+      <div class="me-blk mb-pet" data-go="me-pet">
+        <div class="mb-head"><span class="mb-ic">🐾</span><span class="mb-name">${t("secPet")}</span></div>
         <div class="mb-body">
-          <div class="mb-avatar">${buddySvg()}</div>
-          <div class="mb-line strong">${buddyName()}</div>
-          <div class="mb-line">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</div>
+          <div class="mb-avatar">${petSvg()}</div>
+          <div class="mb-line strong">${petName()}</div>
+          <div class="mb-line">${petFedToday() ? t("petFedTag") : t("petFeedTag")}</div>
         </div>
       </div>
 
@@ -2980,6 +3078,12 @@ function buildMe(card){
     <button class="me-row" data-go="hollow">
       <span class="mr-ic">🌳</span><span class="mr-txt">${t("secHollow")}</span>
       <span class="mr-sub">${t("jListSub", state.journal.length)}</span>
+      <span class="mr-arrow">›</span>
+    </button>
+
+    <button class="me-row" data-go="me-buddy">
+      <span class="mr-ic">💛</span><span class="mr-txt">${t("secBuddy")}</span>
+      <span class="mr-sub">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</span>
       <span class="mr-arrow">›</span>
     </button>
 
@@ -3213,19 +3317,104 @@ function buildMeMood(card){
   bindMoodSection(card);
 }
 
-/* ---- 我的蜜友 ---- */
+/* ---- 我的宠物 ---- */
+function buildMePet(card){
+  const avail = availablePoints();
+  const stage = petStage();
+  const items = state.pet.items || {};
+
+  const owned = PET_SHOP.filter(x=>items[x.id] > 0);
+  const foods = owned.filter(x=>x.kind === "food");
+  const toys  = owned.filter(x=>x.kind === "toy");
+
+  const bag = owned.length ? `
+    <div class="cal-sub">${t("petBag")}</div>
+    <div class="pet-bag">
+      ${foods.map(x=>`<button class="bag-item" data-use="${x.id}">
+        <span class="bi-ic">${x.emoji}</span><span class="bi-n">${L(x.name)}</span>
+        <span class="bi-c">×${items[x.id]}</span></button>`).join("")}
+      ${toys.map(x=>`<button class="bag-item toy" data-use="${x.id}">
+        <span class="bi-ic">${x.emoji}</span><span class="bi-n">${L(x.name)}</span>
+        <span class="bi-c">${t("petToyForever")}</span></button>`).join("")}
+    </div>` : "";
+
+  const shop = PET_SHOP.map(x=>{
+    const can = avail >= x.cost;
+    return `<div class="shop-item">
+      <span class="si-ic">${x.emoji}</span>
+      <span class="si-txt"><b>${L(x.name)}</b><small>${x.kind==="food"?t("petFoodTag"):t("petToyTag")}</small></span>
+      <button class="redeem-btn" data-buy="${x.id}"${can?"":" disabled"}>${t("funCost", x.cost)}</button>
+    </div>`;
+  }).join("");
+
+  card.innerHTML = navHeader("secPet", "me") + `
+    <div class="pet-stage">
+      <div class="pet-big">${petSvg(null,{tag:"big"})}</div>
+      <div class="pet-say">${escapeHtml(petLine())}</div>
+      <div class="pet-meta">
+        <input class="pet-name" data-pet-name maxlength="8" value="${escapeHtml(state.pet.name)}"
+               placeholder="${escapeHtml(L(pet().name))}">
+        <span class="pet-badge">${L(stage.label)}</span>
+      </div>
+      <div class="pet-stats">
+        <span>${t("petFedN", state.pet.fed)}</span>
+        <span>${t("petPlayedN", state.pet.played)}</span>
+        <span>${t("petDays", checkinDays())}</span>
+      </div>
+    </div>
+
+    <div class="pet-picker">${Object.values(PETS).map(x=>`
+      <button class="bud-pick${x.id===state.pet.species?" on":""}" data-species="${x.id}">
+        <span class="bp-face">${petSvg(x.id,{tag:"pick"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
+        <span class="bp-name">${L(x.name)}</span>
+      </button>`).join("")}</div>
+
+    <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", petName())}</button>
+    ${bag}
+    <div class="cal-sub">${t("petShop")} · ${t("funBalance")} ${avail}</div>
+    ${shop}
+    <div class="j-hint">${t("petHint")}</div>`;
+
+  card.querySelector("[data-pet-name]").addEventListener("change", e=>{
+    state.pet.name = e.target.value.trim().slice(0,8);
+    save(state); renderNavContent();
+  });
+  card.querySelectorAll("[data-species]").forEach(b=>{
+    b.addEventListener("click", ()=>{ state.pet.species = b.dataset.species; save(state); renderNavContent(); });
+  });
+  card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
+  card.querySelectorAll("[data-buy]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      if(petBuy(b.dataset.buy)){ renderNavContent(); spawnConfetti(); }
+    });
+  });
+  card.querySelectorAll("[data-use]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const it = shopItem(b.dataset.use);
+      if(petUse(b.dataset.use)){
+        renderNavContent();
+        spawnConfetti();
+        showToast({emoji:it.emoji,
+                   msg: it.kind==="food" ? t("petAte", petName()) : t("petPlayed", petName()),
+                   sub: t("petThanks")});
+      }
+    });
+  });
+}
+
+// 宠物在宠物页说的一句话：读得到今天喂没喂、玩没玩、做了多少
+function petLine(){
+  const done = todayPomos();
+  if(!petFedToday() && state.pet.fed > 0) return t("petHungry");
+  if(done > 0) return t("petProud", done);
+  if(petFedToday())  return t("petFull");
+  return t("petHello", petName());
+}
+
+/* ---- 我的挚友：现实里信得过的真人 ---- */
 function buildMeBuddy(card){
-  const b = buddy();
-  const picker = Object.values(BUDDIES).map(x=>`
-    <button class="bud-pick${x.id===b.id?" on":""}" data-buddy="${x.id}">
-      <span class="bp-face">${buddySvg(x.id)}</span>
-      <span class="bp-name">${L(x.name)}</span>
-      <span class="bp-kind">${L(x.kind)}</span>
-    </button>`).join("");
   card.innerHTML = navHeader("secBuddy", "me") + `
-    <div class="ms-sub">${t("buddyPick")}</div>
-    <div class="bud-picker">${picker}</div>
-    <button class="me-tool primary wide" data-chat>💬 ${t("chatWith", buddyName())}</button>
+    <div class="ms-sub">${t("supWhy")}</div>
     <div class="me-set">
       <div class="s-row">
         <span class="s-ic">🤝</span>
@@ -3236,11 +3425,9 @@ function buildMeBuddy(card){
       </div>
       <div class="s-note">${t("supNote")}</div>
     </div>`;
-  card.querySelectorAll("[data-buddy]").forEach(x=>{
-    x.addEventListener("click", ()=>{ state.buddy = x.dataset.buddy; save(state); renderNavContent(); });
+  card.querySelector("[data-support]").addEventListener("click", ()=>{
+    closeNav(); setTimeout(openSupportSheet, 240);
   });
-  card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
-  card.querySelector("[data-support]").addEventListener("click", ()=>{ closeNav(); setTimeout(openSupportSheet, 240); });
 }
 
 /* ---- 设置 ---- */
@@ -4691,47 +4878,137 @@ function moodFace(m, size){
 }
 
 // 知心姐姐 / 知心哥哥，由用户自己选。两张脸共用同一套画法，只换发型和底色。
-const BUDDIES = {
-  sis: {
-    id:"sis", g1:"#FFB36B", g2:"#FF7E8E",
-    name:{zh:"小暖", en:"Nuan"},
-    kind:{zh:"知心姐姐", en:"Big sister"},
-  },
-  bro: {
-    id:"bro", g1:"#7FC9F5", g2:"#6A8FE8",
-    name:{zh:"小阳", en:"Yang"},
-    kind:{zh:"知心哥哥", en:"Big brother"},
-  },
+/* ===================== 我的宠物 ===================== */
+// 宠物取代了原来的「知心姐姐/哥哥」：一个虚构角色就够了，两个会互相抢注意力。
+// 「挚友」因此回归字面意思 —— 现实里信得过的真人（求助名单）。
+//
+// 一条底线：宠物永远不会生病、不会死、不会因为你几天没来就难过到指责你。
+// 对青少年来说，"你不照顾我我就完蛋"是最容易把人吓跑的机制。
+// 没喂它，它就自己睡一会儿，等你回来。
+const PETS = {
+  cat:    {id:"cat",    g1:"#FFC48A", g2:"#FF9E7A", name:{zh:"小橘", en:"Mango"}},
+  dog:    {id:"dog",    g1:"#BFD8FF", g2:"#8FA8F0", name:{zh:"团子", en:"Momo"}},
+  rabbit: {id:"rabbit", g1:"#FFD0E4", g2:"#F3A8CD", name:{zh:"糯米", en:"Mochi"}},
 };
-function buddy(){ return BUDDIES[state.buddy] || BUDDIES.sis; }
-function buddyName(){ return L(buddy().name); }
-function buddyRole(){ return `${L(buddy().kind)} · ${t("buddyTag")}`; }
 
-function buddySvg(who){
-  const b = who ? BUDDIES[who] : buddy();
-  const gid = "bd_" + b.id;
-  // 姐姐：两个小啾啾 + 长一点的头发；哥哥：短发 + 一撮翘起来的呆毛
-  const hair = b.id === "sis"
-    ? `<circle cx="13" cy="22" r="7" fill="#FFF" opacity=".92"/>
-       <circle cx="51" cy="22" r="7" fill="#FFF" opacity=".92"/>
-       <path d="M32 13c-11 0-18 7.5-18 17 4-4 9-6 18-6s14 2 18 6c0-9.5-7-17-18-17z" fill="#5C3A2E"/>`
-    : `<path d="M32 12c-11 0-18 7.5-18 18 3.5-4.5 8-7 18-7s14.5 2.5 18 7c0-10.5-7-18-18-18z" fill="#4A3328"/>
-       <path d="M38 12.5q7-4.5 9.5.5-4-1.5-8 2z" fill="#4A3328"/>`;
-  return `<svg viewBox="0 0 64 64" aria-hidden="true">
+// 成长阶段跟打卡天数走，和段位徽章同一套门槛：来得越久，它长得越大
+const PET_STAGES = [
+  {min:0,  scale:0.78, label:{zh:"幼崽",   en:"Baby"}},
+  {min:10, scale:0.88, label:{zh:"小可爱", en:"Little"}},
+  {min:21, scale:0.96, label:{zh:"半大",   en:"Growing"}},
+  {min:30, scale:1.0,  label:{zh:"大朋友", en:"Big"}},
+  {min:60, scale:1.0,  label:{zh:"传说级", en:"Legend"}},
+];
+function petStage(){
+  const d = checkinDays();
+  let st = PET_STAGES[0];
+  for(const x of PET_STAGES) if(d >= x.min) st = x;
+  return st;
+}
+function petStageIndex(){ return PET_STAGES.indexOf(petStage()); }
+
+function pet(){ return PETS[state.pet.species] || PETS.cat; }
+function petName(){ return (state.pet.name || "").trim() || L(pet().name); }
+function petTitle(){ return `${L(petStage().label)} · ${t("petTag")}`; }
+
+// 饱不饱：今天喂过就是饱的；越久没喂越蔫，但仅此而已
+function petFedToday(){ return state.pet.lastFed === todayStr(); }
+function petPlayedToday(){ return state.pet.lastPlay === todayStr(); }
+// 表情：吃饱又玩过 = 最开心；只是没喂 = 打盹；其余 = 普通
+function petFace(){
+  if(petFedToday() && petPlayedToday()) return "happy";
+  if(!petFedToday() && state.pet.fed > 0) return "sleepy";
+  return "normal";
+}
+
+function petSvg(species, opt){
+  const o = opt || {};
+  const p = species ? PETS[species] : pet();
+  const gid = "pet_" + p.id + (o.tag || "");
+  const face = o.face || petFace();
+  const sc = o.scale != null ? o.scale : petStage().scale;
+  const stage = o.stageIdx != null ? o.stageIdx : petStageIndex();
+
+  // 耳朵/尾巴按品种换，其余共用一套画法
+  const ears = {
+    cat:    `<path d="M22 26 L26 8 L40 20 Z" fill="url(#${gid})"/><path d="M78 26 L74 8 L60 20 Z" fill="url(#${gid})"/>
+             <path d="M27 24 L29 15 L36 21 Z" fill="#FFF" opacity=".55"/><path d="M73 24 L71 15 L64 21 Z" fill="#FFF" opacity=".55"/>`,
+    dog:    `<ellipse cx="22" cy="34" rx="10" ry="17" fill="url(#${gid})" transform="rotate(-16 22 34)"/>
+             <ellipse cx="78" cy="34" rx="10" ry="17" fill="url(#${gid})" transform="rotate(16 78 34)"/>`,
+    rabbit: `<ellipse cx="36" cy="14" rx="8" ry="20" fill="url(#${gid})" transform="rotate(-10 36 14)"/>
+             <ellipse cx="64" cy="14" rx="8" ry="20" fill="url(#${gid})" transform="rotate(10 64 14)"/>
+             <ellipse cx="36" cy="16" rx="4" ry="13" fill="#FFF" opacity=".5" transform="rotate(-10 36 16)"/>
+             <ellipse cx="64" cy="16" rx="4" ry="13" fill="#FFF" opacity=".5" transform="rotate(10 64 16)"/>`,
+  }[p.id];
+
+  const eyes = face === "sleepy"
+    ? `<path d="M34 50 q6 5 12 0M54 50 q6 5 12 0" stroke="#4A3328" stroke-width="3" fill="none" stroke-linecap="round"/>`
+    : (face === "happy"
+      ? `<path d="M34 52 q6 -7 12 0M54 52 q6 -7 12 0" stroke="#4A3328" stroke-width="3.4" fill="none" stroke-linecap="round"/>`
+      : `<circle cx="40" cy="50" r="4.6" fill="#4A3328"/><circle cx="60" cy="50" r="4.6" fill="#4A3328"/>
+         <circle cx="41.6" cy="48.4" r="1.6" fill="#FFF"/><circle cx="61.6" cy="48.4" r="1.6" fill="#FFF"/>`);
+
+  const mouth = face === "happy"
+    ? `<path d="M42 61 q8 8 16 0" stroke="#4A3328" stroke-width="3" fill="none" stroke-linecap="round"/>`
+    : `<path d="M46 60 q4 4 8 0" stroke="#4A3328" stroke-width="2.8" fill="none" stroke-linecap="round"/>`;
+
+  // 阶段越高，装扮越多
+  const extras =
+    (stage >= 3 ? `<path d="M28 74 q22 10 44 0 l0 7 q-22 9 -44 0 Z" fill="#FF7A8E"/>` : "") +
+    (stage >= 4 ? `<path d="M38 6 l6 9 6-11 6 11 6-9 -3 14 h-18 Z" fill="#FFC93C"/>` : "");
+
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">
     <defs><linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="${b.g1}"/><stop offset="1" stop-color="${b.g2}"/>
+      <stop offset="0" stop-color="${p.g1}"/><stop offset="1" stop-color="${p.g2}"/>
     </linearGradient></defs>
-    <circle cx="32" cy="32" r="32" fill="url(#${gid})"/>
-    <path d="M32 13c-11 0-18 7.5-18 17v6c0 10 8 17 18 17s18-7 18-17v-6c0-9.5-7-17-18-17z" fill="#FFF2E4"/>
-    ${hair}
-    <circle cx="24" cy="34" r="3.2" fill="#5C3A2E"/>
-    <circle cx="40" cy="34" r="3.2" fill="#5C3A2E"/>
-    <circle cx="25.2" cy="32.9" r="1.1" fill="#FFF"/>
-    <circle cx="41.2" cy="32.9" r="1.1" fill="#FFF"/>
-    <circle cx="18" cy="40" r="3.4" fill="#FFB6A8" opacity=".7"/>
-    <circle cx="46" cy="40" r="3.4" fill="#FFB6A8" opacity=".7"/>
-    <path d="M26 41q6 5.5 12 0" stroke="#5C3A2E" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    <g transform="translate(50 56) scale(${sc}) translate(-50 -52)">
+      ${ears}
+      <ellipse cx="50" cy="54" rx="34" ry="32" fill="url(#${gid})"/>
+      <ellipse cx="50" cy="62" rx="22" ry="18" fill="#FFF6EE" opacity=".85"/>
+      ${eyes}
+      <ellipse cx="50" cy="56" rx="4" ry="3" fill="#E88B7D"/>
+      ${mouth}
+      <circle cx="28" cy="58" r="5" fill="#FF9AA8" opacity=".5"/>
+      <circle cx="72" cy="58" r="5" fill="#FF9AA8" opacity=".5"/>
+      ${extras}
+    </g>
   </svg>`;
+}
+
+// 商店：积分的另一个出口
+const PET_SHOP = [
+  {id:"apple",  kind:"food", emoji:"🍎", cost:20,  name:{zh:"苹果",     en:"Apple"}},
+  {id:"fish",   kind:"food", emoji:"🐟", cost:50,  name:{zh:"小鱼干",   en:"Dried fish"}},
+  {id:"cake",   kind:"food", emoji:"🎂", cost:100, name:{zh:"蛋糕",     en:"Cake"}},
+  {id:"ball",   kind:"toy",  emoji:"🎾", cost:60,  name:{zh:"小皮球",   en:"Ball"}},
+  {id:"yarn",   kind:"toy",  emoji:"🧶", cost:80,  name:{zh:"毛线球",   en:"Yarn ball"}},
+  {id:"house",  kind:"toy",  emoji:"🏠", cost:200, name:{zh:"小房子",   en:"Tiny house"}},
+];
+const shopItem = id => PET_SHOP.find(x=>x.id===id);
+
+function petBuy(id){
+  const it = shopItem(id);
+  if(!it || availablePoints() < it.cost) return false;
+  state.spent += it.cost;
+  state.pet.items[id] = (state.pet.items[id] || 0) + 1;
+  state.redemptions.unshift({emoji:it.emoji, name:`${petName()} · ${L(it.name)}`, cost:it.cost, date:todayStr()});
+  save(state);
+  return true;
+}
+function petUse(id){
+  const it = shopItem(id);
+  if(!it || !(state.pet.items[id] > 0)) return false;
+  state.pet.items[id] -= 1;
+  if(it.kind === "food"){
+    state.pet.fed += 1;
+    state.pet.lastFed = todayStr();
+  } else {
+    state.pet.played += 1;
+    state.pet.lastPlay = todayStr();
+    state.pet.items[id] += 1;      // 玩具不消耗，玩完还在
+  }
+  save(state);
+  return true;
 }
 
 function todayMood(){
@@ -4843,7 +5120,7 @@ function openJournal(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="buddy-avatar">${buddySvg()}</div>
+      <div class="pet-avatar">${petSvg()}</div>
       <span class="ct-name">${t("jTitle")}<small>${t("jSub")}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -4894,13 +5171,13 @@ function finishJournal(text, keep){
   const card = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="buddy-avatar">${buddySvg()}</div>
-      <span class="ct-name">${buddyName()}<small>${buddyRole()}</small></span>
+      <div class="pet-avatar">${petSvg()}</div>
+      <span class="ct-name">${petName()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="chat-body" id="chatBody"></div>
     <div class="chat-opts" id="chatOpts"></div>
-    <div class="chat-note">${t("buddyDisclaimer", buddyName())}</div>`;
+    <div class="chat-note">${t("buddyDisclaimer", petName())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
 
   const lines = [
@@ -4942,7 +5219,7 @@ function openJournalList(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="buddy-avatar">${buddySvg()}</div>
+      <div class="pet-avatar">${petSvg()}</div>
       <span class="ct-name">${t("jListTitle")}<small>${t("jListSub", state.journal.length)}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
@@ -5002,13 +5279,13 @@ function openChat(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
-      <div class="buddy-avatar">${buddySvg()}</div>
-      <span class="ct-name">${buddyName()}<small>${buddyRole()}</small></span>
+      <div class="pet-avatar">${petSvg()}</div>
+      <span class="ct-name">${petName()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="chat-body" id="chatBody"></div>
     <div class="chat-opts" id="chatOpts"></div>
-    <div class="chat-note">${t("buddyDisclaimer", buddyName())}</div>`;
+    <div class="chat-note">${t("buddyDisclaimer", petName())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
@@ -5165,7 +5442,7 @@ function openSupportSheet(){
 
     card.innerHTML = `
       <div class="chat-top">
-        <div class="buddy-avatar">${buddySvg()}</div>
+        <div class="pet-avatar">${petSvg()}</div>
         <span class="ct-name">${t("supTitle")}<small>${t("supSub")}</small></span>
         <button class="nav-close" aria-label="close">✕</button>
       </div>
@@ -5216,7 +5493,7 @@ function chatNode(id){
   switch(id){
 
     case "open": {
-      const lines = [L_(`${greetWord()}${t("openHi", buddyName())}`)];
+      const lines = [L_(`${greetWord()}${t("openHi", petName())}`)];
       if(!m){
         lines.push(L_(t("openNoMood")));
         return {lines, opts:[
@@ -5693,7 +5970,7 @@ function checkReminder(){
   if(now.getHours() < h || (now.getHours() === h && now.getMinutes() < m)) return;
   state.remindedDate = today;
   save(state);
-  notify(t("remindNotifyTitle", buddyName()), t("remindNotifyBody"));
+  notify(t("remindNotifyTitle", petName()), t("remindNotifyBody"));
 }
 
 /* ===================== 启动：恢复中断的专注段 ===================== */
