@@ -2015,6 +2015,15 @@ const I18N = {
     supTelPh: "电话（可不填）",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
     secGrowth: "我的成长值",
+    shareBtn: "生成今日战绩卡",
+    shareTitle: "我的今日战绩",
+    shareMinutes: "分钟专注",
+    sharePomo: "番茄钟",
+    shareStreak: "连续天数",
+    shareDays: "打卡天数",
+    shareFooter: "了不起的我 · ProudMe",
+    shareSaved: "已保存 🖼",
+    shareSavedSub: "去相册里找，发到群里比一比",
     secCalendar: "我的日历",
     calMonth: (y,m) => `${y} 年 ${m} 月`,
     calTodayCount: "今天的安排",
@@ -2429,6 +2438,15 @@ const I18N = {
     supNamePh: "Name (e.g. Mum)",
     supTelPh: "Phone (optional)",
     secGrowth: "My growth",
+    shareBtn: "Make today's card",
+    shareTitle: "Today's numbers",
+    shareMinutes: "minutes focused",
+    sharePomo: "pomodoros",
+    shareStreak: "day streak",
+    shareDays: "days in",
+    shareFooter: "ProudMe",
+    shareSaved: "Saved 🖼",
+    shareSavedSub: "Find it in your photos and share it",
     secCalendar: "My calendar",
     calMonth: (y,m) => `${y}-${String(m).padStart(2,"0")}`,
     calTodayCount: "on today",
@@ -3288,6 +3306,123 @@ function buildMe(card){
   });
 }
 
+/* ---------- 战绩卡片：把今天的战果画成一张图，发出去 ---------- */
+// 排行榜要等后端，但"晒战绩"这件事不需要服务器 —— 而且竞争发生在
+// 孩子们本来就在的那个群里，比让所有人回到一个小众 App 里看排名更现实。
+const SHARE_W = 750, SHARE_H = 1000;
+
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y,   x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x,   y+h, r);
+  ctx.arcTo(x,   y+h, x,   y,   r);
+  ctx.arcTo(x,   y,   x+w, y,   r);
+  ctx.closePath();
+}
+
+function drawShareCard(petImg){
+  const c = document.createElement("canvas");
+  c.width = SHARE_W; c.height = SHARE_H;
+  const x = c.getContext("2d");
+
+  // 底：和 App 一样的暖色
+  const bg = x.createLinearGradient(0, 0, SHARE_W, SHARE_H);
+  bg.addColorStop(0, "#FFF6EC");
+  bg.addColorStop(1, "#FFE3D6");
+  x.fillStyle = bg; x.fillRect(0, 0, SHARE_W, SHARE_H);
+
+  const F = '"PingFang SC","Microsoft YaHei",-apple-system,sans-serif';
+  x.textAlign = "center";
+
+  // 头部
+  x.fillStyle = "#8a7a70"; x.font = `500 26px ${F}`;
+  x.fillText(t("shareTitle"), SHARE_W/2, 86);
+  x.fillStyle = "#3a3a4a"; x.font = `800 34px ${F}`;
+  x.fillText(todayStr(), SHARE_W/2, 132);
+
+  // 宠物头像（有就画，没有就留空）
+  if(petImg){
+    x.save();
+    x.beginPath(); x.arc(SHARE_W/2, 268, 92, 0, Math.PI*2); x.closePath(); x.clip();
+    x.drawImage(petImg, SHARE_W/2-92, 176, 184, 184);
+    x.restore();
+    x.strokeStyle = "rgba(255,255,255,.9)"; x.lineWidth = 7;
+    x.beginPath(); x.arc(SHARE_W/2, 268, 92, 0, Math.PI*2); x.stroke();
+    if(petName()){
+      x.fillStyle = "#3a3a4a"; x.font = `800 30px ${F}`;
+      x.fillText(petName(), SHARE_W/2, 404);
+    }
+  }
+
+  // 主角：今天专注了多少分钟
+  const mins = Math.round((state.history[todayStr()] || {s:0}).s / 60);
+  const topY = petImg ? 470 : 300;
+  x.fillStyle = "#E8662B"; x.font = `800 132px ${F}`;
+  x.fillText(String(mins), SHARE_W/2, topY + 108);
+  x.fillStyle = "#8a7a70"; x.font = `600 30px ${F}`;
+  x.fillText(t("shareMinutes"), SHARE_W/2, topY + 154);
+
+  // 三个小数字
+  const cells = [
+    {v: String(todayPomos()),      k: t("sharePomo")},
+    {v: String(state.streak),      k: t("shareStreak")},
+    {v: String(checkinDays()),     k: t("shareDays")},
+  ];
+  const boxW = 196, gap = 22, boxY = topY + 200, boxH = 132;
+  const startX = (SHARE_W - (boxW*3 + gap*2)) / 2;
+  cells.forEach((cell, i)=>{
+    const bx = startX + i*(boxW+gap);
+    x.fillStyle = "rgba(255,255,255,.72)";
+    roundRect(x, bx, boxY, boxW, boxH, 26); x.fill();
+    x.fillStyle = "#3a3a4a"; x.font = `800 52px ${F}`;
+    x.fillText(cell.v, bx + boxW/2, boxY + 68);
+    x.fillStyle = "#8a7a70"; x.font = `600 24px ${F}`;
+    x.fillText(cell.k, bx + boxW/2, boxY + 106);
+  });
+
+  // 落款
+  x.fillStyle = "#b9a99e"; x.font = `600 24px ${F}`;
+  x.fillText(t("shareFooter"), SHARE_W/2, SHARE_H - 54);
+  return c;
+}
+
+// 宠物照片是 data URL，同源，不会污染 canvas
+function loadPetImage(){
+  return new Promise(res=>{
+    if(!petHasAvatar()) return res(null);
+    const img = new Image();
+    img.onload = ()=>res(img);
+    img.onerror = ()=>res(null);
+    img.src = state.pet.photo;
+  });
+}
+
+async function shareStatsCard(){
+  const petImg = await loadPetImage();
+  const canvas = drawShareCard(petImg);
+  const blob = await new Promise(r=>canvas.toBlob(r, "image/png"));
+  if(!blob) return;
+  const file = new File([blob], `ProudMe-${todayStr()}.png`, {type:"image/png"});
+
+  // 手机上优先走系统分享，直接发到群里
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{
+      await navigator.share({files:[file], title:t("shareTitle")});
+      return;
+    }catch(e){
+      if(e && e.name === "AbortError") return;   // 用户自己取消，不当失败
+    }
+  }
+  // 否则存到相册/下载
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = file.name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast({emoji:"🖼", msg:t("shareSaved"), sub:t("shareSavedSub")});
+}
+
 /* ---------- 我的日历 ---------- */
 // 短期（单日）和长期（区间）计划都放这里，按四个板块用颜色区分，重要的事打星。
 // 设好之后，当天的事会自动出现在首页对应的板块里。
@@ -3466,9 +3601,11 @@ function buildMeGrowth(card){
   ];
   card.innerHTML = navHeader("secGrowth", "me") +
     `<div class="me-grid">${stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("")}</div>
-     <div class="me-proud">${t("meProud")}</div>` +
+     <div class="me-proud">${t("meProud")}</div>
+     <button class="me-tool primary wide" data-share-card>📸 ${t("shareBtn")}</button>` +
     buildToday() +
     weekSectionHTML();
+  card.querySelector("[data-share-card]").addEventListener("click", shareStatsCard);
 }
 
 /* ---- 我的心情 ---- */
