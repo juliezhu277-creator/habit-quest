@@ -2677,6 +2677,7 @@ function defaultState(){
     reminder: null,       // 每日提醒时间 "HH:MM"，null 为关闭
     remindedDate: null,   // 今天是否已提醒过
     kickDismissed: null,  // 今天是否已关掉开场提示
+    calSyncDate: null,    // 上次从系统日历同步目标的日期（原生 App 才会用到）
     installDismissed: false,
     wishList: defaultWishList(),
     redemptions: []       // [ {emoji, name, cost, date} ]
@@ -2695,6 +2696,72 @@ function resetDailyGoals(state){
   state.goalsYesterday = carry;
   state.timer = null;
   state.lastFillDate = null;   // 让日历重新填一次
+}
+
+/* ===================== 系统日历接入（预留给原生 App） =====================
+ * 网页读不到手机日历 —— 浏览器没有这个 API，是系统级隔离。
+ * 封装成原生 App（Capacitor / React Native）之后，只要把
+ * readDeviceCalendarToday() 实现掉，下面这条链路就自动通了：
+ *
+ *   readDeviceCalendarToday()  →  [{title, calendarName}]
+ *        ↓  guessCategory()  把事件归到四个板块
+ *   applyExternalGoals()      →  填进当天空着的目标格子
+ *
+ * Capacitor 的做法大致是：
+ *   1. npm i @ebarooni/capacitor-calendar（或同类插件）
+ *   2. 请求日历读取权限
+ *   3. 取今天 00:00–24:00 的事件，映射成 {title, calendarName} 返回
+ * iOS 还需要在 Info.plist 里加 NSCalendarsUsageDescription 说明用途。
+ * ====================================================================== */
+
+// 事件标题/日历名 → 四个板块。先按关键词猜，猜不到归到学习。
+const CAT_KEYWORDS = {
+  study:    ["学习","作业","课","考","复习","背","读","写","题","study","exam","class","homework"],
+  exercise: ["运动","跑","球","健身","游泳","跳","锻炼","体育","sport","run","gym","swim"],
+  social:   ["聚","朋友","同学","家人","家庭","爸","妈","奶奶","爷爷","外婆","外公",
+             "吃饭","聊","拜访","生日","约饭","聚会","social","friend","family","party","dinner"],
+  fun:      ["玩","游戏","电影","剧","音乐","休息","娱乐","game","movie","music","relax"],
+};
+function guessCategory(text){
+  const low = (text || "").toLowerCase();
+  for(const cat in CAT_KEYWORDS){
+    if(CAT_KEYWORDS[cat].some(k => low.includes(k))) return cat;
+  }
+  return "study";
+}
+
+// 把外部来的事件填进当天空着的格子（已有文字的格子一律不动）
+function applyExternalGoals(events){
+  let changed = false;
+  (events || []).forEach(ev=>{
+    const txt = (ev.title || "").trim().slice(0, GOAL_MAX_LEN);
+    if(!txt) return;
+    const cat = ev.category || guessCategory(ev.calendarName ? `${ev.calendarName} ${txt}` : txt);
+    const list = state.goals[cat] || (state.goals[cat] = []);
+    if(list.some(g => (g.text || "").trim() === txt)) return;   // 已经有了就跳过
+    let slot = list.find(g => !(g.text || "").trim());
+    if(!slot){ slot = blankGoal(); list.push(slot); }
+    slot.text = txt;
+    changed = true;
+  });
+  return changed;
+}
+
+// 原生壳里覆盖这个函数即可；网页环境下什么也不做
+async function readDeviceCalendarToday(){
+  if(window.ProudMeNative && typeof window.ProudMeNative.readCalendarToday === "function"){
+    try{ return await window.ProudMeNative.readCalendarToday(); }catch(e){ return []; }
+  }
+  return [];
+}
+
+// 每天第一次打开时同步一次；网页环境下 events 为空，等于没这回事
+async function syncDeviceCalendar(){
+  if(state.calSyncDate === todayStr()) return;
+  const events = await readDeviceCalendarToday();
+  state.calSyncDate = todayStr();
+  if(applyExternalGoals(events)){ save(state); render(); }
+  else save(state);
 }
 
 function load(){
@@ -2734,6 +2801,7 @@ function load(){
   if(typeof state.reminder === "undefined") state.reminder = null;
   if(typeof state.remindedDate === "undefined") state.remindedDate = null;
   if(typeof state.kickDismissed === "undefined") state.kickDismissed = null;
+  if(typeof state.calSyncDate === "undefined") state.calSyncDate = null;
   if(typeof state.installDismissed !== "boolean") state.installDismissed = false;
   if(typeof state.timeXpAwarded !== "number") state.timeXpAwarded = state.timePointsAwarded || 0;
   // 计时器结构升级为「有固定时长的专注段」；旧结构（无 durSec）一律作废，
@@ -6304,6 +6372,7 @@ document.addEventListener("visibilitychange", ()=>{
 });
 
 render();
+syncDeviceCalendar();
 resumeSession();
 checkReminder();
 setInterval(checkReminder, 60000);
