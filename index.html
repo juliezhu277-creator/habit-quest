@@ -2089,6 +2089,8 @@ const I18N = {
     navRewards: "积分兑换",
     navInfo: "小妙招",
     navRank: "排行榜",
+    navPet: "宠物",
+    rankStreakLine: (a,b) => `连续 ${a} 天 · 打卡 ${b} 天`,
     navMe: "我的",
     meLevel: "等级",
     meXp: "累计经验",
@@ -2502,6 +2504,8 @@ const I18N = {
     navRewards: "Rewards",
     navInfo: "Tips",
     navRank: "Ranking",
+    navPet: "Pet",
+    rankStreakLine: (a,b) => `${a}-day streak · ${b} days in`,
     navMe: "Me",
     meLevel: "Level",
     meXp: "Total XP",
@@ -3090,6 +3094,7 @@ function renderNavContent(){
   else if(currentNav === "me-pet") buildMePet(card);
   else if(currentNav === "me-set") buildMeSettings(card);
   else if(currentNav === "rank") buildRank(card);
+  else if(currentNav === "pet") buildMePet(card);
   const c = card.querySelector(".nav-close");
   if(c) c.addEventListener("click", closeNav);
   const bk = card.querySelector("[data-back]");
@@ -3189,21 +3194,9 @@ function buildMe(card){
         </div>
       </div>
 
-      <div class="me-blk mb-rank" data-go="rank">
-        <div class="mb-head"><span class="mb-ic">🏆</span><span class="mb-name">${t("navRank")}</span></div>
-        <div class="mb-body">
-          <div class="mb-big">${state.streak}</div>
-          <div class="mb-line">${t("rankStreakUnit")}</div>
-          <div class="mb-line">${t("meDays", checkinDays())}</div>
-        </div>
-      </div>
-
-      <div class="me-blk mb-pet" data-go="me-pet">
-        <div class="mb-head"><span class="mb-ic">🐾</span><span class="mb-name">${t("secPet")}</span></div>
-        <div class="mb-body">
-          <div class="mb-avatar">${petAvatar()}</div>
-          <div class="mb-line strong">${petCall()}</div>
-          <div class="mb-line">${petFedToday() ? t("petFedTag") : t("petFeedTag")}</div>
+      <div class="me-blk mb-rank wide" data-go="rank">
+        <div class="mb-head"><span class="mb-ic">🏆</span><span class="mb-name">${t("navRank")}</span>
+          <span class="mb-tail">${t("rankStreakLine", state.streak, checkinDays())} ›</span>
         </div>
       </div>
 
@@ -3353,7 +3346,7 @@ async function shareStatsCard(){
 function buildRank(card){
   const mins = Math.round((state.history[todayStr()] || {s:0}).s / 60);
 
-  card.innerHTML = navHeader("navRank") + `
+  card.innerHTML = navHeader("navRank", "me") + `
     <div class="rk-me">
       <div class="rk-avatar">${petAvatar()}</div>
       <div class="rk-info">
@@ -3404,6 +3397,15 @@ function buildMeMood(card){
 }
 
 /* ---- 我的宠物 ---- */
+// 宠物页的标题：起了名就用名字，从「我的」进来才有返回箭头
+function navPetHeader(){
+  const back = currentNav === "me-pet"
+    ? `<button class="nav-back" data-back="me" aria-label="back">‹</button>` : "";
+  const title = petName() || t("navPet");
+  return `<div class="nav-top">${back}<span class="nav-title">${escapeHtml(title)}</span>` +
+         `<button class="nav-close" aria-label="close">✕</button></div>`;
+}
+
 function buildMePet(card){
   const avail = availablePoints();
   const items = state.pet.items || {};
@@ -3432,7 +3434,7 @@ function buildMePet(card){
     </div>`;
   }).join("");
 
-  card.innerHTML = navHeader("secPet", "me") + `
+  card.innerHTML = navPetHeader() + `
     <div class="pet-stage">
       <button class="pet-big tap${petHasAvatar()?"":" unset"}" data-pick-pet aria-label="${t("petTapHint")}">
         ${petAvatar()}
@@ -3683,7 +3685,7 @@ function renderTasks(){
       <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
       <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
       <button class="nav-item" data-nav="info"><span class="nav-ic">💡</span><span class="nav-lbl">${t("navInfo")}</span></button>
-      <button class="nav-item" data-nav="rank"><span class="nav-ic">🏆</span><span class="nav-lbl">${t("navRank")}</span></button>
+      <button class="nav-item" data-nav="pet"><span class="nav-ic">🐾</span><span class="nav-lbl">${petName() || t("navPet")}</span></button>
     </div>
   `;
 
