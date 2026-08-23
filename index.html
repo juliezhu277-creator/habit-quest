@@ -1321,8 +1321,21 @@
     overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.18);background:#f4f4f6;
   }
   .ph-preview img{display:block;width:100%;height:100%;object-fit:cover;}
+  /* 还没选过：头像灰着，引导去点它 */
+  .pet-big.unset{filter:grayscale(1) opacity(.5);}
+  .pet-big.unset::after{
+    content:"";position:absolute;inset:0;border-radius:50%;
+    box-shadow:inset 0 0 0 3px rgba(255,140,66,.55);
+    animation:petPing 2s ease-out infinite;
+  }
+  @keyframes petPing{
+    0%{box-shadow:inset 0 0 0 3px rgba(255,140,66,.55), 0 0 0 0 rgba(255,140,66,.4);}
+    70%{box-shadow:inset 0 0 0 3px rgba(255,140,66,.55), 0 0 0 14px rgba(255,140,66,0);}
+    100%{box-shadow:inset 0 0 0 3px rgba(255,140,66,.55), 0 0 0 0 rgba(255,140,66,0);}
+  }
+  @media (prefers-reduced-motion:reduce){ .pet-big.unset::after{animation:none;} }
   .pet-big.tap{
-    border:none;background:none;padding:0;cursor:pointer;
+    position:relative;border:none;background:none;padding:0;cursor:pointer;
     border-radius:50%;transition:transform .15s;
   }
   .pet-big.tap:active{transform:scale(.94);}
@@ -1818,19 +1831,13 @@ const I18N = {
     petProud: n => `你今天完成了 ${n} 个番茄钟，我都看见啦！`,
     petFull: "吃饱啦，谢谢你～我在这儿陪着你。",
     petHello: n => `我是${n}，以后就一起啦！`,
-    petPickHint: "挑一只陪你的小家伙，也可以用自己家宠物的照片。",
-    petPickTitle: "换一只陪我的",
-    petPickNote: "选好点「就它了」。用自己宠物的照片时，会先让你在卡通版和原图之间挑一个。",
-    petTapHint: "点头像可以换一只 ↑",
-    petUsePhotoShort: "用我的照片",
-    petMine: "我的宠物",
-    petUsePhoto: "用我自己宠物的照片",
+    petTapHint: "点头像可以换张照片 ↑",
+    petTapHintNew: "点上面的头像，用你自己宠物的照片 ↑",
     petPhotoTitle: "你的小宠物",
     petPhotoCartoon: "卡通版",
     petPhotoPlain: "原照片",
-    petPhotoNote: "卡通版会自动描边、简化配色，和 App 的手绘风格更搭，文件也更小。不喜欢就切回原照片。",
+    petPhotoNote: "卡通版会做柔和描边和配色简化，和 App 的手绘风格更搭，文件也更小。不喜欢就切回原照片。",
     petConfirm: "就它了！",
-    petChange: "换一只陪我的",
     petPhotoTooBig: "照片太大了",
     petPhotoTooBigSub: "已经换回画的宠物，其他记录都还在",
     petPhotoFail: "这张图读不出来",
@@ -2258,19 +2265,13 @@ const I18N = {
     petProud: n => `${n} pomodoros today — I saw all of it!`,
     petFull: "All full, thank you! I'll stay right here.",
     petHello: n => `I'm ${n}. We're together from now on!`,
-    petPickHint: "Pick a little friend — or use a photo of your own pet.",
-    petPickTitle: "Choose your pet",
-    petPickNote: "Tap 'This one!' when you're happy. With your own photo you'll get to choose between a cartoon version and the original.",
-    petTapHint: "Tap the avatar to change ↑",
-    petUsePhotoShort: "My photo",
-    petMine: "My pet",
-    petUsePhoto: "Use my own pet's photo",
+    petTapHint: "Tap the avatar to change the photo ↑",
+    petTapHintNew: "Tap the avatar above to use your own pet's photo ↑",
     petPhotoTitle: "Your pet",
     petPhotoCartoon: "Cartoon",
     petPhotoPlain: "Original",
     petPhotoNote: "The cartoon version adds outlines and flattens the colours so it matches the app's drawn style — and it's a much smaller file. Switch back if you prefer the original.",
     petConfirm: "This one!",
-    petChange: "Choose a different one",
     petPhotoTooBig: "That photo is too large",
     petPhotoTooBigSub: "Switched back to a drawn pet — everything else is safe",
     petPhotoFail: "Couldn't read that image",
@@ -3442,8 +3443,8 @@ function buildMePet(card){
 
   card.innerHTML = navHeader("secPet", "me") + `
     <div class="pet-stage">
-      <button class="pet-big tap" data-pick-pet aria-label="${t("petChange")}">${petAvatar({tag:"big"})}</button>
-      <div class="pet-tap-hint">${t("petTapHint")}</div>
+      <button class="pet-big tap${state.pet.chosen?"":" unset"}" data-pick-pet aria-label="${t("petTapHint")}">${petAvatar({tag:"big"})}</button>
+      <div class="pet-tap-hint">${state.pet.chosen ? t("petTapHint") : t("petTapHintNew")}</div>
       <div class="pet-say">${escapeHtml(petLine())}</div>
       <div class="pet-meta">
         <input class="pet-name" data-pet-name maxlength="8" value="${escapeHtml(state.pet.name)}"
@@ -3470,7 +3471,7 @@ function buildMePet(card){
     state.pet.name = e.target.value.trim().slice(0,8);
     save(state); renderNavContent();
   });
-  card.querySelector("[data-pick-pet]").addEventListener("click", openPetPicker);
+  card.querySelector("[data-pick-pet]").addEventListener("click", ()=>pickPetPhoto(()=>renderNavContent()));
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
   card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
   card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
@@ -5126,23 +5127,32 @@ function cartoonify(src){
     }
   }
 
-  // 3) 色阶量化 + 提饱和，最后把轮廓压暗
-  const LEVELS = 6;
+  // 3) 色阶量化 + 提饱和 + 轻轻提亮，最后描一层很淡的暖色边
+  //    刻意不用接近黑的重描边：那会显得凶。改成往暖棕色里融一点点，
+  //    只在轮廓最强的地方稍微加重，整体是软软的绘本感。
+  const LEVELS = 8;                 // 层级多一点，过渡不生硬
   const step = 255 / (LEVELS - 1);
-  const SAT = 1.35, EDGE_T = 46;
+  const SAT = 1.18;                 // 饱和度只轻轻提
+  const LIFT = 12;                  // 整体提亮，显得干净可爱
+  const EDGE_T = 70;                // 门槛抬高，只留主要轮廓
+  const EDGE_MAX = 0.34;            // 描边最深也只有三成
+  const EL = [92, 66, 58];          // 暖棕色描边，不是黑色
   for(let i=0;i<n;i++){
     const j=i*4;
     let r=blur[j], g=blur[j+1], b=blur[j+2];
     const lum = 0.299*r + 0.587*g + 0.114*b;
-    r = lum + (r-lum)*SAT;
-    g = lum + (g-lum)*SAT;
-    b = lum + (b-lum)*SAT;
+    r = lum + (r-lum)*SAT + LIFT;
+    g = lum + (g-lum)*SAT + LIFT;
+    b = lum + (b-lum)*SAT + LIFT;
     r = Math.round(Math.min(255,Math.max(0,r))/step)*step;
     g = Math.round(Math.min(255,Math.max(0,g))/step)*step;
     b = Math.round(Math.min(255,Math.max(0,b))/step)*step;
     if(edge[i] > EDGE_T){
-      const k = edge[i] > EDGE_T*2 ? 0.18 : 0.45;
-      r*=k; g*=k; b*=k;
+      // 越强的轮廓融得越多，但最多只到 EDGE_MAX，且是往暖棕融不是压黑
+      const a = Math.min(EDGE_MAX, EDGE_MAX * (edge[i]-EDGE_T) / (EDGE_T*1.6));
+      r = r + (EL[0]-r)*a;
+      g = g + (EL[1]-g)*a;
+      b = b + (EL[2]-b)*a;
     }
     d[j]=r; d[j+1]=g; d[j+2]=b; d[j+3]=255;
   }
@@ -5188,56 +5198,6 @@ function pickPetPhoto(onDone){
     reader.readAsDataURL(file);
   });
   input.click();
-}
-
-// 点头像唤起：内置三只 + 用自己宠物的照片
-function openPetPicker(){
-  const modal = document.getElementById("startModal");
-  const card  = document.getElementById("startCard");
-  const paint = ()=>{
-    const custom = state.pet.species === "custom" && state.pet.photo;
-    card.innerHTML = `
-      <div class="nav-top">
-        <span class="nav-title">${t("petPickTitle")}</span>
-        <button class="nav-close" aria-label="close">✕</button>
-      </div>
-      <div class="start-sub">${t("petPickHint")}</div>
-      <div class="pet-picker">
-        ${Object.values(PETS).map(x=>`
-          <button class="bud-pick${(!custom && x.id===state.pet.species)?" on":""}" data-species="${x.id}">
-            <span class="bp-face">${petSvg(x.id,{tag:"pk"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
-            <span class="bp-name">${L(x.name)}</span>
-          </button>`).join("")}
-        <button class="bud-pick${custom?" on":""}" data-photo>
-          <span class="bp-face">${custom
-            ? `<img class="pet-photo" src="${state.pet.photo}" alt="">`
-            : `<span class="bp-camera">📷</span>`}</span>
-          <span class="bp-name">${custom ? t("petMine") : t("petUsePhotoShort")}</span>
-        </button>
-      </div>
-      <div class="start-note">${t("petPickNote")}</div>
-      <button class="start-go" data-confirm-pet>${t("petConfirm")}</button>`;
-    card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
-    card.querySelectorAll("[data-species]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        state.pet.species = b.dataset.species;
-        state.pet.photo = null;
-        save(state); paint(); renderNavContent();
-      });
-    });
-    card.querySelector("[data-photo]").addEventListener("click", ()=>{
-      pickPetPhoto(()=>{ renderNavContent(); openPetPicker(); });
-    });
-    card.querySelector("[data-confirm-pet]").addEventListener("click", ()=>{
-      state.pet.chosen = true;
-      save(state); closeStartSheet(); renderNavContent(); spawnConfetti();
-    });
-  };
-  paint();
-  if(!modal.classList.contains("open")){
-    modal.classList.add("open");
-    requestAnimationFrame(()=>card.classList.add("show"));
-  }
 }
 
 // 让用户自己看一眼卡通版和原图，挑一个
