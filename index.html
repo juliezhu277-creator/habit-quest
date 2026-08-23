@@ -1990,10 +1990,6 @@ const I18N = {
     supTitle: "我的朋友圈",
     supNamePh: "名字（比如：妈妈）",
     supTelPh: "电话（可不填）",
-    supSave: "保存",
-    supSaved: "记下啦 💛",
-    supSavedSub: "难受的时候，就找他们",
-    supPrivacy: "只存在这台设备，谁也看不到。趁心情还好的时候写下来 —— 真难受的那一刻，人是没力气现找的。",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
     secGrowth: "我的成长值",
     secCalendar: "我的日历",
@@ -2406,10 +2402,6 @@ const I18N = {
     supTitle: "My people",
     supNamePh: "Name (e.g. Mum)",
     supTelPh: "Phone (optional)",
-    supSave: "Save",
-    supSaved: "Saved 💛",
-    supSavedSub: "These are the people to reach for",
-    supPrivacy: "Stored on this device only — nobody can see it. Write it down while you're feeling okay; in the hard moment nobody has the energy to go looking.",
     secGrowth: "My growth",
     secCalendar: "My calendar",
     calMonth: (y,m) => `${y}-${String(m).padStart(2,"0")}`,
@@ -5745,16 +5737,13 @@ function openSupportSheet(){
     </div>
     <div class="sup-wrap">
       ${slots}
-      <button class="start-go" data-sup-save>${t("supSave")}</button>
-      <div class="j-hint">${t("supPrivacy")}</div>
     </div>`;
 
-  card.querySelector(".nav-close").addEventListener("click", ()=>{ commit(); closeChat(); });
-  card.querySelector("[data-sup-save]").addEventListener("click", ()=>{
-    commit();
-    showToast({emoji:"💛", msg:t("supSaved"), sub:t("supSavedSub")});
-    closeChat();
+  // 边打边存，不设保存按钮 —— 少一个动作，也不会填完忘了保存
+  card.querySelectorAll(".sup-in").forEach(i=>{
+    i.addEventListener("input", commit);
   });
+  card.querySelector(".nav-close").addEventListener("click", ()=>{ commit(); closeChat(); });
 
   if(!modal.classList.contains("open")){
     modal.classList.add("open");
