@@ -1267,8 +1267,9 @@
   /* 二级页的返回箭头 */
   .nav-back{
     border:none;background:none;color:var(--muted);font-size:26px;line-height:1;
-    cursor:pointer;padding:0 8px 3px 0;flex-shrink:0;font-family:inherit;
+    cursor:pointer;padding:0 6px 3px 0;flex-shrink:0;font-family:inherit;
   }
+  .chat-top .nav-back{font-size:24px;padding:0 2px 3px 0;}
   .nav-back:active{color:var(--ink);}
 
   /* 第五格：挚友占整行 */
@@ -1300,7 +1301,7 @@
     font-size:12.5px;font-weight:700;color:var(--primary-dark);line-height:1.65;
     background:#fff;border-radius:14px;padding:9px 12px;margin:0 auto 11px;max-width:280px;
   }
-  .pet-meta{display:flex;align-items:center;justify-content:center;gap:8px;}
+  .pet-meta{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;}
   .pet-name{
     width:min(240px,86%);text-align:center;border:2px solid #ffd9c6;border-radius:14px;
     padding:11px 12px;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);background:#fff;
@@ -1316,8 +1317,8 @@
     font-size:11px;font-weight:800;color:#fff;background:var(--primary);
     border-radius:10px;padding:5px 10px;
   }
-  .pet-stats{display:flex;justify-content:center;gap:12px;margin-top:10px;}
-  .pet-stats span{font-size:10.5px;color:var(--muted);font-weight:700;}
+  .pet-stats{display:flex;justify-content:center;gap:14px;margin-top:12px;}
+  .pet-stats span{font-size:11px;color:var(--muted);font-weight:700;}
   /* 庆祝烟花 */
   .fw{
     position:fixed;width:7px;height:7px;border-radius:50%;
@@ -2044,7 +2045,6 @@ const I18N = {
     jListSub: n => `留下来的 ${n} 条 · 只存在这台设备`,
     jEmpty: "还没有悄悄话。\n心里有事的时候，回来说给它听。",
     optJournal: "我想说点悄悄话",
-    jTell: n => `主人，欢迎给${n}写信哦`,
     secBuddyLine: "难受的时候，去找这些真的人",
     remindChipOn: (hm,n) => `${n}每天 ${hm} 提醒你`,
     remindChipOff: n => `让${n}每天提醒你`,
@@ -2466,7 +2466,6 @@ const I18N = {
     jListSub: n => `${n} kept · this device only`,
     jEmpty: "No secrets yet.\nCome tell it something when your head is full.",
     optJournal: "I want to tell you something",
-    jTell: n => `Write ${n} a letter`,
     secBuddyLine: "When things get hard, these are the real people",
     remindChipOn: (hm,n) => `${n} nudges you at ${hm}`,
     remindChipOff: n => `Let ${n} remind you daily`,
@@ -3506,13 +3505,20 @@ function buildMePet(card){
         ${petAvatar()}
         <span class="pet-hover">${t("petTapHint")}</span>
       </button>
-      ${petName()
-        ? `<div class="pet-name-show" data-rename>${escapeHtml(petName())}</div>`
-        : `<input class="pet-name" data-pet-name maxlength="8" value="" placeholder="${t("petNamePh")}">`}
+      <div class="pet-meta">
+        ${petName()
+          ? `<span class="pet-name-show" data-rename>${escapeHtml(petName())}</span>`
+          : `<input class="pet-name" data-pet-name maxlength="8" value="" placeholder="${t("petNamePh")}">`}
+        <span class="pet-badge">${L(petStage().label)}</span>
+      </div>
+      <div class="pet-stats">
+        <span>${t("petFedN", state.pet.fed)}</span>
+        <span>${t("petPlayedN", state.pet.played)}</span>
+        <span>${t("petDays", checkinDays())}</span>
+      </div>
     </div>
 
     <button class="pet-cta chat" data-chat>💬 ${t("chatWith", petCall())}</button>
-    <button class="pet-cta letter" data-journal>✉️ ${t("jTell", petCall())}</button>
     <button class="pet-cta station" data-journal-list>🏡 ${t("jStation", petCall())}</button>
 
     ${bag}
@@ -3534,7 +3540,6 @@ function buildMePet(card){
   });
   card.querySelector("[data-pick-pet]").addEventListener("click", ()=>pickPetPhoto(()=>renderNavContent()));
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
-  card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
   card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
   card.querySelectorAll("[data-buy]").forEach(b=>{
     b.addEventListener("click", ()=>{
@@ -5416,6 +5421,7 @@ function openJournal(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
+      <button class="nav-back" data-to-pet aria-label="back">‹</button>
       <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${t("jTitle")}<small>${t("jSub")}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
@@ -5432,6 +5438,7 @@ function openJournal(){
       <div class="j-hint">${t("jHint")}</div>
     </div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
+  bindBackToPet(card);
   const ta = card.querySelector("#jInput");
   const cnt = card.querySelector("#jCount");
   ta.addEventListener("input", ()=>{ cnt.textContent = `${ta.value.length} / 2000`; });
@@ -5467,6 +5474,7 @@ function finishJournal(text, keep){
   const card = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
+      <button class="nav-back" data-to-pet aria-label="back">‹</button>
       <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${petCall()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
@@ -5475,6 +5483,7 @@ function finishJournal(text, keep){
     <div class="chat-opts" id="chatOpts"></div>
     <div class="chat-note">${t("buddyDisclaimer", petCall())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
+  bindBackToPet(card);
 
   const lines = [
     {text: keep ? t("jSavedSay") : t("jBuriedSay")},
@@ -5515,12 +5524,14 @@ function openJournalList(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
+      <button class="nav-back" data-to-pet aria-label="back">‹</button>
       <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${t("jListTitle")}<small>${t("jListSub", state.journal.length)}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
     <div class="j-list">${journalListHTML()}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
+  bindBackToPet(card);
   card.querySelectorAll("[data-jdel]").forEach(b=>{
     b.addEventListener("click", ()=>{
       state.journal = state.journal.filter(x=>x.id !== b.dataset.jdel);
@@ -5575,6 +5586,7 @@ function openChat(){
   const card  = document.getElementById("chatCard");
   card.innerHTML = `
     <div class="chat-top">
+      <button class="nav-back" data-to-pet aria-label="back">‹</button>
       <div class="pet-avatar">${petAvatar()}</div>
       <span class="ct-name">${petCall()}<small>${petTitle()}</small></span>
       <button class="nav-close" aria-label="close">✕</button>
@@ -5583,9 +5595,16 @@ function openChat(){
     <div class="chat-opts" id="chatOpts"></div>
     <div class="chat-note">${t("buddyDisclaimer", petCall())}</div>`;
   card.querySelector(".nav-close").addEventListener("click", closeChat);
+  bindBackToPet(card);
   modal.classList.add("open");
   requestAnimationFrame(()=>card.classList.add("show"));
   goChat("open");
+}
+
+// 从聊天 / 心情驿站 / 悄悄话退回「我的宠物」页
+function backToPet(){
+  closeChat();
+  setTimeout(()=>{ currentNav = "me-pet"; openNav("me-pet"); }, 230);
 }
 
 function closeChat(){
@@ -5593,6 +5612,15 @@ function closeChat(){
   const card  = document.getElementById("chatCard");
   card.classList.remove("show");
   setTimeout(()=>{ modal.classList.remove("open"); card.innerHTML=""; }, 220);
+}
+
+// 弹层里只要出现返回键就接上，省得每处单独绑
+function bindBackToPet(root){
+  (root || document).querySelectorAll("[data-to-pet]").forEach(b=>{
+    if(b.dataset.bound) return;
+    b.dataset.bound = "1";
+    b.addEventListener("click", backToPet);
+  });
 }
 
 function chatBubble(text, cls){
