@@ -1185,6 +1185,20 @@
     font-size:11.5px;line-height:1.75;color:#41627a;
     border-top:1px dashed #bcd9ee;margin-top:10px;padding-top:9px;
   }
+  /* 朋友圈：两行，一行一个人 */
+  .sup-slot{
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .ss-idx{
+    flex-shrink:0;width:26px;height:26px;border-radius:50%;
+    background:#fff3e8;color:var(--primary-dark);
+    font-size:12px;font-weight:800;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .sup-slot .ss-name{flex:1.1;min-width:0;}
+  .sup-slot .ss-tel{flex:1;min-width:0;}
+  .sup-slot .sup-in{padding:12px;font-size:13.5px;}
+
   /* 编辑名单 */
   .sup-wrap{padding:14px 16px 0;overflow-y:auto;display:flex;flex-direction:column;}
   .sup-list{display:flex;flex-direction:column;gap:7px;margin:11px 0;}
@@ -1966,25 +1980,20 @@ const I18N = {
     // 兜底
     careSay: "谢谢你告诉我这个。我很认真地听着，但我只是个小程序里的角色，帮不到真正需要的地方。",
     careSay2: "去说一次，不丢人，也不麻烦别人。你值得被认真对待。",
-    careTitle: "找你的后援团聊聊 💛",
-    careNoList: "你还没写过求助名单。现在花一分钟，写下一两个你信得过的人 —— 真难受的时候就不用现找了。",
+    careTitle: "找你朋友圈里的人聊聊 💛",
+    careNoList: "你还没写过朋友圈。现在花一分钟，写下一两个你信得过的人 —— 真难受的时候就不用现找了。",
     careSetup: "现在就写一个",
-    careEditList: "修改名单",
+    careEditList: "改一下名单",
     careCall: "拨打",
     careGeneric: "如果名单上的人一时联系不上：告诉此刻就在你身边的任何一个大人；学校一般都有心理老师，找他们聊是保密的，也不用担心被当成「有问题」；也可以搜索你所在国家/地区的心理援助热线。如果你有伤害自己的念头，请立刻找到身边的人，不要一个人待着。",
     // 求助名单
-    supTitle: "我的后援团",
-    supSub: "只存在这台设备，谁也看不到",
-    supWhy: "写下难受的时候你愿意找的人 —— 他们就是站在你这边的后援团。家人、老师、朋友都行，也可以是你查到的本地心理援助热线。填了电话就能一键拨出去。",
-    supName: "名字或称呼（比如：妈妈、王老师）",
-    supTel: "电话（可以不填）",
-    supAdd: "加到名单里",
-    supEmpty: "名单还是空的。\n趁现在心情还好，写一两个人进来吧。",
-    supHint: "建议至少写两个：一个是家里的，一个是家以外的。留一个电话号码，需要的时候点一下就能打。",
-    supOpen: "设置",
-    supCount: n => `已写下 ${n} 位`,
-    supNotSet: "还没设置",
-    supNote: "趁心情还好的时候写下来。真难受的那一刻，人是没力气现找的。",
+    supTitle: "我的朋友圈",
+    supNamePh: "名字（比如：妈妈）",
+    supTelPh: "电话（可不填）",
+    supSave: "保存",
+    supSaved: "记下啦 💛",
+    supSavedSub: "难受的时候，就找他们",
+    supPrivacy: "只存在这台设备，谁也看不到。趁心情还好的时候写下来 —— 真难受的那一刻，人是没力气现找的。",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
     secGrowth: "我的成长值",
     secCalendar: "我的日历",
@@ -2011,12 +2020,9 @@ const I18N = {
     secHollowSub: "想说什么就说什么，只有你自己看得到。",
     secSettings: "设置",
     chatWith: n => `主人，和${n}聊聊天吧`,
-    supNudgeTitle: "顺手存两个人吧",
-    supNudgeSub: "谁都有不好受的时候。趁现在心情还行，写下一两个你愿意找的人，以后就不用现找了。",
-    supNudgeGo: "去写",
     optSetSupport: "存两个人的号码",
     supIntroSay: "对了，有件小事想说一句 —— 不是因为你现在不好，是因为现在正是适合做这件事的时候。",
-    supIntroSay2: "写下一两个你难受时愿意找的人：家人、老师、朋友都行，也可以是你查到的本地热线。就当存个紧急联系人，写完就放着，希望你用不上。",
+    supIntroSay2: "写下两个你难受时愿意找的人和电话，就当存个紧急联系人，写完就放着，希望你用不上。",
     supGoSay: "好，这就带你去写。",
     // 目标
     goalsLeft: n => `今天还有 ${n} 件事没做完：`,
@@ -2082,7 +2088,7 @@ const I18N = {
     pomoPointsSub: "积分可以换休闲时间",
     navRewards: "积分兑换",
     navInfo: "ProudMe小妙招",
-    navSquad: "后援团",
+    navSquad: "朋友圈",
     navMe: "我的",
     meLevel: "等级",
     meXp: "累计经验",
@@ -2392,23 +2398,18 @@ const I18N = {
     careSay: "Thank you for telling me. I'm listening carefully — but I'm only a character in an app, and I can't reach where this actually needs reaching.",
     careSay2: "Saying it out loud once isn't shameful, and it isn't a burden on anyone. You deserve to be taken seriously.",
     careTitle: "Please talk to a real person 💛",
-    careNoList: "You haven't set up your support list yet. Take a minute now to write down one or two people you trust — so you don't have to go looking when things get hard.",
-    careSetup: "Set one up now",
-    careEditList: "Edit list",
+    careNoList: "You haven't added anyone yet. Take a minute now — so you don't have to go looking when things get hard.",
+    careSetup: "Add someone now",
+    careEditList: "Edit the list",
     careCall: "Call",
     careGeneric: "If you can't reach anyone on your list: tell any adult who is near you right now; most schools have a counsellor and those conversations are confidential — it doesn't mean something is 'wrong' with you; you can also look up the crisis helpline for your own country or region. If you're having thoughts of hurting yourself, find someone now — don't stay on your own.",
-    supTitle: "My squad",
-    supSub: "Stored on this device only — nobody can see it",
-    supWhy: "Write down who you'd reach out to on a bad day — the people in your corner. Family, a teacher, a friend, or a local helpline you've looked up. Add a phone number and you can call with one tap.",
-    supName: "Name (e.g. Mum, Ms. Lee)",
-    supTel: "Phone (optional)",
-    supAdd: "Add to list",
-    supEmpty: "Your list is empty.\nWhile you're feeling okay, add one or two people.",
-    supHint: "Try to add at least two: one at home, one outside it. Include a phone number so it's one tap when you need it.",
-    supOpen: "Set up",
-    supCount: n => `${n} saved`,
-    supNotSet: "Not set up yet",
-    supNote: "Write it down while you're feeling okay. In the moment it's hard, nobody has the energy to go looking.",
+    supTitle: "My people",
+    supNamePh: "Name (e.g. Mum)",
+    supTelPh: "Phone (optional)",
+    supSave: "Save",
+    supSaved: "Saved 💛",
+    supSavedSub: "These are the people to reach for",
+    supPrivacy: "Stored on this device only — nobody can see it. Write it down while you're feeling okay; in the hard moment nobody has the energy to go looking.",
     secGrowth: "My growth",
     secCalendar: "My calendar",
     calMonth: (y,m) => `${y}-${String(m).padStart(2,"0")}`,
@@ -2434,12 +2435,9 @@ const I18N = {
     secHollowSub: "Say anything you like — only you can see it.",
     secSettings: "Settings",
     chatWith: n => `Talk with ${n}`,
-    supNudgeTitle: "Save a couple of people",
-    supNudgeSub: "Everyone has rough days. While you're feeling alright, jot down one or two people you'd reach out to — so you don't have to go looking later.",
-    supNudgeGo: "Write it",
     optSetSupport: "Save a couple of numbers",
     supIntroSay: "One small thing, by the way — not because anything's wrong with you, just because right now is a good moment for it.",
-    supIntroSay2: "Write down one or two people you'd turn to on a bad day: family, a teacher, a friend, or a local helpline you've looked up. Think of it as an emergency contact — write it and forget it. I hope you never need it.",
+    supIntroSay2: "Write down two people you'd turn to on a bad day, with their numbers. Think of it as an emergency contact — write it and forget it. I hope you never need it.",
     supGoSay: "Okay, taking you there now.",
     goalsLeft: n => `${n} thing${n===1?"":"s"} left today:`,
     goalsNudge: "You don't have to finish them all. Pick the smallest one and do 5 minutes.",
@@ -2500,7 +2498,7 @@ const I18N = {
     pomoPointsSub: "Points buy downtime",
     navRewards: "Rewards",
     navInfo: "ProudMe Tips",
-    navSquad: "My squad",
+    navSquad: "My people",
     navMe: "Me",
     meLevel: "Level",
     meXp: "Total XP",
@@ -5317,17 +5315,6 @@ function setMood(id){
 }
 
 /* ---------- 什么时候提醒去写求助名单 ---------- */
-// 原则：趁心情好的时候提，语气要像"存个紧急联系人"这么平常。
-// 第一次选到低落就弹求助设置，会让人觉得是在说"你有问题"。
-function shouldPromptSupport(){
-  if(state.support.length > 0) return false;      // 已经写过了
-  if(state.supPromptOff) return false;            // 用户说过不用了
-  if(state.supPromptShown >= 3) return false;     // 最多提三次
-  if(state.supPromptDate === todayStr()) return false;  // 今天提过了
-  // 用过几天之后再提，别一上来就谈这个
-  const moodDays = Object.keys(state.moods).length;
-  return moodDays >= 2;
-}
 
 function markSupportPrompted(){
   state.supPromptShown = (state.supPromptShown||0) + 1;
@@ -5675,14 +5662,6 @@ async function goChat(nodeId){
 /* ---------- 求助名单：由用户自己填，所以放之四海皆准 ---------- */
 // 与其硬编码某个国家的热线号码（会过时、会错、也只对一国有效），
 // 不如让用户在状态好的时候先写下自己信得过的人 —— 真难受的时候更打得出去。
-const SUPPORT_RELS = [
-  {id:"family",  icon:"🏠", name:{zh:"家人",   en:"Family"}},
-  {id:"teacher", icon:"🎓", name:{zh:"老师",   en:"Teacher"}},
-  {id:"friend",  icon:"🤝", name:{zh:"朋友",   en:"Friend"}},
-  {id:"line",    icon:"☎️", name:{zh:"热线",   en:"Helpline"}},
-  {id:"other",   icon:"💬", name:{zh:"其他",   en:"Other"}},
-];
-const relById = id => SUPPORT_RELS.find(r=>r.id===id) || SUPPORT_RELS[4];
 
 // tel: 链接只保留数字、+ 和几个拨号字符
 function telHref(tel){
@@ -5698,10 +5677,9 @@ function careCard(){
             <button class="care-set" data-care-setup>${t("careSetup")}</button>`;
   } else {
     rows = `<div class="care-list">` + list.map(p=>{
-      const rel = relById(p.rel);
       const href = telHref(p.tel);
-      const inner = `<span class="cl-ic">${rel.icon}</span>
-        <span class="cl-txt"><b>${escapeHtml(p.name)}</b><small>${L(rel.name)}${p.tel?" · "+escapeHtml(p.tel):""}</small></span>
+      const inner = `<span class="cl-ic">💛</span>
+        <span class="cl-txt"><b>${escapeHtml(p.name)}</b>${p.tel?`<small>${escapeHtml(p.tel)}</small>`:""}</span>
         ${href?`<span class="cl-call">${t("careCall")}</span>`:""}`;
       return href
         ? `<a class="cl-row" href="${href}">${inner}</a>`
@@ -5721,65 +5699,63 @@ function bindCareCard(){
   });
 }
 
-/* ---------- 编辑求助名单 ---------- */
+/* ---------- 朋友圈：只留两行，写下两个能找的人 ---------- */
+// 刻意不做分类、不做多条目管理。真难受的时候没人想在下拉框里挑"关系类型"，
+// 两个名字加两个号码就够了。
+const SUPPORT_SLOTS = 2;
+
 function openSupportSheet(){
   const modal = document.getElementById("chatModal");
   const card  = document.getElementById("chatCard");
-  let rel = "family";
 
-  const paint = ()=>{
-    const list = state.support || [];
-    const rows = list.length === 0
-      ? `<div class="j-empty">${t("supEmpty")}</div>`
-      : list.map(p=>{
-          const r = relById(p.rel);
-          return `<div class="sup-row">
-            <span class="cl-ic">${r.icon}</span>
-            <span class="cl-txt"><b>${escapeHtml(p.name)}</b><small>${L(r.name)}${p.tel?" · "+escapeHtml(p.tel):""}</small></span>
-            <button class="j-del" data-sup-del="${p.id}" aria-label="delete">✕</button>
-          </div>`;
-        }).join("");
-    const chips = SUPPORT_RELS.map(r=>
-      `<button class="rel-chip${rel===r.id?" on":""}" data-rel="${r.id}">${r.icon} ${L(r.name)}</button>`).join("");
-
-    card.innerHTML = `
-      <div class="chat-top">
-        <div class="pet-avatar">${petAvatar()}</div>
-        <span class="ct-name">${t("supTitle")}<small>${t("supSub")}</small></span>
-        <button class="nav-close" aria-label="close">✕</button>
-      </div>
-      <div class="sup-wrap">
-        <div class="j-prompt">${t("supWhy")}</div>
-        <div class="sup-list">${rows}</div>
-        <div class="sup-add">
-          <div class="rel-chips">${chips}</div>
-          <input class="sup-in" data-sup-name maxlength="20" placeholder="${t("supName")}">
-          <input class="sup-in" data-sup-tel  maxlength="30" inputmode="tel" placeholder="${t("supTel")}">
-          <button class="start-go" data-sup-add>${t("supAdd")}</button>
-        </div>
-        <div class="j-hint">${t("supHint")}</div>
-      </div>`;
-    card.querySelector(".nav-close").addEventListener("click", closeChat);
-    card.querySelectorAll("[data-rel]").forEach(b=>{
-      b.addEventListener("click", ()=>{ rel = b.dataset.rel; paint(); });
-    });
-    card.querySelectorAll("[data-sup-del]").forEach(b=>{
-      b.addEventListener("click", ()=>{
-        state.support = state.support.filter(x=>x.id !== b.dataset.supDel);
-        save(state); paint();
-      });
-    });
-    card.querySelector("[data-sup-add]").addEventListener("click", ()=>{
-      const nameEl = card.querySelector("[data-sup-name]");
-      const telEl  = card.querySelector("[data-sup-tel]");
-      const name = nameEl.value.trim();
-      if(!name) { nameEl.focus(); return; }
-      state.support.push({id:uid("s"), name, rel, tel: telEl.value.trim()});
-      save(state); paint();
-    });
+  const readSlots = ()=>{
+    const out = [];
+    for(let i=0;i<SUPPORT_SLOTS;i++){
+      const p = state.support[i] || {};
+      out.push({name:p.name || "", tel:p.tel || ""});
+    }
+    return out;
   };
 
-  paint();
+  const commit = ()=>{
+    const list = [];
+    for(let i=0;i<SUPPORT_SLOTS;i++){
+      const n = (card.querySelector(`[data-sup-name="${i}"]`).value || "").trim().slice(0,20);
+      const tl= (card.querySelector(`[data-sup-tel="${i}"]`).value  || "").trim().slice(0,30);
+      if(n) list.push({id: (state.support[i] && state.support[i].id) || uid("s"), name:n, tel:tl});
+    }
+    state.support = list;
+    save(state);
+    render();
+  };
+
+  const slots = readSlots().map((p,i)=>`
+    <div class="sup-slot">
+      <span class="ss-idx">${i+1}</span>
+      <input class="sup-in ss-name" data-sup-name="${i}" maxlength="20"
+             value="${escapeHtml(p.name)}" placeholder="${t("supNamePh")}">
+      <input class="sup-in ss-tel" data-sup-tel="${i}" maxlength="30" inputmode="tel"
+             value="${escapeHtml(p.tel)}" placeholder="${t("supTelPh")}">
+    </div>`).join("");
+
+  card.innerHTML = `
+    <div class="chat-top">
+      <span class="ct-name">${t("supTitle")}</span>
+      <button class="nav-close" aria-label="close">✕</button>
+    </div>
+    <div class="sup-wrap">
+      ${slots}
+      <button class="start-go" data-sup-save>${t("supSave")}</button>
+      <div class="j-hint">${t("supPrivacy")}</div>
+    </div>`;
+
+  card.querySelector(".nav-close").addEventListener("click", ()=>{ commit(); closeChat(); });
+  card.querySelector("[data-sup-save]").addEventListener("click", ()=>{
+    commit();
+    showToast({emoji:"💛", msg:t("supSaved"), sub:t("supSavedSub")});
+    closeChat();
+  });
+
   if(!modal.classList.contains("open")){
     modal.classList.add("open");
     requestAnimationFrame(()=>card.classList.add("show"));
