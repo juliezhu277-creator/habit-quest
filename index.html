@@ -1292,9 +1292,9 @@
   /* ===================== 宠物页 ===================== */
   .pet-stage{
     background:linear-gradient(165deg,#fff8f2,#ffeee6);
-    border-radius:20px;padding:16px 14px 14px;text-align:center;margin-bottom:12px;
+    border-radius:24px;padding:26px 16px 22px;text-align:center;margin-bottom:14px;
   }
-  .pet-big{width:132px;height:132px;margin:0 auto 6px;}
+  .pet-big{display:block;width:150px;height:150px;margin:0 auto 14px;}
   .pet-big svg{display:block;width:100%;height:100%;}
   .pet-say{
     font-size:12.5px;font-weight:700;color:var(--primary-dark);line-height:1.65;
@@ -1302,9 +1302,15 @@
   }
   .pet-meta{display:flex;align-items:center;justify-content:center;gap:8px;}
   .pet-name{
-    width:120px;text-align:center;border:2px solid #ffd9c6;border-radius:11px;
-    padding:7px 8px;font-family:inherit;font-size:14px;font-weight:800;color:var(--ink);background:#fff;
+    width:min(240px,86%);text-align:center;border:2px solid #ffd9c6;border-radius:14px;
+    padding:11px 12px;font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);background:#fff;
   }
+  .pet-name::placeholder{color:#c9b8ab;font-weight:600;}
+  .pet-name-show{
+    font-size:22px;font-weight:800;color:var(--ink);letter-spacing:.02em;
+    cursor:pointer;display:inline-block;padding:2px 10px;border-radius:10px;
+  }
+  .pet-name-show:active{background:rgba(255,140,66,.12);}
   .pet-name:focus{outline:none;border-color:var(--primary);}
   .pet-badge{
     font-size:11px;font-weight:800;color:#fff;background:var(--primary);
@@ -1312,11 +1318,24 @@
   }
   .pet-stats{display:flex;justify-content:center;gap:12px;margin-top:10px;}
   .pet-stats span{font-size:10.5px;color:var(--muted);font-weight:700;}
+  /* 庆祝烟花 */
+  .fw{
+    position:fixed;width:7px;height:7px;border-radius:50%;
+    z-index:1500;pointer-events:none;
+    animation:fwGo .95s cubic-bezier(.15,.7,.3,1) forwards;
+  }
+  @keyframes fwGo{
+    0%{transform:translate(-50%,-50%) scale(1);opacity:1;}
+    100%{transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(.3);opacity:0;}
+  }
+  @media (prefers-reduced-motion:reduce){ .fw{display:none;} }
+
   /* 还没设置：一个等着被填上的空圈 */
   .pet-empty{
     display:flex;align-items:center;justify-content:center;
-    width:100%;height:100%;border-radius:50%;font-size:40px;
-    background:#f6f2ee;border:3px dashed #e2d6c8;opacity:.65;
+    width:100%;height:100%;border-radius:50%;font-size:44px;
+    background:#eeeeef;border:3px dashed #d3d3d6;
+    filter:grayscale(1);opacity:.55;
   }
   /* 设置成功后的自我介绍 */
   .toast-card.pet-greet{padding:22px 26px;max-width:280px;}
@@ -1877,17 +1896,11 @@ const I18N = {
     petAte: n => `${n}吃得好开心！`,
     petPlayed: n => `${n}玩得好开心！`,
     petThanks: "它蹭了蹭你",
-    petHungry: "咕…有点饿了，能给我点吃的吗？",
-    petProud: n => `你今天完成了 ${n} 个番茄钟，我都看见啦！`,
-    petFull: "吃饱啦，谢谢你～我在这儿陪着你。",
-    petNoName: "它",
-    petNamePh: "给它起个昵称",
-    petSetPrompt: "点上面的圈圈，把你的小宠物放进来吧",
-    petNamePrompt: "先给它起个名字吧～",
-    petIdle: "今天也在这儿陪着你。",
+    petNoName: "我",
+    petNamePh: "主人，帮我取个名字吧",
     petGreet: n => `主人，${n}每天都会在这里陪你哟`,
-    petTapHint: "换张照片",
-    jStation: "我和主人的心情驿站",
+    petTapHint: "主人，帮我换个头像吧",
+    jStation: n => `主人和${n}的心情驿站`,
     petPhotoCartoon: "卡通版",
     petPhotoPlain: "原照片",
     petConfirm: "就它了！",
@@ -2031,7 +2044,7 @@ const I18N = {
     jListSub: n => `留下来的 ${n} 条 · 只存在这台设备`,
     jEmpty: "还没有悄悄话。\n心里有事的时候，回来说给它听。",
     optJournal: "我想说点悄悄话",
-    jTell: n => `主人，可以给${n}写信哦`,
+    jTell: n => `主人，欢迎给${n}写信哦`,
     secBuddyLine: "难受的时候，去找这些真的人",
     remindChipOn: (hm,n) => `${n}每天 ${hm} 提醒你`,
     remindChipOff: n => `让${n}每天提醒你`,
@@ -2313,17 +2326,11 @@ const I18N = {
     petAte: n => `${n} loved that!`,
     petPlayed: n => `${n} had so much fun!`,
     petThanks: "It nuzzles you",
-    petHungry: "Rumble… I'm a little hungry. Got anything?",
-    petProud: n => `${n} pomodoros today — I saw all of it!`,
-    petFull: "All full, thank you! I'll stay right here.",
-    petNoName: "it",
-    petNamePh: "Give it a nickname",
-    petSetPrompt: "Tap the circle above to bring your pet in",
-    petNamePrompt: "Give it a name first!",
-    petIdle: "Right here with you today.",
+    petNoName: "me",
+    petNamePh: "Give me a name!",
     petGreet: n => `${n} will be right here with you every day!`,
-    petTapHint: "Change photo",
-    jStation: "Our little mood station",
+    petTapHint: "Give me a face!",
+    jStation: n => `You and ${n}'s mood station`,
     petPhotoCartoon: "Cartoon",
     petPhotoPlain: "Original",
     petConfirm: "This one!",
@@ -3467,7 +3474,6 @@ function buildMeMood(card){
 /* ---- 我的宠物 ---- */
 function buildMePet(card){
   const avail = availablePoints();
-  const stage = petStage();
   const items = state.pet.items || {};
 
   const owned = PET_SHOP.filter(x=>items[x.id] > 0);
@@ -3496,38 +3502,35 @@ function buildMePet(card){
 
   card.innerHTML = navHeader("secPet", "me") + `
     <div class="pet-stage">
-      <button class="pet-big tap${state.pet.chosen?"":" unset"}" data-pick-pet aria-label="${t("petTapHint")}">
+      <button class="pet-big tap${petHasAvatar()?"":" unset"}" data-pick-pet aria-label="${t("petTapHint")}">
         ${petAvatar()}
-        <span class="pet-hover">📷 ${t("petTapHint")}</span>
+        <span class="pet-hover">${t("petTapHint")}</span>
       </button>
-      <div class="pet-say">${escapeHtml(petLine())}</div>
-      <div class="pet-meta">
-        <input class="pet-name" data-pet-name maxlength="8" value="${escapeHtml(state.pet.name)}"
-               placeholder="${t("petNamePh")}">
-        <span class="pet-badge">${L(stage.label)}</span>
-      </div>
-      <div class="pet-stats">
-        <span>${t("petFedN", state.pet.fed)}</span>
-        <span>${t("petPlayedN", state.pet.played)}</span>
-        <span>${t("petDays", checkinDays())}</span>
-      </div>
+      ${petName()
+        ? `<div class="pet-name-show" data-rename>${escapeHtml(petName())}</div>`
+        : `<input class="pet-name" data-pet-name maxlength="8" value="" placeholder="${t("petNamePh")}">`}
     </div>
-
 
     <button class="pet-cta chat" data-chat>💬 ${t("chatWith", petCall())}</button>
     <button class="pet-cta letter" data-journal>✉️ ${t("jTell", petCall())}</button>
-    <button class="pet-cta station" data-journal-list>🏡 ${t("jStation")}</button>
+    <button class="pet-cta station" data-journal-list>🏡 ${t("jStation", petCall())}</button>
+
     ${bag}
     <div class="cal-sub">${t("petShop")} · ${t("funBalance")} ${avail}</div>
-    ${shop}
-    <div class="j-hint">${t("petHint")}</div>`;
+    ${shop}`;
 
-  card.querySelector("[data-pet-name]").addEventListener("change", e=>{
+  const nameInput = card.querySelector("[data-pet-name]");
+  if(nameInput) nameInput.addEventListener("change", e=>{
     const had = !!petName();
     state.pet.name = e.target.value.trim().slice(0,8);
     save(state); renderNavContent();
     // 第一次给它起名，让它认认真真地自我介绍一次
     if(!had && petName() && petHasAvatar()) setTimeout(petGreet, 200);
+  });
+  const rename = card.querySelector("[data-rename]");
+  if(rename) rename.addEventListener("click", ()=>{
+    state.pet.name = ""; save(state); renderNavContent();
+    const el = document.querySelector("[data-pet-name]"); if(el) el.focus();
   });
   card.querySelector("[data-pick-pet]").addEventListener("click", ()=>pickPetPhoto(()=>renderNavContent()));
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
@@ -3553,17 +3556,37 @@ function buildMePet(card){
 }
 
 // 宠物在宠物页说的一句话：读得到今天喂没喂、玩没玩、做了多少
-function petLine(){
-  const done = todayPomos();
-  if(!petHasAvatar()) return t("petSetPrompt");
-  if(!petName())      return t("petNamePrompt");
-  if(!petFedToday() && state.pet.fed > 0) return t("petHungry");
-  if(done > 0) return t("petProud", done);
-  if(petFedToday())  return t("petFull");
-  return t("petIdle");
-}
 
 // 设置成功后的自我介绍：头像放大弹出 + 一句话
+// 庆祝烟花：几处错开的爆点，每处一圈粒子四散
+function spawnFireworks(){
+  const colors = ["#FF8C42","#FF5E73","#FFC93C","#7BD389","#4CC9F0","#A78BFA"];
+  const W = window.innerWidth, H = window.innerHeight;
+  const bursts = [
+    {x:W*0.28, y:H*0.32, d:0},
+    {x:W*0.74, y:H*0.26, d:220},
+    {x:W*0.5,  y:H*0.46, d:430},
+    {x:W*0.34, y:H*0.58, d:640},
+  ];
+  bursts.forEach(b=>{
+    setTimeout(()=>{
+      for(let i=0;i<16;i++){
+        const ang = (Math.PI*2/16)*i + Math.random()*0.3;
+        const dist = 60 + Math.random()*70;
+        const p = document.createElement("i");
+        p.className = "fw";
+        p.style.left = b.x + "px";
+        p.style.top  = b.y + "px";
+        p.style.background = colors[Math.floor(Math.random()*colors.length)];
+        p.style.setProperty("--dx", Math.cos(ang)*dist + "px");
+        p.style.setProperty("--dy", Math.sin(ang)*dist + "px");
+        document.body.appendChild(p);
+        setTimeout(()=>p.remove(), 1000);
+      }
+    }, b.d);
+  });
+}
+
 function petGreet(){
   const wrap = document.getElementById("toast");
   const card = document.createElement("div");
@@ -3574,7 +3597,7 @@ function petGreet(){
   wrap.innerHTML = "";
   wrap.appendChild(card);
   requestAnimationFrame(()=>card.classList.add("show"));
-  spawnConfetti();
+  spawnFireworks();
   setTimeout(()=>{
     card.classList.remove("show");
     setTimeout(()=>{ if(wrap.contains(card)) wrap.removeChild(card); }, 320);
