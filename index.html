@@ -1321,6 +1321,21 @@
     overflow:hidden;box-shadow:0 8px 24px rgba(0,0,0,.18);background:#f4f4f6;
   }
   .ph-preview img{display:block;width:100%;height:100%;object-fit:cover;}
+  .pet-big.tap{
+    border:none;background:none;padding:0;cursor:pointer;
+    border-radius:50%;transition:transform .15s;
+  }
+  .pet-big.tap:active{transform:scale(.94);}
+  .pet-tap-hint{
+    font-size:10.5px;color:var(--muted);font-weight:700;margin:-2px 0 8px;
+  }
+  .pet-picker{flex-wrap:wrap;}
+  .pet-picker .bud-pick{flex:1 1 calc(50% - 4px);}
+  .bp-camera{
+    display:flex;align-items:center;justify-content:center;
+    width:100%;height:100%;font-size:22px;
+    background:#f4f4f6;border-radius:50%;
+  }
   .pet-pick-hint{
     font-size:12px;color:var(--muted);line-height:1.65;
     text-align:center;margin-bottom:10px;font-weight:600;
@@ -1803,7 +1818,12 @@ const I18N = {
     petProud: n => `你今天完成了 ${n} 个番茄钟，我都看见啦！`,
     petFull: "吃饱啦，谢谢你～我在这儿陪着你。",
     petHello: n => `我是${n}，以后就一起啦！`,
-    petPickHint: "先挑一只陪你的小家伙，也可以用自己家宠物的照片。",
+    petPickHint: "挑一只陪你的小家伙，也可以用自己家宠物的照片。",
+    petPickTitle: "换一只陪我的",
+    petPickNote: "选好点「就它了」。用自己宠物的照片时，会先让你在卡通版和原图之间挑一个。",
+    petTapHint: "点头像可以换一只 ↑",
+    petUsePhotoShort: "用我的照片",
+    petMine: "我的宠物",
     petUsePhoto: "用我自己宠物的照片",
     petPhotoTitle: "你的小宠物",
     petPhotoCartoon: "卡通版",
@@ -2239,6 +2259,11 @@ const I18N = {
     petFull: "All full, thank you! I'll stay right here.",
     petHello: n => `I'm ${n}. We're together from now on!`,
     petPickHint: "Pick a little friend — or use a photo of your own pet.",
+    petPickTitle: "Choose your pet",
+    petPickNote: "Tap 'This one!' when you're happy. With your own photo you'll get to choose between a cartoon version and the original.",
+    petTapHint: "Tap the avatar to change ↑",
+    petUsePhotoShort: "My photo",
+    petMine: "My pet",
     petUsePhoto: "Use my own pet's photo",
     petPhotoTitle: "Your pet",
     petPhotoCartoon: "Cartoon",
@@ -3417,7 +3442,8 @@ function buildMePet(card){
 
   card.innerHTML = navHeader("secPet", "me") + `
     <div class="pet-stage">
-      <div class="pet-big">${petAvatar({tag:"big"})}</div>
+      <button class="pet-big tap" data-pick-pet aria-label="${t("petChange")}">${petAvatar({tag:"big"})}</button>
+      <div class="pet-tap-hint">${t("petTapHint")}</div>
       <div class="pet-say">${escapeHtml(petLine())}</div>
       <div class="pet-meta">
         <input class="pet-name" data-pet-name maxlength="8" value="${escapeHtml(state.pet.name)}"
@@ -3431,15 +3457,6 @@ function buildMePet(card){
       </div>
     </div>
 
-    ${state.pet.chosen ? "" : `
-      <div class="pet-pick-hint">${t("petPickHint")}</div>
-      <div class="pet-picker">${Object.values(PETS).map(x=>`
-        <button class="bud-pick${x.id===state.pet.species?" on":""}" data-species="${x.id}">
-          <span class="bp-face">${petSvg(x.id,{tag:"pick"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
-          <span class="bp-name">${L(x.name)}</span>
-        </button>`).join("")}</div>
-      <button class="me-tool wide" data-photo>📷 ${t("petUsePhoto")}</button>
-      <button class="start-go" data-confirm-pet>${t("petConfirm")}</button>`}
 
     <button class="pet-cta chat" data-chat>💬 ${t("chatWith", petName())}</button>
     <button class="pet-cta letter" data-journal>✉️ ${t("jTell", petName())}</button>
@@ -3447,30 +3464,13 @@ function buildMePet(card){
     ${bag}
     <div class="cal-sub">${t("petShop")} · ${t("funBalance")} ${avail}</div>
     ${shop}
-    <div class="j-hint">${t("petHint")}</div>
-    ${state.pet.chosen ? `<button class="me-link" data-repick>${t("petChange")}</button>` : ""}`;
+    <div class="j-hint">${t("petHint")}</div>`;
 
   card.querySelector("[data-pet-name]").addEventListener("change", e=>{
     state.pet.name = e.target.value.trim().slice(0,8);
     save(state); renderNavContent();
   });
-  card.querySelectorAll("[data-species]").forEach(b=>{
-    b.addEventListener("click", ()=>{
-      state.pet.species = b.dataset.species;
-      state.pet.photo = null;
-      save(state); renderNavContent();
-    });
-  });
-  const photoBtn = card.querySelector("[data-photo]");
-  if(photoBtn) photoBtn.addEventListener("click", ()=>pickPetPhoto(()=>renderNavContent()));
-  const confirmBtn = card.querySelector("[data-confirm-pet]");
-  if(confirmBtn) confirmBtn.addEventListener("click", ()=>{
-    state.pet.chosen = true; save(state); renderNavContent(); spawnConfetti();
-  });
-  const repick = card.querySelector("[data-repick]");
-  if(repick) repick.addEventListener("click", ()=>{
-    state.pet.chosen = false; save(state); renderNavContent();
-  });
+  card.querySelector("[data-pick-pet]").addEventListener("click", openPetPicker);
   card.querySelector("[data-chat]").addEventListener("click", ()=>{ closeNav(); setTimeout(openChat, 240); });
   card.querySelector("[data-journal]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
   card.querySelector("[data-journal-list]").addEventListener("click", ()=>{ closeNav(); setTimeout(openJournalList, 240); });
@@ -5188,6 +5188,56 @@ function pickPetPhoto(onDone){
     reader.readAsDataURL(file);
   });
   input.click();
+}
+
+// 点头像唤起：内置三只 + 用自己宠物的照片
+function openPetPicker(){
+  const modal = document.getElementById("startModal");
+  const card  = document.getElementById("startCard");
+  const paint = ()=>{
+    const custom = state.pet.species === "custom" && state.pet.photo;
+    card.innerHTML = `
+      <div class="nav-top">
+        <span class="nav-title">${t("petPickTitle")}</span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="start-sub">${t("petPickHint")}</div>
+      <div class="pet-picker">
+        ${Object.values(PETS).map(x=>`
+          <button class="bud-pick${(!custom && x.id===state.pet.species)?" on":""}" data-species="${x.id}">
+            <span class="bp-face">${petSvg(x.id,{tag:"pk"+x.id, scale:0.92, face:"happy", stageIdx:0})}</span>
+            <span class="bp-name">${L(x.name)}</span>
+          </button>`).join("")}
+        <button class="bud-pick${custom?" on":""}" data-photo>
+          <span class="bp-face">${custom
+            ? `<img class="pet-photo" src="${state.pet.photo}" alt="">`
+            : `<span class="bp-camera">📷</span>`}</span>
+          <span class="bp-name">${custom ? t("petMine") : t("petUsePhotoShort")}</span>
+        </button>
+      </div>
+      <div class="start-note">${t("petPickNote")}</div>
+      <button class="start-go" data-confirm-pet>${t("petConfirm")}</button>`;
+    card.querySelector(".nav-close").addEventListener("click", closeStartSheet);
+    card.querySelectorAll("[data-species]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.pet.species = b.dataset.species;
+        state.pet.photo = null;
+        save(state); paint(); renderNavContent();
+      });
+    });
+    card.querySelector("[data-photo]").addEventListener("click", ()=>{
+      pickPetPhoto(()=>{ renderNavContent(); openPetPicker(); });
+    });
+    card.querySelector("[data-confirm-pet]").addEventListener("click", ()=>{
+      state.pet.chosen = true;
+      save(state); closeStartSheet(); renderNavContent(); spawnConfetti();
+    });
+  };
+  paint();
+  if(!modal.classList.contains("open")){
+    modal.classList.add("open");
+    requestAnimationFrame(()=>card.classList.add("show"));
+  }
 }
 
 // 让用户自己看一眼卡通版和原图，挑一个
