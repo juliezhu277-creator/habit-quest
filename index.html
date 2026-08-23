@@ -647,6 +647,13 @@
   #focusScreen.brk .fs-phase{color:var(--accent-dark);}
   .fs-of{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;}
   .fs-hint{font-size:12px;color:var(--muted);margin-top:20px;max-width:290px;line-height:1.75;}
+  /* 自动流转的倒数提示 */
+  .fs-auto{
+    margin-top:9px;font-size:11.5px;font-weight:800;
+    color:var(--primary-dark);font-variant-numeric:tabular-nums;
+  }
+  #focusScreen.brk .fs-auto{color:var(--accent-dark);}
+  #focusScreen.fn  .fs-auto{color:#6d4bd8;}
   .fs-btns{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap;justify-content:center;}
   .fs-btn{
     border:none;border-radius:14px;padding:11px 22px;font-size:14px;
@@ -1512,11 +1519,16 @@ const I18N = {
     fsHintBreak: "站起来走走、看看远处、喝口水，别刷手机。",
     fsGiveUp: "结束并记录",
     fsSkipBreak: "跳过休息",
+    fsBreakNow: "立即休息",
+    fsAutoBreak: n => `${n} 秒后自动开始休息…`,
+    fsAutoHome: n => `${n} 秒后自动回到首页…`,
     fsStartBreak: `开始休息 ${BREAK_MIN} 分钟`,
     fsBreakDone: "休息结束",
     fsClose: "回到首页",
     // 结算
     pomoDone: "完成一个番茄钟 🍅",
+    timeUp: "时间到啦 ⏰",
+    timeUpBreak: n => `专注了 ${n} 分钟，接下来休息 ${BREAK_MIN} 分钟`,
     pomoDoneSub: min => `专注了 ${min} 分钟，很稳。休息一下吧`,
     starterDone: "起步成功 👍",
     starterDoneSub: "最难的第一步已经迈出去了",
@@ -1902,10 +1914,15 @@ const I18N = {
     fsHintBreak: "Stand up, look far away, get some water — don't scroll.",
     fsGiveUp: "End & log time",
     fsSkipBreak: "Skip break",
+    fsBreakNow: "Break now",
+    fsAutoBreak: n => `Break starts automatically in ${n}s…`,
+    fsAutoHome: n => `Back to home in ${n}s…`,
     fsStartBreak: `Start ${BREAK_MIN} min break`,
     fsBreakDone: "Break over",
     fsClose: "Back to home",
     pomoDone: "Focus block done 🍅",
+    timeUp: "Time's up ⏰",
+    timeUpBreak: n => `${n} minutes focused — a ${BREAK_MIN} min break is next`,
     pomoDoneSub: min => `${min} minutes of real focus. Take a break.`,
     starterDone: "You started 👍",
     starterDoneSub: "The hardest part is already behind you",
@@ -3412,7 +3429,7 @@ function finishFocus(){
   render();
   if(r.earnedPomo){
     popTomato(r.catId);
-    notify(t("pomoDone"), t("pomoDoneSub", r.mins));
+    notify(t("timeUp"), t("timeUpBreak", r.mins));
     paintFocusScreen({done:"focus", mins:r.mins, pomo:true});
     spawnConfetti();
   } else {
@@ -3430,6 +3447,40 @@ function finishBreak(){
   renderTasks();
 }
 
+/* ---------- 结算后自动流转 ---------- */
+// 专注结束 → 提示时间到 → 自动进入 10 分钟休息 → 休息结束 → 自动回到首页。
+// 全程不需要用户点任何东西；想跳过随时可以点。
+const AUTO_DELAY = 5;          // 秒
+let autoTimer = null;
+
+function clearAuto(){
+  if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+}
+
+function startAuto(seconds, labelKey, onDone){
+  clearAuto();
+  let left = seconds;
+  const paint = ()=>{
+    const el = document.getElementById("fsAuto");
+    if(el) el.textContent = t(labelKey, left);
+  };
+  paint();
+  autoTimer = setInterval(()=>{
+    left -= 1;
+    if(left <= 0){ clearAuto(); onDone(); return; }
+    paint();
+  }, 1000);
+}
+
+// 回到首页：把计时清干净再关屏
+function backHome(){
+  clearAuto();
+  state.timer = null;
+  save(state);
+  closeFocusScreen();
+  render();
+}
+
 /* ---------- 全屏专注界面 ---------- */
 const RING_LEN = 2 * Math.PI * 104;   // 与 svg 里 r=104 对应
 
@@ -3438,6 +3489,7 @@ function openFocusScreen(){
   paintFocusScreen(null);
 }
 function closeFocusScreen(){
+  clearAuto();
   document.getElementById("focusScreen").classList.remove("open");
 }
 
@@ -3466,15 +3518,19 @@ function paintFocusScreen(mode){
     elOf.textContent   = mode.pomo ? t("pomoPoints", POINTS_PER_POMO) : "";
     elProg.setAttribute("stroke-dashoffset", "0");
     if(mode.pomo){
-      elHint.innerHTML = `${escapeHtml(t("pomoDoneSub", mode.mins))}<br>${escapeHtml(t("fsHintBreak"))}`;
-      elBtns.innerHTML = `<button class="fs-btn go" data-act="brk">${t("fsStartBreak")}</button>
+      elHint.innerHTML = `${escapeHtml(t("pomoDoneSub", mode.mins))}<br>${escapeHtml(t("fsHintBreak"))}`
+                       + `<div class="fs-auto" id="fsAuto"></div>`;
+      elBtns.innerHTML = `<button class="fs-btn go" data-act="brk">${t("fsBreakNow")}</button>
                           <button class="fs-btn ghost" data-act="close">${t("fsSkipBreak")}</button>`;
+      bindFsBtns();
+      startAuto(AUTO_DELAY, "fsAutoBreak", startBreak);
     } else {
-      // 5 分钟起步段太短，不需要休息，直接鼓励回去继续
-      elHint.textContent = t("starterDoneSub");
+      // 5 分钟起步段太短，不需要休息，倒数后直接回首页
+      elHint.innerHTML = escapeHtml(t("starterDoneSub")) + `<div class="fs-auto" id="fsAuto"></div>`;
       elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
+      bindFsBtns();
+      startAuto(AUTO_DELAY, "fsAutoHome", backHome);
     }
-    bindFsBtns();
     return;
   }
   // ---- 结算态：休闲时间用完 ----
@@ -3486,9 +3542,10 @@ function paintFocusScreen(mode){
     elPh.textContent   = "";
     elOf.textContent   = "";
     elProg.setAttribute("stroke-dashoffset", "0");
-    elHint.textContent = t("funOverSub");
+    elHint.innerHTML = escapeHtml(t("funOverSub")) + `<div class="fs-auto" id="fsAuto"></div>`;
     elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
     bindFsBtns();
+    startAuto(AUTO_DELAY, "fsAutoHome", backHome);
     return;
   }
   // ---- 结算态：休息刚结束 ----
@@ -3500,15 +3557,17 @@ function paintFocusScreen(mode){
     elPh.textContent   = "";
     elOf.textContent   = "";
     elProg.setAttribute("stroke-dashoffset", "0");
-    elHint.textContent = t("breakOverSub");
+    elHint.innerHTML = escapeHtml(t("breakOverSub")) + `<div class="fs-auto" id="fsAuto"></div>`;
     elBtns.innerHTML = `<button class="fs-btn primary" data-act="close">${t("fsClose")}</button>`;
     bindFsBtns();
+    startAuto(AUTO_DELAY, "fsAutoHome", backHome);
     return;
   }
 
   // ---- 进行中 ----
   const tm = state.timer;
   if(!tm){ closeFocusScreen(); return; }
+  clearAuto();
   const isBreak = tm.phase === "break";
   const isFun   = tm.phase === "fun";
   scr.classList.toggle("brk", isBreak);
@@ -3552,9 +3611,10 @@ function bindFsBtns(){
   document.querySelectorAll("#fsBtns .fs-btn").forEach(b=>{
     b.onclick = ()=>{
       const a = b.dataset.act;
+      clearAuto();                       // 用户自己动手了，就别再自动跳
       if(a === "give")       abandonFocus();
       else if(a === "brk")   startBreak();
-      else if(a === "close"){ state.timer = null; save(state); closeFocusScreen(); render(); }
+      else if(a === "close") backHome();
     };
   });
 }
@@ -5288,7 +5348,8 @@ function resumeSession(){
   const past = (Date.now() - tm.start)/1000;
 
   if(past >= tm.durSec){
-    // 离开期间这一段已经跑完了
+    // 离开期间这一段已经跑完了：直接落回首页，不要弹一个过期的结算屏
+    closeFocusScreen();
     if(tm.phase === "focus" || tm.phase === "fun"){
       const r = settleFocus(true);
       render();
