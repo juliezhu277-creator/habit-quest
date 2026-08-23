@@ -1480,6 +1480,37 @@
   .mb-cal{border-color:#ffe0a8;}
   .mb-cal .mb-head{background:linear-gradient(135deg,#fff6e4,#ffedc9);}
 
+  /* ===================== 排行榜 ===================== */
+  .rk-me{
+    display:flex;align-items:center;gap:12px;
+    background:linear-gradient(135deg,#fff4e8,#ffe6d6);
+    border-radius:20px;padding:15px 16px;margin-bottom:12px;
+  }
+  .rk-avatar{width:58px;height:58px;flex-shrink:0;}
+  .rk-avatar img,.rk-avatar .pet-empty{
+    width:100%;height:100%;border-radius:50%;object-fit:cover;
+    box-shadow:0 3px 10px rgba(0,0,0,.14);
+  }
+  .rk-info{flex:1;min-width:0;}
+  .rk-name{font-size:16px;font-weight:800;color:var(--ink);}
+  .rk-sub{font-size:11.5px;color:var(--muted);font-weight:600;margin-top:3px;}
+  .rk-streak{text-align:center;flex-shrink:0;}
+  .rk-streak b{display:block;font-size:26px;font-weight:800;color:var(--primary-dark);line-height:1.1;}
+  .rk-streak span{font-size:10px;color:var(--muted);font-weight:700;}
+  .rk-quote{
+    text-align:center;font-size:13.5px;font-weight:800;color:var(--primary-dark);
+    padding:4px 0 12px;
+  }
+  .rk-how{
+    font-size:11.5px;color:var(--muted);line-height:1.7;
+    text-align:center;padding:2px 8px 14px;
+  }
+  .rk-soon{
+    background:#f5f7fa;border-radius:16px;padding:13px 15px;
+  }
+  .rks-title{font-size:13px;font-weight:800;color:#4a5a6a;margin-bottom:6px;}
+  .rks-body{font-size:11.5px;color:#78889a;line-height:1.75;}
+
   /* ===================== 我的日历 ===================== */
   .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
   .cal-title{font-size:14px;font-weight:800;color:var(--ink);}
@@ -2016,6 +2047,13 @@ const I18N = {
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
     secGrowth: "我的成长值",
     shareBtn: "生成今日战绩卡",
+    rankMe: "我",
+    rankToday: (m,p) => `今天专注 ${m} 分钟 · ${p} 个 🍅`,
+    rankStreakUnit: "连续天数",
+    rankQuote: "一个人走得快，一群人走得远",
+    rankHow: "生成一张今日战绩卡，发到班级群或朋友圈，和朋友比一比。",
+    rankSoonTitle: "和好友一起打卡",
+    rankSoonBody: "邀请好友建房间、每天自动排名、前三名发积分 —— 这些需要账号系统，会在做成手机 App 时一起上线。在那之前，用战绩卡片比一样好玩。",
     shareTitle: "我的今日战绩",
     shareMinutes: "分钟专注",
     sharePomo: "番茄钟",
@@ -2115,7 +2153,8 @@ const I18N = {
     pomoPoints: n => `专注段 +${n} 分`,
     pomoPointsSub: "积分可以换休闲时间",
     navRewards: "积分兑换",
-    navInfo: "ProudMe小妙招",
+    navInfo: "小妙招",
+    navRank: "排行榜",
     navMe: "我的",
     meLevel: "等级",
     meXp: "累计经验",
@@ -2439,6 +2478,13 @@ const I18N = {
     supTelPh: "Phone (optional)",
     secGrowth: "My growth",
     shareBtn: "Make today's card",
+    rankMe: "Me",
+    rankToday: (m,p) => `${m} min focused today · ${p} 🍅`,
+    rankStreakUnit: "day streak",
+    rankQuote: "Alone you go fast; together you go far",
+    rankHow: "Make today's card and share it with friends to compare.",
+    rankSoonTitle: "Check in with friends",
+    rankSoonBody: "Invite-code rooms, automatic daily ranking and points for the top three all need an account system — that arrives with the phone app. Until then, cards work just as well.",
     shareTitle: "Today's numbers",
     shareMinutes: "minutes focused",
     sharePomo: "pomodoros",
@@ -2533,7 +2579,8 @@ const I18N = {
     pomoPoints: n => `Focus block +${n} pts`,
     pomoPointsSub: "Points buy downtime",
     navRewards: "Rewards",
-    navInfo: "ProudMe Tips",
+    navInfo: "Tips",
+    navRank: "Ranking",
     navMe: "Me",
     meLevel: "Level",
     meXp: "Total XP",
@@ -3166,6 +3213,7 @@ function renderNavContent(){
   else if(currentNav === "me-pet") buildMePet(card);
   else if(currentNav === "me-set") buildMeSettings(card);
   else if(currentNav === "me-cal") buildCalendar(card);
+  else if(currentNav === "rank") buildRank(card);
   const c = card.querySelector(".nav-close");
   if(c) c.addEventListener("click", closeNav);
   const bk = card.querySelector("[data-back]");
@@ -3423,6 +3471,35 @@ async function shareStatsCard(){
   showToast({emoji:"🖼", msg:t("shareSaved"), sub:t("shareSavedSub")});
 }
 
+/* ---------- 排行榜 ---------- */
+// 联机排行榜要等账号系统（上架 App 时一起做）。在那之前这页不放假数据 ——
+// 显示自己真实的打卡战绩，比拼靠战绩卡发到群里。
+function buildRank(card){
+  const mins = Math.round((state.history[todayStr()] || {s:0}).s / 60);
+
+  card.innerHTML = navHeader("navRank") + `
+    <div class="rk-me">
+      <div class="rk-avatar">${petAvatar()}</div>
+      <div class="rk-info">
+        <div class="rk-name">${t("rankMe")}</div>
+        <div class="rk-sub">${t("rankToday", mins, todayPomos())}</div>
+      </div>
+      <div class="rk-streak"><b>${state.streak}</b><span>${t("rankStreakUnit")}</span></div>
+    </div>
+
+    <div class="rk-quote">${t("rankQuote")}</div>
+
+    <button class="pet-cta chat" data-share-card>📸 ${t("shareBtn")}</button>
+    <div class="rk-how">${t("rankHow")}</div>
+
+    <div class="rk-soon">
+      <div class="rks-title">🏆 ${t("rankSoonTitle")}</div>
+      <div class="rks-body">${t("rankSoonBody")}</div>
+    </div>`;
+
+  card.querySelector("[data-share-card]").addEventListener("click", shareStatsCard);
+}
+
 /* ---------- 我的日历 ---------- */
 // 短期（单日）和长期（区间）计划都放这里，按四个板块用颜色区分，重要的事打星。
 // 设好之后，当天的事会自动出现在首页对应的板块里。
@@ -3602,10 +3679,9 @@ function buildMeGrowth(card){
   card.innerHTML = navHeader("secGrowth", "me") +
     `<div class="me-grid">${stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("")}</div>
      <div class="me-proud">${t("meProud")}</div>
-     <button class="me-tool primary wide" data-share-card>📸 ${t("shareBtn")}</button>` +
+` +
     buildToday() +
     weekSectionHTML();
-  card.querySelector("[data-share-card]").addEventListener("click", shareStatsCard);
 }
 
 /* ---- 我的心情 ---- */
@@ -3894,6 +3970,7 @@ function renderTasks(){
       <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
       <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
       <button class="nav-item" data-nav="info"><span class="nav-ic">💡</span><span class="nav-lbl">${t("navInfo")}</span></button>
+      <button class="nav-item" data-nav="rank"><span class="nav-ic">🏆</span><span class="nav-lbl">${t("navRank")}</span></button>
     </div>
   `;
 
