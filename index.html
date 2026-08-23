@@ -1271,6 +1271,70 @@
   }
   .nav-back:active{color:var(--ink);}
 
+  .mb-cal{border-color:#ffe0a8;}
+  .mb-cal .mb-head{background:linear-gradient(135deg,#fff6e4,#ffedc9);}
+
+  /* ===================== 我的日历 ===================== */
+  .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+  .cal-title{font-size:14px;font-weight:800;color:var(--ink);}
+  .cal-arrow{
+    border:none;background:#f4f4f6;border-radius:10px;width:32px;height:32px;
+    font-size:19px;line-height:1;color:var(--ink);cursor:pointer;font-family:inherit;
+  }
+  .cal-arrow:active{background:#e8e8ec;}
+  .cal-dows,.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-dow{font-size:10px;color:var(--muted);text-align:center;font-weight:700;padding-bottom:4px;}
+  .cal-cell{
+    position:relative;border:none;background:#fafafb;border-radius:10px;
+    aspect-ratio:1/1;cursor:pointer;font-family:inherit;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:0;
+  }
+  .cal-cell.blank{background:none;cursor:default;}
+  .cal-cell:not(.blank):active{background:#f0eff2;}
+  .cal-cell.today{background:#fff3e8;box-shadow:inset 0 0 0 2px var(--primary);}
+  .cal-num{font-size:12px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums;}
+  .cal-cell.today .cal-num{color:var(--primary-dark);font-weight:800;}
+  .cal-star{position:absolute;top:2px;right:4px;font-size:9px;color:#F5A623;font-style:normal;}
+  .cal-dots{display:flex;gap:2px;height:5px;}
+  .cal-dot{width:5px;height:5px;border-radius:50%;}
+  .cal-legend{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0;justify-content:center;}
+  .cl-item{display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--muted);font-weight:700;}
+  .cl-item i{width:9px;height:9px;border-radius:50%;display:block;}
+  .cal-sub{font-size:12px;font-weight:800;color:var(--muted);margin:16px 0 8px;}
+  .cal-opt{
+    display:flex;align-items:center;gap:7px;font-size:12.5px;
+    font-weight:700;color:var(--ink);cursor:pointer;padding:2px 0;
+  }
+  .cal-opt input{width:17px;height:17px;accent-color:var(--primary);}
+  /* 某一天的事件行 */
+  .day-row{
+    display:flex;align-items:center;gap:9px;
+    background:#fbf8f4;border-radius:13px;padding:10px 12px;overflow:hidden;
+  }
+  .dr-bar{width:4px;align-self:stretch;border-radius:3px;flex-shrink:0;}
+  .dr-txt{flex:1;min-width:0;}
+  .dr-txt b{display:block;font-size:13px;font-weight:800;color:var(--ink);}
+  .dr-txt small{display:block;font-size:10.5px;color:var(--muted);margin-top:2px;}
+  .dr-star{
+    border:none;background:none;font-size:15px;color:#d8d4cd;cursor:pointer;
+    padding:2px 4px;flex-shrink:0;
+  }
+  .dr-star.on{color:#F5A623;}
+
+  /* 首页：日历里标了★的目标 */
+  .goal-row.vip{
+    box-shadow:inset 3px 0 0 #F5A623;
+    padding-left:7px;border-radius:4px;
+  }
+  .goal-row.vip .goal-input{font-weight:800;}
+  /* 沿用昨天 */
+  .carry-btn{
+    display:block;width:100%;margin:0 0 9px;padding:9px;
+    border:1px dashed #ddd;border-radius:12px;background:#fafafa;
+    font-family:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer;
+  }
+  .carry-btn:active{background:#f2f2f2;}
+
   /* ===================== 「我的」分区（二级页仍在用） ===================== */
   .me-sec{
     border-top:1px solid #f0f0f0;padding-top:14px;margin-top:14px;
@@ -1704,17 +1768,31 @@ const I18N = {
     supNotSet: "还没设置",
     supNote: "趁心情还好的时候写下来。真难受的那一刻，人是没力气现找的。",
     // 温和的一次性引导：语气要像"存个紧急联系人"，不是"你需要求助"
-    secGrowth: "我的成长",
+    secGrowth: "我的成长值",
+    secCalendar: "我的日历",
+    calMonth: (y,m) => `${y} 年 ${m} 月`,
+    calTodayCount: "今天的安排",
+    calPlanCount: n => `${n} 个长期计划`,
+    calPlans: "进行中的长期计划",
+    calAdd: "＋ 添加安排",
+    calAddThis: "加到这一天",
+    calDaySub: "这一天的安排",
+    calDayEmpty: "这天还没有安排。\n写下来，当天它会自动出现在首页。",
+    calWhat: "要做什么？",
+    calImportant: "标记为重要 ★",
+    calRange: "这是长期计划（跨多天）",
+    calHint: "写在日历里的事，到了那天会自动出现在首页对应的板块里，标了★的会highlight。长期计划在起止日期之间每天都会出现。",
+    carryYesterday: "沿用昨天的目标",
     meDays: n => `打卡 ${n} 天`,
     meStreakLine: n => `连续 ${n} 天`,
     meCheckin: "打卡天数",
     jKept: "条心里话",
     secGrowthLink: "看本周的进步",
-    secMood: "我的心情",
+    secMood: "我今天的心情",
     moodChartTitle: "情绪晴雨表 · 最近 7 天",
     secHollow: "我的树洞",
     secHollowSub: "想说什么就说什么，只有你自己看得到。",
-    secBuddy: "我的蜜友",
+    secBuddy: "我的挚友",
     secSettings: "设置",
     chatWith: n => `和${n}聊聊`,
     supNudgeTitle: "顺手存两个人吧",
@@ -1857,7 +1935,7 @@ const I18N = {
     tasksTitle: "👍 成为更好的我自己",
     addGoal: "加减目标",
     editingGoals: "点 ✕ 删除，再点 － 完成",
-    goalPlaceholder: "输入一个目标…",
+    goalPlaceholder: "请输入您今天的目标",
     timerIdle: "点下方按钮开始计时",
     timerRunning: (label) => `正在记录：${label}`,
     actStudy: "学习",
@@ -2084,6 +2162,20 @@ const I18N = {
     supNotSet: "Not set up yet",
     supNote: "Write it down while you're feeling okay. In the moment it's hard, nobody has the energy to go looking.",
     secGrowth: "My growth",
+    secCalendar: "My calendar",
+    calMonth: (y,m) => `${y}-${String(m).padStart(2,"0")}`,
+    calTodayCount: "on today",
+    calPlanCount: n => `${n} ongoing plan${n===1?"":"s"}`,
+    calPlans: "Ongoing plans",
+    calAdd: "＋ Add something",
+    calAddThis: "Add to this day",
+    calDaySub: "What's on this day",
+    calDayEmpty: "Nothing planned yet.\nWrite it down and it shows up on your home page that day.",
+    calWhat: "What needs doing?",
+    calImportant: "Mark as important ★",
+    calRange: "This is a longer plan (spans days)",
+    calHint: "Anything in the calendar appears in the matching block on your home page that day; starred ones are highlighted. Longer plans show up every day between their start and end dates.",
+    carryYesterday: "Reuse yesterday's goals",
     meDays: n => `${n} days in`,
     meStreakLine: n => `${n}-day streak`,
     meCheckin: "Days in",
@@ -2224,7 +2316,7 @@ const I18N = {
     tasksTitle: "👍 Become a Better Me",
     addGoal: "Add / remove",
     editingGoals: "Tap ✕ to delete, － to finish",
-    goalPlaceholder: "Enter a goal…",
+    goalPlaceholder: "Enter today's goal",
     timerIdle: "Tap a button below to start tracking",
     timerRunning: (label) => `Tracking: ${label}`,
     actStudy: "Study",
@@ -2319,6 +2411,8 @@ function defaultState(){
     moods: {},            // { "YYYY-MM-DD": {m:心情id, at:时间戳} }
     journal: [],          // 树洞：[{id, d:日期, m:心情id, t:正文, at:时间戳}]
     support: [],          // 求助名单：[{id, name, rel, tel}]，由用户自己填，全球通用
+    calendar: [],         // 日历：[{id, cat, text, from, to, important, done}]，to 为 null 表示只有一天
+    lastFillDate: null,   // 上次按日历生成过目标的日期
     supPromptShown: 0,    // 提示过几次（最多 3 次，之后不再提）
     supPromptDate: null,  // 上次提示的日期，同一天不重复
     supPromptOff: false,  // 用户点了"不用了"，永久不再提
@@ -2334,11 +2428,57 @@ function defaultState(){
 }
 
 // 重置当天目标的完成状态与计时（保留目标文本）
+// 新的一天：目标回到初始状态（连文字一起清空），再按日历自动生成当天的目标。
+// 昨天写的东西不会消失 —— 存进 goalsYesterday，首页给一个「沿用昨天」的按钮。
 function resetDailyGoals(state){
+  const carry = {};
   for(const cat in state.goals){
-    state.goals[cat].forEach(g=>{ g.done = false; g.sec = 0; g.pomos = 0; });
+    carry[cat] = state.goals[cat].map(g=>(g.text||"").trim()).filter(Boolean);
+    state.goals[cat] = Array.from({length:GOAL_SLOTS}, blankGoal);
   }
+  state.goalsYesterday = carry;
   state.timer = null;
+  state.lastFillDate = null;   // 让日历重新填一次
+}
+
+/* ---------- 日历 → 当天目标 ---------- */
+// 某天该出现哪些事：单日事件命中当天，长期计划在起止区间内每天都出现
+function eventsOn(dayStr){
+  return state.calendar.filter(e=>{
+    const to = e.to || e.from;
+    return e.from <= dayStr && dayStr <= to;
+  });
+}
+// 把日历里当天的事写进对应板块的空格子（已有文字的格子不动）
+function fillGoalsFromCalendar(){
+  const today = todayStr();
+  if(state.lastFillDate === today) return false;
+  let changed = false;
+  const evs = eventsOn(today);
+  CATEGORIES.forEach(c=>{
+    const mine = evs.filter(e=>e.cat === c.id);
+    if(!mine.length) return;
+    const list = state.goals[c.id] || (state.goals[c.id] = []);
+    const already = new Set(list.map(g=>(g.text||"").trim()).filter(Boolean));
+    mine.forEach(e=>{
+      const txt = (e.text||"").trim();
+      if(!txt || already.has(txt)) return;
+      let slot = list.find(g=>!(g.text||"").trim());
+      if(!slot){ slot = blankGoal(); list.push(slot); }
+      slot.text = txt;
+      slot.fromCal = e.id;          // 记住来源，首页好标出重点
+      already.add(txt);
+      changed = true;
+    });
+  });
+  state.lastFillDate = today;
+  return changed;
+}
+// 这个目标对应的日历事件是不是"重要"
+function goalIsImportant(g){
+  if(!g.fromCal) return false;
+  const e = state.calendar.find(x=>x.id === g.fromCal);
+  return !!(e && e.important);
 }
 
 function load(){
@@ -2356,6 +2496,8 @@ function load(){
   if(!state.moods || typeof state.moods !== "object") state.moods = {};
   if(!Array.isArray(state.journal)) state.journal = [];
   if(!Array.isArray(state.support)) state.support = [];
+  if(!Array.isArray(state.calendar)) state.calendar = [];
+  if(typeof state.lastFillDate === "undefined") state.lastFillDate = null;
   if(typeof state.supPromptShown !== "number") state.supPromptShown = 0;
   if(typeof state.supPromptDate === "undefined") state.supPromptDate = null;
   if(typeof state.supPromptOff !== "boolean") state.supPromptOff = false;
@@ -2714,6 +2856,7 @@ function renderNavContent(){
   else if(currentNav === "me-mood") buildMeMood(card);
   else if(currentNav === "me-buddy") buildMeBuddy(card);
   else if(currentNav === "me-set") buildMeSettings(card);
+  else if(currentNav === "me-cal") buildCalendar(card);
   const c = card.querySelector(".nav-close");
   if(c) c.addEventListener("click", closeNav);
   const bk = card.querySelector("[data-back]");
@@ -2814,12 +2957,12 @@ function buildMe(card){
         </div>
       </div>
 
-      <div class="me-blk mb-hollow" data-go="hollow">
-        <div class="mb-head"><span class="mb-ic">🌳</span><span class="mb-name">${t("secHollow")}</span></div>
+      <div class="me-blk mb-cal" data-go="me-cal">
+        <div class="mb-head"><span class="mb-ic">📅</span><span class="mb-name">${t("secCalendar")}</span></div>
         <div class="mb-body">
-          <div class="mb-big">${state.journal.length}</div>
-          <div class="mb-line">${t("jKept")}</div>
-          <button class="mb-cta" data-journal>✍️ ${t("moodWrite")}</button>
+          <div class="mb-big">${eventsOn(todayStr()).length}</div>
+          <div class="mb-line">${t("calTodayCount")}</div>
+          <div class="mb-line">${t("calPlanCount", state.calendar.filter(e=>e.to && e.to !== e.from && e.to >= todayStr()).length)}</div>
         </div>
       </div>
 
@@ -2833,18 +2976,45 @@ function buildMe(card){
       </div>
 
     </div>
-    <button class="me-row" data-go="me-set">
-      <span class="mr-ic">⚙️</span><span class="mr-txt">${t("secSettings")}</span>
-      <span class="mr-sub">${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</span>
+
+    <button class="me-row" data-go="hollow">
+      <span class="mr-ic">🌳</span><span class="mr-txt">${t("secHollow")}</span>
+      <span class="mr-sub">${t("jListSub", state.journal.length)}</span>
       <span class="mr-arrow">›</span>
-    </button>`;
+    </button>
+
+    <div class="me-set">
+      <div class="s-row">
+        <span class="s-ic">🔔</span>
+        <span class="s-title">${t("remindTitle")}
+          <em>${state.reminder ? t("remindOn", state.reminder) : t("remindOff")}</em>
+        </span>
+        <input type="time" data-remind value="${state.reminder || ""}">
+        ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
+      </div>
+      <div class="s-note">${t("remindSub")}</div>
+    </div>
+
+    <div class="me-tools">
+      <button class="me-tool" data-backup>💾 ${t("meBackup")}</button>
+      <button class="me-tool" data-restore>📂 ${t("meRestore")}</button>
+    </div>
+    <div class="me-warn">${t("meBackupWarn")}</div>`;
 
   card.querySelectorAll("[data-mood]").forEach(x=>{
     x.addEventListener("click", e=>{ e.stopPropagation(); setMood(x.dataset.mood); });
   });
-  card.querySelector("[data-journal]").addEventListener("click", e=>{
-    e.stopPropagation(); closeNav(); setTimeout(openJournal, 240);
+  card.querySelector("[data-backup]").addEventListener("click", exportBackup);
+  card.querySelector("[data-restore]").addEventListener("click", importBackup);
+  card.querySelector("[data-remind]").addEventListener("change", e=>{
+    state.reminder = e.target.value || null;
+    state.remindedDate = null;
+    save(state);
+    if(state.reminder) askNotifyPermission();
+    renderNavContent();
   });
+  const rOff = card.querySelector("[data-remind-off]");
+  if(rOff) rOff.addEventListener("click", ()=>{ state.reminder = null; save(state); renderNavContent(); });
   card.querySelectorAll("[data-go]").forEach(x=>{
     x.addEventListener("click", ()=>{
       const to = x.dataset.go;
@@ -2852,6 +3022,169 @@ function buildMe(card){
       currentNav = to; renderNavContent();
     });
   });
+}
+
+/* ---------- 我的日历 ---------- */
+// 短期（单日）和长期（区间）计划都放这里，按四个板块用颜色区分，重要的事打星。
+// 设好之后，当天的事会自动出现在首页对应的板块里。
+let calMonth = null;
+
+function calKey(y, m, d){
+  return `${y}-${String(m+1).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+}
+function monthMeta(y, m){
+  const first = new Date(y, m, 1);
+  return {lead:(first.getDay()+6)%7, days:new Date(y, m+1, 0).getDate()};
+}
+
+function buildCalendar(card){
+  const now = new Date();
+  if(!calMonth) calMonth = {y:now.getFullYear(), m:now.getMonth()};
+  const {y, m} = calMonth;
+  const {lead, days} = monthMeta(y, m);
+  const today = todayStr();
+  const names = t("weekDays");
+
+  let cells = "";
+  for(let i=0;i<lead;i++) cells += `<span class="cal-cell blank"></span>`;
+  for(let d=1; d<=days; d++){
+    const key = calKey(y, m, d);
+    const evs = eventsOn(key);
+    const cats = [...new Set(evs.map(e=>e.cat))];
+    const star = evs.some(e=>e.important);
+    const dots = cats.slice(0,4).map(c=>`<span class="cal-dot" style="background:${CAT_TINT[c]}"></span>`).join("");
+    cells += `<button class="cal-cell${key===today?" today":""}" data-day="${key}">
+      <span class="cal-num">${d}</span>${star?`<i class="cal-star">★</i>`:""}
+      <span class="cal-dots">${dots}</span></button>`;
+  }
+
+  const plans = state.calendar
+    .filter(e=>e.to && e.to !== e.from && e.to >= today)
+    .sort((a,b)=>a.from.localeCompare(b.from)).slice(0,6);
+  const planList = plans.length ? `
+    <div class="cal-sub">${t("calPlans")}</div>
+    ${plans.map(e=>{
+      const c = CATEGORIES.find(x=>x.id===e.cat) || CATEGORIES[0];
+      return `<div class="day-row">
+        <span class="dr-bar" style="background:${CAT_TINT[e.cat]}"></span>
+        <span class="dr-txt"><b>${c.icon} ${escapeHtml(e.text)}</b><small>${e.from} → ${e.to}</small></span>
+        <button class="j-del" data-cal-del="${e.id}" aria-label="delete">✕</button>
+      </div>`;
+    }).join("")}` : "";
+
+  card.innerHTML = navHeader("secCalendar", "me") + `
+    <div class="cal-nav">
+      <button class="cal-arrow" data-mon="-1">‹</button>
+      <span class="cal-title">${t("calMonth", y, m+1)}</span>
+      <button class="cal-arrow" data-mon="1">›</button>
+    </div>
+    <div class="cal-dows">${names.map(n=>`<span class="cal-dow">${n}</span>`).join("")}</div>
+    <div class="cal-grid">${cells}</div>
+    <div class="cal-legend">${CATEGORIES.map(c=>
+      `<span class="cl-item"><i style="background:${CAT_TINT[c.id]}"></i>${L(c.title)}</span>`).join("")}</div>
+    <button class="start-go" data-cal-add>${t("calAdd")}</button>
+    ${planList}`;
+
+  card.querySelectorAll("[data-mon]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      let mm = calMonth.m + parseInt(b.dataset.mon,10), yy = calMonth.y;
+      if(mm < 0){ mm = 11; yy -= 1; }
+      if(mm > 11){ mm = 0; yy += 1; }
+      calMonth = {y:yy, m:mm}; renderNavContent();
+    });
+  });
+  card.querySelectorAll("[data-day]").forEach(b=>{
+    b.addEventListener("click", ()=>openDaySheet(b.dataset.day));
+  });
+  card.querySelector("[data-cal-add]").addEventListener("click", ()=>openDaySheet(today));
+  card.querySelectorAll("[data-cal-del]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      state.calendar = state.calendar.filter(x=>x.id !== b.dataset.calDel);
+      state.lastFillDate = null; save(state); renderNavContent();
+    });
+  });
+}
+
+/* ---------- 某一天：看事件 / 加事件 ---------- */
+function openDaySheet(dayStr){
+  const modal = document.getElementById("chatModal");
+  const card  = document.getElementById("chatCard");
+  let cat = "study", important = false, isRange = false;
+
+  const paint = ()=>{
+    const evs = eventsOn(dayStr);
+    const rows = evs.length ? evs.map(e=>{
+      const c = CATEGORIES.find(x=>x.id===e.cat) || CATEGORIES[0];
+      const span = (e.to && e.to !== e.from) ? `<small>${e.from} → ${e.to}</small>` : "";
+      return `<div class="day-row">
+        <span class="dr-bar" style="background:${CAT_TINT[e.cat]}"></span>
+        <span class="dr-txt"><b>${c.icon} ${escapeHtml(e.text)}</b>${span}</span>
+        <button class="dr-star${e.important?" on":""}" data-star="${e.id}" aria-label="star">★</button>
+        <button class="j-del" data-del-ev="${e.id}" aria-label="delete">✕</button>
+      </div>`;
+    }).join("") : `<div class="j-empty">${t("calDayEmpty")}</div>`;
+
+    card.innerHTML = `
+      <div class="chat-top">
+        <span class="ct-name">${dayStr}<small>${t("calDaySub")}</small></span>
+        <button class="nav-close" aria-label="close">✕</button>
+      </div>
+      <div class="sup-wrap">
+        <div class="sup-list">${rows}</div>
+        <div class="sup-add">
+          <div class="rel-chips">${CATEGORIES.map(c=>
+            `<button class="rel-chip${cat===c.id?" on":""}" data-cat="${c.id}">${c.icon} ${L(c.title)}</button>`).join("")}</div>
+          <input class="sup-in" data-ev-text maxlength="${GOAL_MAX_LEN}" placeholder="${t("calWhat")}">
+          <label class="cal-opt"><input type="checkbox" data-ev-imp${important?" checked":""}> ${t("calImportant")}</label>
+          <label class="cal-opt"><input type="checkbox" data-ev-range${isRange?" checked":""}> ${t("calRange")}</label>
+          <input class="sup-in" data-ev-to type="date" value="${dayStr}" style="${isRange?"":"display:none"}">
+          <button class="start-go" data-ev-add>${t("calAddThis")}</button>
+        </div>
+        <div class="j-hint">${t("calHint")}</div>
+      </div>`;
+
+    card.querySelector(".nav-close").addEventListener("click", closeChat);
+    card.querySelectorAll("[data-cat]").forEach(b=>{
+      b.addEventListener("click", ()=>{ cat = b.dataset.cat; paint(); });
+    });
+    card.querySelector("[data-ev-imp]").addEventListener("change", e=>{ important = e.target.checked; });
+    card.querySelector("[data-ev-range]").addEventListener("change", e=>{
+      isRange = e.target.checked;
+      card.querySelector("[data-ev-to]").style.display = isRange ? "" : "none";
+    });
+    card.querySelectorAll("[data-star]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        const e = state.calendar.find(x=>x.id === b.dataset.star);
+        if(e){ e.important = !e.important; save(state); paint(); render(); }
+      });
+    });
+    card.querySelectorAll("[data-del-ev]").forEach(b=>{
+      b.addEventListener("click", ()=>{
+        state.calendar = state.calendar.filter(x=>x.id !== b.dataset.delEv);
+        state.lastFillDate = null; save(state); paint();
+      });
+    });
+    card.querySelector("[data-ev-add]").addEventListener("click", ()=>{
+      const txtEl = card.querySelector("[data-ev-text]");
+      const txt = txtEl.value.trim();
+      if(!txt){ txtEl.focus(); return; }
+      const toVal = isRange ? (card.querySelector("[data-ev-to]").value || dayStr) : null;
+      state.calendar.push({
+        id: uid("e"), cat, text: txt, from: dayStr,
+        to: (toVal && toVal > dayStr) ? toVal : null,
+        important, done:false
+      });
+      state.lastFillDate = null;
+      fillGoalsFromCalendar();
+      save(state); render(); paint();
+    });
+  };
+
+  paint();
+  if(!modal.classList.contains("open")){
+    modal.classList.add("open");
+    requestAnimationFrame(()=>card.classList.add("show"));
+  }
 }
 
 /* ---- 我的成长 ---- */
@@ -3010,7 +3343,7 @@ function renderTasks(){
     goals.forEach(g=>{
       const isRunning = running && running.goalId === g.id;
       rows += `
-        <div class="goal-row${g.done?" done":""}" data-gid="${g.id}">
+        <div class="goal-row${g.done?" done":""}${goalIsImportant(g)?" vip":""}" data-gid="${g.id}">
           <button class="goal-check" data-check>${g.done?"✓":""}</button>
           <input class="goal-input" data-text maxlength="${GOAL_MAX_LEN}" value="${g.text.replace(/"/g,'&quot;')}" placeholder="${t("goalPlaceholder")}">
           <div class="goal-ctrls">
@@ -3044,6 +3377,7 @@ function renderTasks(){
   el.innerHTML = `
     ${buildBanners()}
     <div class="card-title">${t("tasksTitle")}</div>
+    ${canCarryYesterday() ? `<button class="carry-btn" data-carry>↩︎ ${t("carryYesterday")}</button>` : ""}
     <div class="cat-grid">${blocks}</div>
     <div class="nav-bar">
       <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">📈</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
@@ -3057,6 +3391,21 @@ function renderTasks(){
     b.addEventListener("click", ()=>openNav(b.dataset.nav));
   });
   bindBanners(el);
+  const carry = el.querySelector("[data-carry]");
+  if(carry) carry.addEventListener("click", ()=>{
+    const y = state.goalsYesterday || {};
+    CATEGORIES.forEach(c=>{
+      const texts = y[c.id] || [];
+      const list = state.goals[c.id] || (state.goals[c.id] = []);
+      texts.forEach(txt=>{
+        if(list.some(g=>(g.text||"").trim() === txt)) return;
+        let slot = list.find(g=>!(g.text||"").trim());
+        if(!slot){ slot = blankGoal(); list.push(slot); }
+        slot.text = txt;
+      });
+    });
+    save(state); render();
+  });
 
   el.querySelectorAll(".cat-block").forEach(block=>{
     const catId = block.dataset.cat;
@@ -4298,12 +4647,12 @@ function shuffle(arr){
 // 六种心情：各有专属颜色和一张卡通脸。低落/焦虑/生气归为 low，
 // 用来决定小暖怎么回应，以及要不要提示去找信任的大人聊聊。
 const MOODS = [
-  {id:"great", tone:"#F5B32D", skin:"#FFE9B8", low:false, name:{zh:"超开心", en:"Great"}},
-  {id:"good",  tone:"#4CAF6E", skin:"#D7F2DF", low:false, name:{zh:"还不错", en:"Good"}},
-  {id:"meh",   tone:"#7E96A8", skin:"#E4EBF0", low:false, name:{zh:"一般般", en:"Meh"}},
-  {id:"down",  tone:"#5588CC", skin:"#DAE8F8", low:true,  name:{zh:"有点低落", en:"Down"}},
-  {id:"anx",   tone:"#8B6FE0", skin:"#E7DEFB", low:true,  name:{zh:"有点焦虑", en:"Anxious"}},
-  {id:"angry", tone:"#E2604F", skin:"#FBDDD8", low:true,  name:{zh:"有点生气", en:"Angry"}},
+  {id:"great", tone:"#D98A00", skin:"#FFD37A", low:false, name:{zh:"超开心", en:"Great"}},
+  {id:"good",  tone:"#2A8F4E", skin:"#A9E2BC", low:false, name:{zh:"还不错", en:"Good"}},
+  {id:"meh",   tone:"#556E80", skin:"#C2D2DC", low:false, name:{zh:"一般般", en:"Meh"}},
+  {id:"down",  tone:"#2F63AE", skin:"#AACBEE", low:true,  name:{zh:"有点低落", en:"Down"}},
+  {id:"anx",   tone:"#6242C8", skin:"#C8B6F4", low:true,  name:{zh:"有点焦虑", en:"Anxious"}},
+  {id:"angry", tone:"#C33E2C", skin:"#F5B3A8", low:true,  name:{zh:"有点生气", en:"Angry"}},
 ];
 const moodById = id => MOODS.find(m=>m.id===id);
 
@@ -5141,6 +5490,15 @@ async function doInstall(){
 /* ===================== 首页提示条 ===================== */
 
 // 今天第一个还没完成的非休闲目标，用于「先做 5 分钟」一键开始
+// 今天四个板块全空、而昨天写过东西时，给一个一键沿用的出口
+function canCarryYesterday(){
+  const y = state.goalsYesterday;
+  if(!y) return false;
+  const anyToday = CATEGORIES.some(c=>(state.goals[c.id]||[]).some(g=>(g.text||"").trim()));
+  if(anyToday) return false;
+  return CATEGORIES.some(c=>(y[c.id]||[]).length > 0);
+}
+
 function firstOpenGoal(){
   for(const c of CATEGORIES){
     if(c.kind === "fun") continue;
@@ -5384,6 +5742,7 @@ document.addEventListener("visibilitychange", ()=>{
   }
 });
 
+if(fillGoalsFromCalendar()) save(state);
 render();
 resumeSession();
 checkReminder();
