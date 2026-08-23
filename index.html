@@ -1966,16 +1966,16 @@ const I18N = {
     // 兜底
     careSay: "谢谢你告诉我这个。我很认真地听着，但我只是个小程序里的角色，帮不到真正需要的地方。",
     careSay2: "去说一次，不丢人，也不麻烦别人。你值得被认真对待。",
-    careTitle: "找一个真的人聊聊 💛",
+    careTitle: "找你的后援团聊聊 💛",
     careNoList: "你还没写过求助名单。现在花一分钟，写下一两个你信得过的人 —— 真难受的时候就不用现找了。",
     careSetup: "现在就写一个",
     careEditList: "修改名单",
     careCall: "拨打",
     careGeneric: "如果名单上的人一时联系不上：告诉此刻就在你身边的任何一个大人；学校一般都有心理老师，找他们聊是保密的，也不用担心被当成「有问题」；也可以搜索你所在国家/地区的心理援助热线。如果你有伤害自己的念头，请立刻找到身边的人，不要一个人待着。",
     // 求助名单
-    supTitle: "我的求助名单",
+    supTitle: "我的后援团",
     supSub: "只存在这台设备，谁也看不到",
-    supWhy: "写下你难受时愿意找的人。可以是家人、老师、朋友，也可以是你查到的本地心理援助热线。填了电话就能一键拨出去。",
+    supWhy: "写下难受的时候你愿意找的人 —— 他们就是站在你这边的后援团。家人、老师、朋友都行，也可以是你查到的本地心理援助热线。填了电话就能一键拨出去。",
     supName: "名字或称呼（比如：妈妈、王老师）",
     supTel: "电话（可以不填）",
     supAdd: "加到名单里",
@@ -2005,12 +2005,10 @@ const I18N = {
     meStreakLine: n => `连续 ${n} 天`,
     meCheckin: "打卡天数",
     jKept: "条心里话",
-    secGrowthLink: "看本周的进步",
     secMood: "我今天的心情",
     moodChartTitle: "情绪晴雨表 · 最近 7 天",
     secHollow: "我的树洞",
     secHollowSub: "想说什么就说什么，只有你自己看得到。",
-    secBuddy: "我的挚友",
     secSettings: "设置",
     chatWith: n => `主人，和${n}聊聊天吧`,
     supNudgeTitle: "顺手存两个人吧",
@@ -2045,10 +2043,12 @@ const I18N = {
     jListSub: n => `留下来的 ${n} 条 · 只存在这台设备`,
     jEmpty: "还没有悄悄话。\n心里有事的时候，回来说给它听。",
     optJournal: "我想说点悄悄话",
-    secBuddyLine: "难受的时候，去找这些真的人",
     remindChipOn: (hm,n) => `${n}每天 ${hm} 提醒你`,
     remindChipOff: n => `让${n}每天提醒你`,
+    remindChipOnPlain: hm => `每天 ${hm} 提醒你`,
+    remindChipOffPlain: "开启每日提醒",
     remindWho: n => `到点了${n}会来叫你`,
+    remindWhoPlain: "到点了会提醒你一次",
     jOpen: "翻看",
     moodWrite: "写点什么",
     shareFail: "这个浏览器没能弹出菜单",
@@ -2080,9 +2080,9 @@ const I18N = {
     // 专注段积分
     pomoPoints: n => `专注段 +${n} 分`,
     pomoPointsSub: "积分可以换休闲时间",
-    navLeaderboard: "我的进步",
     navRewards: "积分兑换",
-    navInfo: "信息板",
+    navInfo: "ProudMe小妙招",
+    navSquad: "后援团",
     navMe: "我的",
     meLevel: "等级",
     meXp: "累计经验",
@@ -2397,9 +2397,9 @@ const I18N = {
     careEditList: "Edit list",
     careCall: "Call",
     careGeneric: "If you can't reach anyone on your list: tell any adult who is near you right now; most schools have a counsellor and those conversations are confidential — it doesn't mean something is 'wrong' with you; you can also look up the crisis helpline for your own country or region. If you're having thoughts of hurting yourself, find someone now — don't stay on your own.",
-    supTitle: "My support list",
+    supTitle: "My squad",
     supSub: "Stored on this device only — nobody can see it",
-    supWhy: "Write down who you'd reach out to on a bad day. Family, a teacher, a friend — or a local helpline number you've looked up. Add a phone number and you can call with one tap.",
+    supWhy: "Write down who you'd reach out to on a bad day — the people in your corner. Family, a teacher, a friend, or a local helpline you've looked up. Add a phone number and you can call with one tap.",
     supName: "Name (e.g. Mum, Ms. Lee)",
     supTel: "Phone (optional)",
     supAdd: "Add to list",
@@ -2428,12 +2428,10 @@ const I18N = {
     meStreakLine: n => `${n}-day streak`,
     meCheckin: "Days in",
     jKept: "kept",
-    secGrowthLink: "See this week's progress",
     secMood: "My mood",
     moodChartTitle: "Mood barometer · last 7 days",
     secHollow: "My tree hollow",
     secHollowSub: "Say anything you like — only you can see it.",
-    secBuddy: "My people",
     secSettings: "Settings",
     chatWith: n => `Talk with ${n}`,
     supNudgeTitle: "Save a couple of people",
@@ -2466,10 +2464,12 @@ const I18N = {
     jListSub: n => `${n} kept · this device only`,
     jEmpty: "No secrets yet.\nCome tell it something when your head is full.",
     optJournal: "I want to tell you something",
-    secBuddyLine: "When things get hard, these are the real people",
     remindChipOn: (hm,n) => `${n} nudges you at ${hm}`,
     remindChipOff: n => `Let ${n} remind you daily`,
+    remindChipOnPlain: hm => `Daily nudge at ${hm}`,
+    remindChipOffPlain: "Turn on a daily nudge",
     remindWho: n => `${n} will come get you`,
+    remindWhoPlain: "You'll get one nudge at that time",
     jOpen: "Open",
     moodWrite: "Write something",
     shareFail: "This browser couldn't open the menu",
@@ -2498,9 +2498,9 @@ const I18N = {
     funRedeemed: min => `${min} min downtime`,
     pomoPoints: n => `Focus block +${n} pts`,
     pomoPointsSub: "Points buy downtime",
-    navLeaderboard: "Progress",
     navRewards: "Rewards",
-    navInfo: "Tips",
+    navInfo: "ProudMe Tips",
+    navSquad: "My squad",
     navMe: "Me",
     meLevel: "Level",
     meXp: "Total XP",
@@ -3072,7 +3072,8 @@ function buildToday(){
           <div class="today-line">${line}</div>`;
 }
 
-function buildProgress(card){
+// 本周对比（原「我的进步」的下半部分），现在挂在成长值页里
+function weekSectionHTML(){
   const cur  = weekDays(0);
   const prev = weekDays(1);
   const curP  = cur.reduce((s,d)=>s+d.p, 0);
@@ -3099,7 +3100,7 @@ function buildProgress(card){
       </div>`;
   });
 
-  card.innerHTML = navHeader("progTitle") + buildToday() + `
+  return `
     <div class="sec-label">${t("weekLabel")}</div>
     <div class="wk-kpis">
       <div class="wk-kpi"><b>${curP}</b><span>${t("progThisWeek")}</span></div>
@@ -3124,13 +3125,11 @@ function navHeader(titleKey, backTo){
 
 function renderNavContent(){
   const card = document.getElementById("navCard");
-  if(currentNav === "leaderboard") buildProgress(card);
-  else if(currentNav === "rewards") buildRewards(card);
+  if(currentNav === "rewards") buildRewards(card);
   else if(currentNav === "info") buildInfo(card);
   else if(currentNav === "me") buildMe(card);
   else if(currentNav === "me-growth") buildMeGrowth(card);
   else if(currentNav === "me-mood") buildMeMood(card);
-  else if(currentNav === "me-buddy") buildMeBuddy(card);
   else if(currentNav === "me-pet") buildMePet(card);
   else if(currentNav === "me-set") buildMeSettings(card);
   else if(currentNav === "me-cal") buildCalendar(card);
@@ -3249,13 +3248,6 @@ function buildMe(card){
           <div class="mb-line strong">${petCall()}</div>
           <div class="mb-line">${petFedToday() ? t("petFedTag") : t("petFeedTag")}</div>
         </div>
-      </div>
-
-      <div class="me-blk mb-buddy wide" data-go="me-buddy">
-        <div class="mb-head"><span class="mb-ic">💛</span><span class="mb-name">${t("secBuddy")}</span>
-          <span class="mb-tail">${state.support.length ? t("supCount", state.support.length) : t("supNotSet")} ›</span>
-        </div>
-        <div class="mb-body row"><div class="mb-line">${t("secBuddyLine")}</div></div>
       </div>
 
     </div>
@@ -3445,6 +3437,8 @@ function openDaySheet(dayStr){
 }
 
 /* ---- 我的成长 ---- */
+// 成长值 = 数字 + 今天的四象限 + 本周对比。
+// 原来的「我的进步」和这里说的是同一件事，只是被切成了两半，现在并回来。
 function buildMeGrowth(card){
   const effH = (state.effSecTotal/3600).toFixed(1);
   const stats = [
@@ -3457,11 +3451,9 @@ function buildMeGrowth(card){
   ];
   card.innerHTML = navHeader("secGrowth", "me") +
     `<div class="me-grid">${stats.map(x=>`<div class="me-stat"><b>${x.v}</b><span>${x.k}</span></div>`).join("")}</div>
-     <div class="me-proud">${t("meProud")}</div>
-     <button class="me-link" data-goto-progress>${t("secGrowthLink")} →</button>`;
-  card.querySelector("[data-goto-progress]").addEventListener("click", ()=>{
-    currentNav = "leaderboard"; renderNavContent();
-  });
+     <div class="me-proud">${t("meProud")}</div>` +
+    buildToday() +
+    weekSectionHTML();
 }
 
 /* ---- 我的心情 ---- */
@@ -3609,24 +3601,6 @@ function petGreet(){
   }, 2400);
 }
 
-/* ---- 我的挚友：现实里信得过的真人 ---- */
-function buildMeBuddy(card){
-  card.innerHTML = navHeader("secBuddy", "me") + `
-    <div class="ms-sub">${t("supWhy")}</div>
-    <div class="me-set">
-      <div class="s-row">
-        <span class="s-ic">🤝</span>
-        <span class="s-title">${t("supTitle")}
-          <em>${state.support.length ? t("supCount", state.support.length) : t("supNotSet")}</em>
-        </span>
-        <button class="me-tool" style="flex:0 0 auto" data-support>${t("supOpen")}</button>
-      </div>
-      <div class="s-note">${t("supNote")}</div>
-    </div>`;
-  card.querySelector("[data-support]").addEventListener("click", ()=>{
-    closeNav(); setTimeout(openSupportSheet, 240);
-  });
-}
 
 /* ---- 设置 ---- */
 function buildMeSettings(card){
@@ -3765,15 +3739,19 @@ function renderTasks(){
     ${canCarryYesterday() ? `<button class="carry-btn" data-carry>↩︎ ${t("carryYesterday")}</button>` : ""}
     <div class="cat-grid">${blocks}</div>
     <div class="nav-bar">
-      <button class="nav-item" data-nav="leaderboard"><span class="nav-ic">📈</span><span class="nav-lbl">${t("navLeaderboard")}</span></button>
-      <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
-      <button class="nav-item" data-nav="info"><span class="nav-ic">📖</span><span class="nav-lbl">${t("navInfo")}</span></button>
       <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
+      <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
+      <button class="nav-item" data-nav="info"><span class="nav-ic">💡</span><span class="nav-lbl">${t("navInfo")}</span></button>
+      <button class="nav-item" data-nav="squad"><span class="nav-ic">💛</span><span class="nav-lbl">${t("navSquad")}</span></button>
     </div>
   `;
 
   el.querySelectorAll(".nav-item").forEach(b=>{
-    b.addEventListener("click", ()=>openNav(b.dataset.nav));
+    b.addEventListener("click", ()=>{
+      // 后援团直接进求助名单，少一层点击
+      if(b.dataset.nav === "squad") openSupportSheet();
+      else openNav(b.dataset.nav);
+    });
   });
   bindBanners(el);
   const carry = el.querySelector("[data-carry]");
@@ -6150,7 +6128,10 @@ function buildBanners(){
   chips.push(`<div class="qk qk-remind">
     <button class="q-main" data-remind-open>
       <span class="q-ic">🔔</span><span class="q-txt">${
-        state.reminder ? t("remindChipOn", state.reminder, petCall()) : t("remindChipOff", petCall())}</span>
+        petName()
+          ? (state.reminder ? t("remindChipOn", state.reminder, petName()) : t("remindChipOff", petName()))
+          : (state.reminder ? t("remindChipOnPlain", state.reminder) : t("remindChipOffPlain"))
+      }</span>
     </button>
   </div>`);
 
@@ -6298,7 +6279,7 @@ function openRemindSheet(){
       <span class="nav-title">${t("remindTitle")}</span>
       <button class="nav-close" aria-label="close">✕</button>
     </div>
-    <div class="start-goal">${t("remindWho", petCall())}</div>
+    <div class="start-goal">${petName() ? t("remindWho", petName()) : t("remindWhoPlain")}</div>
     <div class="rem-row">
       <input type="time" data-remind value="${state.reminder || ""}">
       ${state.reminder ? `<button class="s-off" data-remind-off>${t("remindClear")}</button>` : ""}
