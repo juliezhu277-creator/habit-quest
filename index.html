@@ -1585,6 +1585,25 @@
   .bud-pick.on{border-color:var(--primary);background:#fff8f2;}
   .bud-pick:not(.on) .bp-face{opacity:.5;filter:saturate(.5);}
 
+  /* 连着一周难受时才出现：一个问句 + 两个出口，不施压 */
+  .mood-care{
+    margin-top:11px;padding:12px;border-radius:16px;
+    background:linear-gradient(160deg,#eef6ff,#e2eefb);
+    border:1px solid rgba(80,140,200,.2);
+  }
+  .mc-q{
+    font-size:13px;font-weight:800;color:#28567f;
+    line-height:1.6;margin-bottom:10px;text-align:center;
+  }
+  .mc-opt{
+    display:block;width:100%;margin-top:7px;padding:11px 10px;
+    border:none;border-radius:13px;cursor:pointer;font-family:inherit;
+    font-size:13px;font-weight:800;
+  }
+  .mc-opt.people{background:#2f7fbe;color:#fff;box-shadow:0 4px 12px rgba(47,127,190,.28);}
+  .mc-opt.pet{background:#fff;color:var(--primary-dark);box-shadow:inset 0 0 0 2px rgba(255,140,66,.45);}
+  .mc-opt:active{transform:scale(.97);}
+
   /* 心情卡里的一次性引导：低调、不吓人 */
   .sup-nudge{
     display:flex;align-items:center;gap:9px;margin-top:11px;
@@ -1939,7 +1958,11 @@ const I18N = {
     openManyLows: n => `我看了看，最近七天里有 ${n} 天你都不太好受。我一直在这儿，不过有些事，找一个真的人说会更有用。`,
     sayGood: "今天心情不错，把这份劲头用一点在想做的事上吧。",
     sayGoodDone: n => `今天已经 ${n} 个番茄钟了，你很棒。`,
-    sayLow: "今天不好受也没关系，不用勉强自己。想说说话吗？",
+    sayLow: "今天不好受也没关系，不用勉强自己。",
+    careAsk: "这一周都不太好受。想聊聊吗？",
+    careOptPeople: "联系最信任的朋友或老师",
+    careOptPet: n => `和${n}倾诉`,
+    careOptPetPlain: "和我的小宠物倾诉",
     // 选项
     optGoMood: "好，我去选一个",
     optSeeGoals: "看看今天的目标",
@@ -2084,7 +2107,6 @@ const I18N = {
     pomoPointsSub: "积分可以换休闲时间",
     navRewards: "积分兑换",
     navInfo: "ProudMe小妙招",
-    navSquad: "朋友圈",
     navMe: "我的",
     meLevel: "等级",
     meXp: "累计经验",
@@ -2356,7 +2378,11 @@ const I18N = {
     openManyLows: n => `I noticed ${n} of the last seven days have been rough. I'm here, but for some things, telling a real person helps more than I can.`,
     sayGood: "Good mood today — spend a little of it on something you want to do.",
     sayGoodDone: n => `${n} pomodoro${n===1?"":"s"} today already. You're doing great.`,
-    sayLow: "It's okay for today to be hard. No need to push. Want to talk?",
+    sayLow: "It's okay for today to be hard. No need to push.",
+    careAsk: "It's been a rough week. Want to talk?",
+    careOptPeople: "Reach a friend or teacher you trust",
+    careOptPet: n => `Tell ${n}`,
+    careOptPetPlain: "Tell my pet",
     optGoMood: "Okay, I'll pick one",
     optSeeGoals: "Show me today's goals",
     optWhyGood: "Let me say why I'm happy",
@@ -2490,7 +2516,6 @@ const I18N = {
     pomoPointsSub: "Points buy downtime",
     navRewards: "Rewards",
     navInfo: "ProudMe Tips",
-    navSquad: "My people",
     navMe: "Me",
     meLevel: "Level",
     meXp: "Total XP",
@@ -3732,15 +3757,12 @@ function renderTasks(){
       <button class="nav-item" data-nav="me"><span class="nav-ic">👤</span><span class="nav-lbl">${t("navMe")}</span></button>
       <button class="nav-item" data-nav="rewards"><span class="nav-ic">🎁</span><span class="nav-lbl">${t("navRewards")}</span></button>
       <button class="nav-item" data-nav="info"><span class="nav-ic">💡</span><span class="nav-lbl">${t("navInfo")}</span></button>
-      <button class="nav-item" data-nav="squad"><span class="nav-ic">💛</span><span class="nav-lbl">${t("navSquad")}</span></button>
     </div>
   `;
 
   el.querySelectorAll(".nav-item").forEach(b=>{
     b.addEventListener("click", ()=>{
-      // 后援团直接进求助名单，少一层点击
-      if(b.dataset.nav === "squad") openSupportSheet();
-      else openNav(b.dataset.nav);
+      openNav(b.dataset.nav);
     });
   });
   bindBanners(el);
@@ -5284,6 +5306,21 @@ function todayMood(){
   const rec = state.moods[todayStr()];
   return rec ? moodById(rec.m) : null;
 }
+// 最近 7 天里，记录过的日子全是低落/焦虑/生气，且至少记了 5 天。
+// 门槛刻意定得高：只有真的连着难受一周才开口问，否则就是在替人预设情绪。
+function hasLowWeek(){
+  let recorded = 0;
+  for(let i=0;i<7;i++){
+    const d = new Date(); d.setDate(d.getDate()-i);
+    const rec = state.moods[dateKey(d)];
+    if(!rec) continue;
+    const m = moodById(rec.m);
+    if(!m || !m.low) return false;      // 中间只要有一天不难受，就不算连着一周
+    recorded++;
+  }
+  return recorded >= 5;
+}
+
 // 最近 n 天里有几天是低落类心情
 function recentLowCount(n){
   let c = 0;
@@ -5342,9 +5379,13 @@ function moodSectionHTML(){
     <div class="mh-title">${cur ? t("moodPicked", L(cur.name)) : t("moodAsk")}</div>
     <div class="mh-sub">${cur ? t("moodChange") : t("moodSub")}</div>
     <div class="mood-row${cur?" picked":""}">${faces}</div>
-    ${cur ? `<div class="mood-say">
-        <span class="ms-txt">${escapeHtml(buddyLineFor(cur))}</span>
-      </div>` : ""}
+    ${cur ? (hasLowWeek()
+      ? `<div class="mood-care">
+           <div class="mc-q">${t("careAsk")}</div>
+           <button class="mc-opt people" data-care-people>🤝 ${t("careOptPeople")}</button>
+           <button class="mc-opt pet" data-care-pet>🐾 ${petName() ? t("careOptPet", petName()) : t("careOptPetPlain")}</button>
+         </div>`
+      : `<div class="mood-say"><span class="ms-txt">${escapeHtml(buddyLineFor(cur))}</span></div>`) : ""}
     <div class="bw-label">${t("moodChartTitle")}</div>
     <div class="bw-week">${week}</div>`;
 }
@@ -5353,6 +5394,10 @@ function bindMoodSection(el){
   el.querySelectorAll("[data-mood]").forEach(b=>{
     b.addEventListener("click", ()=>setMood(b.dataset.mood));
   });
+  const ppl = el.querySelector("[data-care-people]");
+  if(ppl) ppl.addEventListener("click", ()=>{ closeNav(); setTimeout(openSupportSheet, 240); });
+  const pet = el.querySelector("[data-care-pet]");
+  if(pet) pet.addEventListener("click", ()=>{ closeNav(); setTimeout(openJournal, 240); });
 }
 
 /* ---------- 树洞：想说什么就说什么 ---------- */
